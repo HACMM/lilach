@@ -20,4 +20,4 @@ public class Item implements Serializable {
     public String getType() { return type; }
     public double getPrice() { return price; }
     public void setPrice(double p) { price = p; }
-}}
+}

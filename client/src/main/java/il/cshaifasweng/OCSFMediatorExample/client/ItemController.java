@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
-import org.example.model.Item;
+import il.cshaifasweng.OCSFMediatorExample.client.Item;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ public class ItemController {
     private void onEditPrice() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/ItemEditView.fxml")
+                    getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/ItemEditView.fxml")
             );
             Parent root = loader.load();
             ItemEditController c = loader.getController();

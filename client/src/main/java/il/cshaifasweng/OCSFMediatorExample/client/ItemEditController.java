@@ -3,7 +3,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.example.model.Item;
+import il.cshaifasweng.OCSFMediatorExample.client.Item;
 
 public class ItemEditController {
     @FXML

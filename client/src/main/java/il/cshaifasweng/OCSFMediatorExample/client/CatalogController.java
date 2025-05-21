@@ -1,5 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
+import org.greenrobot.eventbus.EventBus;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
@@ -11,10 +14,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import org.example.model.Item;
-import org.example.network.CommunicationHandler;
-
+import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
+import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.getClient;
 import java.io.IOException;
+import javafx.application.Platform;
+import org.greenrobot.eventbus.Subscribe;
+import il.cshaifasweng.OCSFMediatorExample.client.Item;
 import java.util.List;
 
 public class CatalogController {
@@ -29,7 +34,7 @@ public class CatalogController {
 	@FXML
 	private TextField filterField;
 
-	private final CommunicationHandler comm = new CommunicationHandler();
+	//private final CommunicationHandler comm = new CommunicationHandler();
 
 	@FXML
 	public void initialize() {
@@ -51,8 +56,7 @@ public class CatalogController {
 				table.getItems().setAll(
 						items.stream()
 								.filter(item -> item.getName().toLowerCase().contains(filter)
-										|| item.getType().toLowerCase().contains(filter))
-								.toList()
+										|| item.getType().toLowerCase().contains(filter)).toList()
 				);
 			}
 		});
