@@ -1,4 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.client;
+package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import java.io.Serializable;
 
@@ -21,3 +21,4 @@ public class Item implements Serializable {
     public double getPrice() { return price; }
     public void setPrice(double p) { price = p; }
 }
+

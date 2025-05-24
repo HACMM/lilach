@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
+import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import org.greenrobot.eventbus.EventBus;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -19,7 +19,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.getClient;
 import java.io.IOException;
 import javafx.application.Platform;
 import org.greenrobot.eventbus.Subscribe;
-import il.cshaifasweng.OCSFMediatorExample.client.Item;
+
 import java.util.List;
 
 public class CatalogController {
@@ -37,7 +37,7 @@ public class CatalogController {
 	//private final CommunicationHandler comm = new CommunicationHandler();
 
 	@FXML
-	public void initialize() {
+	public void initialize() throws IOException {
 		getClient("", 3000).sendToServer("Catalog Initialized");
 		EventBus.getDefault().register(this);
 		nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
@@ -63,11 +63,11 @@ public class CatalogController {
 	}
 
 	@FXML
-	private void onRefreshClicked() {
+	private void onRefreshClicked() throws IOException {
 		loadCatalog();
 	}
 
-	private void loadCatalog() {
+	private void loadCatalog() throws IOException {
 		if (client != null && client.isConnected()) {
 			client.sendToServer("getCatalog");
 		}

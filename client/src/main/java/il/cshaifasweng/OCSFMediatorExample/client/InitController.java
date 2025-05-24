@@ -27,6 +27,7 @@ public class InitController {
 
     @FXML
     void initialize() {
+
         EventBus.getDefault().register(this);
     }
 
@@ -56,7 +57,7 @@ public class InitController {
 
 
     @Subscribe
-    public void startGame(String event) {
+    public void ShowCatalog(String event) {
         if (event.equals("showCatalog")) {
             Platform.runLater(() -> {
                 try {

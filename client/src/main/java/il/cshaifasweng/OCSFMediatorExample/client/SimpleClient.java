@@ -18,7 +18,16 @@ public class SimpleClient extends AbstractClient {
 
 	@Override
 	protected void handleMessageFromServer(Object msg) {
+		if (msg.getClass().equals(Warning.class)) {
+			EventBus.getDefault().post(new WarningEvent((Warning) msg));
+		} else {
+			String message = msg.toString();
+			System.out.println("Server: " + message);
 
+			if (message.startsWith("showCatalog")) {
+				EventBus.getDefault().post("showCatalog");
+			}
+		}
 	}
 
 
