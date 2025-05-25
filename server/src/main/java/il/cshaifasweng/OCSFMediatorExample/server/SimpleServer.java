@@ -6,16 +6,17 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 public class SimpleServer extends AbstractServer {
     private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
-
-    public SimpleServer(int port) {
+    private static DbConnector dbConnector = null;
+    public SimpleServer(int port, DbConnector dbConnector) {
         super(port);
-
+        this.dbConnector = dbConnector;
     }
 
     @Override
@@ -39,7 +40,8 @@ public class SimpleServer extends AbstractServer {
             }
         } else if (msgString.startsWith("getCatalog")) {
             try {
-                //TODO : must send the database from server
+                List<Item> catalog = dbConnector.GetItemList(new ArrayList<>());
+                //TODO : send catalog to client
                 client.sendToClient("showCatalog");
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -47,8 +49,8 @@ public class SimpleServer extends AbstractServer {
         } else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
-            //TODO : update the price in database
-
+            //TODO : send a reply to user?
+            boolean success = dbConnector.EditItem(updatedItem);
         } else if (msgString.startsWith("remove client")) {
             if (!SubscribersList.isEmpty()) {
                 for (SubscribedClient subscribedClient : SubscribersList) {
