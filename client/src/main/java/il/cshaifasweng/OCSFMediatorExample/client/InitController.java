@@ -61,7 +61,7 @@ public class InitController {
         if (event.equals("showCatalog")) {
             Platform.runLater(() -> {
                 try {
-                    setRoot("Catalog");
+                    setRoot("CatalogView");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

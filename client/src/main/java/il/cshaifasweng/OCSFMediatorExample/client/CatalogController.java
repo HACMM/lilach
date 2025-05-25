@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CatalogController {
 	@FXML
@@ -56,7 +57,7 @@ public class CatalogController {
 				table.getItems().setAll(
 						items.stream()
 								.filter(item -> item.getName().toLowerCase().contains(filter)
-										|| item.getType().toLowerCase().contains(filter)).toList()
+										|| item.getType().toLowerCase().contains(filter)).collect(Collectors.toList())
 				);
 			}
 		});
