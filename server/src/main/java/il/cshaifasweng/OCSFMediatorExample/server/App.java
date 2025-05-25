@@ -14,15 +14,7 @@ public class App
     {
         dbConnector = new DbConnector();
         dbConnector.AddTestData();
-        Item testItem = new Item();
-        testItem.setName("TestItem");
-        testItem.setDescription("TestItemDescription");
-        testItem.setPrice(-15.24);
-        dbConnector.AddItem(testItem);
-        List<Item> catalog = dbConnector.GetItemList(new ArrayList<>());
-        testItem.setPrice(999.99);
-        dbConnector.EditItem(testItem);
-        catalog = dbConnector.GetItemList(new ArrayList<>());
+
         server = new SimpleServer(3000, dbConnector);
         server.listen();
     }

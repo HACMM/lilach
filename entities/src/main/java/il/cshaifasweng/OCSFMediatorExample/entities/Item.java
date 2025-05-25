@@ -9,7 +9,8 @@ import javax.persistence.*;
 public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id") private int id;
+    @Column(name = "item_id", nullable = false, unique = true)
+    private int id;
     @Column(name = "name") private String name;
     @Column(name = "description") private String description;
     @Column(name = "type") private String type;
