@@ -74,7 +74,6 @@ public class DbConnector implements AutoCloseable {
             Transaction tx = session.beginTransaction();
             session.save(item);
             tx.commit();
-            session.flush();
             session.close();
         }
         return true;
@@ -90,7 +89,6 @@ public class DbConnector implements AutoCloseable {
             Transaction tx = session.beginTransaction();
             session.update(editedItem);
             tx.commit();
-            session.flush();
             session.close();
         }
         return true;
@@ -129,7 +127,6 @@ public class DbConnector implements AutoCloseable {
         // TODO: implement filtering
         List<Item> result = new ArrayList<>();
         try(Session session = sessionFactory.openSession()){
-            Transaction tx = session.beginTransaction();
             result = (List<Item>)session.createSQLQuery("SELECT * FROM Item").addEntity(Item.class).list();
             session.close();
         }
