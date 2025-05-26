@@ -33,6 +33,8 @@ public class CatalogController {
 	@FXML
 	private TableColumn<Item, Double> priceCol;
 	@FXML
+	private TableColumn<Item, javafx.scene.image.ImageView> imageCol;
+	@FXML
 	private TextField filterField;
 
 	@FXML
@@ -43,6 +45,12 @@ public class CatalogController {
 		nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
+		imageCol.setCellValueFactory(data -> {
+			String url = data.getValue().getImageLink();
+			javafx.scene.image.Image image = new javafx.scene.image.Image(url, 100, 100, true, true);
+			javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(image);
+			return new SimpleObjectProperty<>(imageView);
+		});
 		loadCatalog();
 	}
 

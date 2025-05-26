@@ -15,11 +15,12 @@
         </HBox>
     </top>
     <center>
-        <TableView fx:id="table" onMouseClicked="#onItemClicked">
+        <TableView fx:id="table" onMouseClicked="#onItemClicked" prefHeight="480.0" prefWidth="640.0">
             <columns>
-                <TableColumn fx:id="nameCol" text="Name" />
-                <TableColumn fx:id="typeCol" text="Type" />
-                <TableColumn fx:id="priceCol" text="Price" />
+                <TableColumn fx:id="nameCol" prefWidth="187.33331298828125" text="Name" />
+                <TableColumn fx:id="typeCol" prefWidth="138.00003051757812" text="Type" />
+                <TableColumn fx:id="priceCol" prefWidth="127.33334350585938" text="Price" />
+            <TableColumn fx:id="imageCol" prefWidth="184.66668701171875" text="image" />
             </columns>
         </TableView>
     </center>
