@@ -216,6 +216,7 @@ public class DbConnector implements AutoCloseable {
         Session session = sessionFactory.openSession();
         try{
             result = session.createQuery("FROM Item", Item.class).list();
+
            // result = (List<Item>)session.createSQLQuery("SELECT * FROM Item").list();
         }
         catch(Exception e){
