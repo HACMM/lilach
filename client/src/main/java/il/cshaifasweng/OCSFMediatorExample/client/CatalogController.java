@@ -81,7 +81,7 @@ public class CatalogController {
 			if (sel == null) return;
 			try {
 				FXMLLoader loader = new FXMLLoader(
-						getClass().getResource("/org/example/ItemView.fxml")
+						getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/ItemView.fxml")
 				);
 				Parent root = loader.load();
 				ItemController ctrl = loader.getController();

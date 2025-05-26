@@ -48,6 +48,8 @@ public class SimpleServer extends AbstractServer {
            // }
             try (DbConnector db = new DbConnector()) {
                 List<Item> items = db.GetItemList(new ArrayList<>());
+                System.out.println("Catalog received");
+                System.out.println(items);
                 client.sendToClient(items);
             } catch (Exception e) {
                 e.printStackTrace();

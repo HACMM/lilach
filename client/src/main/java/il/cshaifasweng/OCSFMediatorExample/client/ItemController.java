@@ -7,18 +7,23 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.scene.control.TextArea;
 
 import java.io.IOException;
 
 public class ItemController {
+    @FXML
+    private TextArea descriptionTextArea;
     @FXML private Label nameLabel, typeLabel, priceLabel;
     private Item item;
+
 
     public void init(Item item) {
         this.item = item;
         nameLabel.setText(item.getName());
         typeLabel.setText(item.getType());
         priceLabel.setText(String.valueOf(item.getPrice()));
+        descriptionTextArea.setText(item.getDescription());
     }
 
     @FXML
