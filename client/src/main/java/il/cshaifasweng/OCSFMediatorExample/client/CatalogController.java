@@ -38,6 +38,7 @@ public class CatalogController {
 	@FXML
 	public void initialize() throws IOException {
 		getClient("", 3000).sendToServer("Catalog Initialized");
+		System.out.println("Catalog initialized1.");
 		EventBus.getDefault().register(this);
 		nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
