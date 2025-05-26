@@ -1,11 +1,13 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import org.greenrobot.eventbus.EventBus;
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import java.io.IOException;
+import java.util.List;
 
 public class SimpleClient extends AbstractClient {
 
@@ -26,10 +28,17 @@ public class SimpleClient extends AbstractClient {
 
 			if (message.startsWith("showCatalog")) {
 				EventBus.getDefault().post("showCatalog");
+
+			} else if (msg instanceof List<?>) {
+				List<?> list = (List<?>) msg;
+				if (!list.isEmpty() && list.get(0) instanceof Item) {
+					List<Item> items = (List<Item>) list;
+					System.out.println("Received catalog with " + items.size() + " items.");
+					EventBus.getDefault().post(items);
+				}
 			}
 		}
 	}
-
 
 	public static SimpleClient getClient(String host, int port) {
 		if (client == null) {

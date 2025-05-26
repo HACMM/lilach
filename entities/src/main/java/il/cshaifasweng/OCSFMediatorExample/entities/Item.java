@@ -33,7 +33,7 @@ public class Item implements Serializable {
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
     public double getPrice() { return price; }
-    public void setPrice(double p) { price = p; }
+    public void setPrice(double p) { this.price = p; }
 
     public String getImageLink() {
         return imageLink;

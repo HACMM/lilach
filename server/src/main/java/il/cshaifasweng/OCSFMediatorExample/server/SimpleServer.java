@@ -13,7 +13,7 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 public class SimpleServer extends AbstractServer {
     private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
-    private static DbConnector dbConnector = null;
+    private DbConnector dbConnector = null;
     public SimpleServer(int port, DbConnector dbConnector) {
         super(port);
         this.dbConnector = dbConnector;
@@ -39,12 +39,18 @@ public class SimpleServer extends AbstractServer {
                 throw new RuntimeException(e);
             }
         } else if (msgString.startsWith("getCatalog")) {
-            try {
-                List<Item> catalog = dbConnector.GetItemList(new ArrayList<>());
+           // try {
+            //List<Item> catalog = dbConnector.GetItemList(new ArrayList<>());
                 //TODO : send catalog to client
-                client.sendToClient("showCatalog");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+               // client.sendToClient("showCatalog");
+          //  } catch (IOException e) {
+              // throw new RuntimeException(e);
+           // }
+            try (DbConnector db = new DbConnector()) {
+                List<Item> items = db.GetItemList(new ArrayList<>());
+                client.sendToClient(items);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;

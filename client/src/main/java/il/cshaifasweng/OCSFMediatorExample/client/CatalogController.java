@@ -35,8 +35,6 @@ public class CatalogController {
 	@FXML
 	private TextField filterField;
 
-	//private final CommunicationHandler comm = new CommunicationHandler();
-
 	@FXML
 	public void initialize() throws IOException {
 		getClient("", 3000).sendToServer("Catalog Initialized");
@@ -49,6 +47,7 @@ public class CatalogController {
 
 	@Subscribe
 	public void onCatalogReceived(List<Item> items) {
+		System.out.println("Catalog received");
 		Platform.runLater(() -> {
 			if (filterField.getText() == null || filterField.getText().isEmpty()) {
 				table.getItems().setAll(items);

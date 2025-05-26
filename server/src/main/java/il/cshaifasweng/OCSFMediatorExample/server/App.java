@@ -12,10 +12,10 @@ public class App
 	private static SimpleServer server;
     public static void main( String[] args ) throws IOException
     {
-        dbConnector = new DbConnector();
-        dbConnector.AddTestData();
+        DbConnector db = new DbConnector();
+        db.AddTestData();
 
-        server = new SimpleServer(3000, dbConnector);
+        server = new SimpleServer(3000, db);
         server.listen();
     }
 }
