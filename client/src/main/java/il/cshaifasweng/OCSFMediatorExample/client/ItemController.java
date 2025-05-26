@@ -22,7 +22,7 @@ public class ItemController {
         this.item = item;
         nameLabel.setText(item.getName());
         typeLabel.setText(item.getType());
-        priceLabel.setText(String.valueOf(item.getPrice())+"₪");
+        priceLabel.setText(String.valueOf(item.getPrice())+"$");
         descriptionTextArea.setText(item.getDescription());
     }
 
