@@ -11,7 +11,11 @@ public class ItemEditController {
     @FXML
     private TextField priceField;
     private Item item;
+    private ItemController parentController;
 
+    public void setParentController(ItemController parentController) {
+        this.parentController = parentController;
+    }
 
     public void init(Item item) {
         this.item = item;
@@ -31,7 +35,11 @@ public class ItemEditController {
             double newPrice = Double.parseDouble(priceField.getText().trim());
             item.setPrice(newPrice);
             System.out.println("[CLIENT] Sending item: " + item.getName() + ", new price: " + newPrice);
-            client.sendToServer(item);  //  this must print
+            if (parentController != null) {
+                parentController.updatePriceLabel(item.getPrice());
+            }
+
+            client.sendToServer(item);
 
             ((Stage) priceField.getScene().getWindow()).close();
         } catch (Exception e) {

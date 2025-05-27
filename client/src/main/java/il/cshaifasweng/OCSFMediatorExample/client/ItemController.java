@@ -17,6 +17,9 @@ public class ItemController {
     @FXML private Label nameLabel, typeLabel, priceLabel;
     private Item item;
 
+    public void updatePriceLabel(double newPrice) {
+        priceLabel.setText("Price: " + item.getPrice() + "$");
+    }
 
     public void init(Item item) {
         this.item = item;
@@ -35,6 +38,7 @@ public class ItemController {
             Parent root = loader.load();
             ItemEditController c = loader.getController();
             c.init(item);
+            c.setParentController(this);
             Stage st = new Stage();
             st.setScene(new Scene(root));
             st.show();

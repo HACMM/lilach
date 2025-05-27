@@ -50,14 +50,22 @@ public class CatalogController {
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
 		imageCol.setCellValueFactory(data -> {
-			String url = data.getValue().getImageLink();
-			if (url == null || url.isEmpty()) {
-				return new SimpleObjectProperty<>(new ImageView());
+			String path = "/images/" + data.getValue().getImageLink();  // לדוגמה: magnolia.jpg
+			Image image = null;
+
+			try {
+				image = new Image(getClass().getResourceAsStream(path));
+			} catch (Exception e) {
+				System.out.println("Failed to load image: " + path);
 			}
-			Image image = new Image(url, 100, 100, true, true, true); // ← background loading
+
 			ImageView imageView = new ImageView(image);
+			imageView.setFitWidth(100);
+			imageView.setFitHeight(100);
+			imageView.setPreserveRatio(true);
 			return new SimpleObjectProperty<>(imageView);
 		});
+
 
 		loadCatalog();
 	}
@@ -77,10 +85,6 @@ public class CatalogController {
 				);
 			}
 		});
-		System.out.println("=== Catalog Items ===");
-		for (Item item : items) {
-			System.out.println("ID: " + item.getId() + ", Name: " + item.getName());
-		}
 	}
 
 	@FXML

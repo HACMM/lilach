@@ -56,7 +56,7 @@ public class DbConnector implements AutoCloseable {
         flower.setDescription("Magnolia grandiflora, commonly known as the southern magnolia or bull bay, is a tree of the family Magnoliaceae native to the Southeastern United States, from Virginia to central Florida, and west to East Texas.");
         flower.setType("Flower");
         flower.setPrice(12.50);
-        flower.setImageLink("https://upload.wikimedia.org/wikipedia/commons/d/dc/Magn%C3%B2lia_a_Verbania.JPG");
+        flower.setImageLink("magnolia.jpg");
         toAdd.add(flower);
 
         flower = new Item();
@@ -64,7 +64,7 @@ public class DbConnector implements AutoCloseable {
         flower.setDescription("The common sunflower (Helianthus annuus) is a species of large annual forb of the daisy family Asteraceae.");
         flower.setType("Flower");
         flower.setPrice(7.50);
-        flower.setImageLink("https://upload.wikimedia.org/wikipedia/commons/4/40/Sunflower_sky_backdrop.jpg");
+        flower.setImageLink("sunflower.jpg");
         toAdd.add(flower);
 
         flower = new Item();
@@ -72,7 +72,7 @@ public class DbConnector implements AutoCloseable {
         flower.setDescription("A rose is either a woody perennial flowering plant of the genus Rosa in the family Rosaceae or the flower it bears. ");
         flower.setType("Flower");
         flower.setPrice(20.00);
-        flower.setImageLink("https://upload.wikimedia.org/wikipedia/commons/3/3a/Rosa_Precious_platinum.jpg");
+        flower.setImageLink("rose.jpg");
         toAdd.add(flower);
 
         flower = new Item();
@@ -80,7 +80,7 @@ public class DbConnector implements AutoCloseable {
         flower.setDescription("Bellis perennis, the daisy, is a European species of the family Asteraceae, often considered the archetypal species of the name daisy.");
         flower.setType("Flower");
         flower.setPrice(5.80);
-        flower.setImageLink("https://upload.wikimedia.org/wikipedia/commons/2/27/Bellis_perennis_001.JPG");
+        flower.setImageLink("daisy.JPG");
         toAdd.add(flower);
 
         flower = new Item();
@@ -88,7 +88,7 @@ public class DbConnector implements AutoCloseable {
         flower.setDescription("A poppy is a flowering plant in the subfamily Papaveroideae of the family Papaveraceae. Poppies are herbaceous plants, often grown for their colourful flowers.");
         flower.setType("Flower");
         flower.setPrice(10.50);
-        flower.setImageLink("https://upload.wikimedia.org/wikipedia/commons/7/71/Poppies_in_the_Sunset_on_Lake_Geneva.jpg");
+        flower.setImageLink("poppy.jpg");
         toAdd.add(flower);
 
         return AddItem(toAdd);
