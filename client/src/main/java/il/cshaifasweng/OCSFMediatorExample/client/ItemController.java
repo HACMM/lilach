@@ -34,10 +34,9 @@ public class ItemController {
             );
             Parent root = loader.load();
             ItemEditController c = loader.getController();
+            c.init(item);
             Stage st = new Stage();
             st.setScene(new Scene(root));
-            c.init(item);
-            c.setStage(st);
             st.show();
         } catch (IOException e) {
             e.printStackTrace();
