@@ -50,7 +50,7 @@ public class CatalogController {
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
 		imageCol.setCellValueFactory(data -> {
-			String path = "/images/" + data.getValue().getImageLink();  // לדוגמה: magnolia.jpg
+			String path = "/Images/" + data.getValue().getImageLink();
 			Image image = null;
 
 			try {

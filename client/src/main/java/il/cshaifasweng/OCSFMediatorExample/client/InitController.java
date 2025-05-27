@@ -90,18 +90,5 @@ public class InitController {
         }
     }
 
-
-//    @Subscribe
-//    public void ShowCatalog(String event) {
-//        if (event.equals("showCatalog")) {
-//            Platform.runLater(() -> {
-//                try {
-//                    setRoot("CatalogView");
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            });
-//        }
-//    }
 }
 

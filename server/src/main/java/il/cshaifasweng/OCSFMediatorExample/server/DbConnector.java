@@ -80,7 +80,7 @@ public class DbConnector implements AutoCloseable {
         flower.setDescription("Bellis perennis, the daisy, is a European species of the family Asteraceae, often considered the archetypal species of the name daisy.");
         flower.setType("Flower");
         flower.setPrice(5.80);
-        flower.setImageLink("daisy.JPG");
+        flower.setImageLink("daisy.jpg");
         toAdd.add(flower);
 
         flower = new Item();
