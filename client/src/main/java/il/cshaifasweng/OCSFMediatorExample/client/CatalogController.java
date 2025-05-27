@@ -19,6 +19,10 @@ import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.getClient;
 import java.io.IOException;
 import javafx.application.Platform;
 import org.greenrobot.eventbus.Subscribe;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,10 +51,14 @@ public class CatalogController {
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
 		imageCol.setCellValueFactory(data -> {
 			String url = data.getValue().getImageLink();
-			javafx.scene.image.Image image = new javafx.scene.image.Image(url, 100, 100, true, true);
-			javafx.scene.image.ImageView imageView = new javafx.scene.image.ImageView(image);
+			if (url == null || url.isEmpty()) {
+				return new SimpleObjectProperty<>(new ImageView());
+			}
+			Image image = new Image(url, 100, 100, true, true, true); // ← background loading
+			ImageView imageView = new ImageView(image);
 			return new SimpleObjectProperty<>(imageView);
 		});
+
 		loadCatalog();
 	}
 
@@ -69,6 +77,10 @@ public class CatalogController {
 				);
 			}
 		});
+		System.out.println("=== Catalog Items ===");
+		for (Item item : items) {
+			System.out.println("ID: " + item.getId() + ", Name: " + item.getName());
+		}
 	}
 
 	@FXML
