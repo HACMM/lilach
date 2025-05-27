@@ -12,21 +12,47 @@ public class ItemEditController {
     private TextField priceField;
     private Item item;
 
+    private Stage stage;
+
     public void init(Item item) {
         this.item = item;
         priceField.setText(String.valueOf(item.getPrice()));
     }
 
+    public void setStage(Stage stage){
+        this.stage = stage;
+    }
+
+//    @FXML
+//    private void onSave() {
+//        try {
+//            item.setPrice(Double.parseDouble(priceField.getText().trim()));
+//            client.sendToServer(item);
+//            ((Stage) priceField.getScene().getWindow()).close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     @FXML
     private void onSave() {
         try {
-            item.setPrice(Double.parseDouble(priceField.getText().trim()));
-            client.sendToServer(item);
-            ((Stage) priceField.getScene().getWindow()).close();
+            if (item == null) {
+                System.err.println("[ERROR] item is null!");
+                return;
+            }
+
+            double newPrice = Double.parseDouble(priceField.getText().trim());
+            item.setPrice(newPrice);
+            System.out.println("[CLIENT] Sending item: " + item.getName() + ", new price: " + newPrice);
+            client.sendToServer(item);  //  this must print
+
+            //((Stage) priceField.getScene().getWindow()).close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     private void onCancel() {

@@ -14,20 +14,36 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DbConnector implements AutoCloseable {
+    private static DbConnector instance;
     private static SessionFactory sessionFactory;
-    public DbConnector(){
+
+    private DbConnector() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(Item.class);
-        ServiceRegistry serviceRegistry = new
-                StandardServiceRegistryBuilder()
+        ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
                 .build();
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
     }
+
+    public static synchronized DbConnector getInstance() {
+        if (instance == null) {
+            instance = new DbConnector();
+        }
+        return instance;
+    }
+
+    public SessionFactory getSessionFactory() {
+        return sessionFactory;
+    }
+
     @Override
     public void close() throws Exception {
-        sessionFactory.close();
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
+
     public boolean AddTestData()
     {
         List<Item> catalog = GetItemList(new ArrayList<>());
@@ -116,10 +132,14 @@ public class DbConnector implements AutoCloseable {
     }
     public boolean EditItem(Item editedItem)
     {
+        System.out.println("error in session 1");
         Session session = sessionFactory.openSession();
+        System.out.println("no error in session 1");
+
         Transaction tx = null;
         try{
             tx = session.beginTransaction();
+            System.out.println("Is it getting here?");
             Item i = session.get(Item.class, editedItem.getId());
             i.setPrice(editedItem.getPrice());
             i.setImageLink(editedItem.getImageLink());

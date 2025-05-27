@@ -46,19 +46,31 @@ public class SimpleServer extends AbstractServer {
           //  } catch (IOException e) {
               // throw new RuntimeException(e);
            // }
-            try (DbConnector db = new DbConnector()) {
-                List<Item> items = db.GetItemList(new ArrayList<>());
-                System.out.println("Catalog received");
-                System.out.println(items);
+
+            DbConnector db = DbConnector.getInstance();
+            List<Item> items = db.GetItemList(new ArrayList<>());
+            System.out.println("Catalog received");
+            System.out.println(items);
+            try {
                 client.sendToClient(items);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception e) { e.printStackTrace(); }
         } else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
             //TODO : send a reply to user?
-            boolean success = dbConnector.EditItem(updatedItem);
+            boolean success = DbConnector.getInstance().EditItem(updatedItem);
+            if (success){
+                System.out.println("Item edited successfully");
+                List<Item> updatedCatalog = DbConnector.getInstance().GetItemList(new ArrayList<>());
+                try {
+                    client.sendToClient(updatedCatalog); // Updating the view
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else{
+                System.out.println("Item could not be edited");
+            }
+
         } else if (msgString.startsWith("remove client")) {
             if (!SubscribersList.isEmpty()) {
                 for (SubscribedClient subscribedClient : SubscribersList) {

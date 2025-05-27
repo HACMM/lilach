@@ -12,7 +12,7 @@ public class App
 	private static SimpleServer server;
     public static void main( String[] args ) throws IOException
     {
-        DbConnector db = new DbConnector();
+        DbConnector db = DbConnector.getInstance();
         db.AddTestData();
 
         server = new SimpleServer(3000, db);

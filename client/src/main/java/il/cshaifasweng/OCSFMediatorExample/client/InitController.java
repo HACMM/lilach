@@ -9,7 +9,11 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import java.io.IOException;
@@ -54,18 +58,50 @@ public class InitController {
         }
     }
 
+    private boolean isCatalogVisible() {
+        Scene scene = Stage.getWindows().stream()
+                .filter(Window::isShowing)
+                .findFirst()
+                .map(Window::getScene)
+                .orElse(null);
+
+        if (scene == null) return false;
+
+        // Use an ID or node check to detect if it's the catalog
+        Node root = scene.getRoot();
+        return root.lookup("#catalogTable") != null;  // or any node unique to CatalogView
+    }
+
 
     @Subscribe
     public void ShowCatalog(String event) {
         if (event.equals("showCatalog")) {
             Platform.runLater(() -> {
-                try {
-                    setRoot("CatalogView");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                if (!isCatalogVisible()) {
+                    try {
+                        setRoot("CatalogView");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    System.out.println("[INFO] Already in CatalogView — not reloading.");
                 }
             });
         }
     }
+
+
+//    @Subscribe
+//    public void ShowCatalog(String event) {
+//        if (event.equals("showCatalog")) {
+//            Platform.runLater(() -> {
+//                try {
+//                    setRoot("CatalogView");
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            });
+//        }
+//    }
 }
 
