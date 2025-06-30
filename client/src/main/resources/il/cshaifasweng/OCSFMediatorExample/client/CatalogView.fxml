@@ -12,6 +12,7 @@
         <HBox spacing="8">
             <TextField fx:id="filterField" promptText="Search..." />
             <Button onAction="#onRefreshClicked" text="Refresh" />
+         <Button fx:id="LoginBtn" mnemonicParsing="false" onAction="#LogIn" text="Log in" />
         </HBox>
     </top>
     <center>

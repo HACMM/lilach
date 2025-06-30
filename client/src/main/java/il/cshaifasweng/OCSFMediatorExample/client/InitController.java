@@ -30,7 +30,6 @@ public class InitController {
 
     @FXML
     void initialize() {
-
         EventBus.getDefault().register(this);
     }
 
