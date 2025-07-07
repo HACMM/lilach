@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import javafx.scene.control.Button;
 import org.greenrobot.eventbus.EventBus;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,6 +17,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.getClient;
+
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import javafx.application.Platform;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,6 +43,9 @@ public class CatalogController {
 	private TableColumn<Item, javafx.scene.image.ImageView> imageCol;
 	@FXML
 	private TextField filterField;
+	@FXML
+	private Button LoginBtn;
+
 
 	@FXML
 	public void initialize() throws IOException {
@@ -50,7 +56,7 @@ public class CatalogController {
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
 		imageCol.setCellValueFactory(data -> {
-			String path = "/Images/" + data.getValue().getImageLink();
+			String path = "/images/" + data.getValue().getImageLink();  // לדוגמה: magnolia.jpg
 			Image image = null;
 
 			try {
@@ -116,6 +122,21 @@ public class CatalogController {
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
+		}
+	}
+
+	public void LogIn(javafx.event.ActionEvent actionEvent) {
+		try {
+			FXMLLoader loader = new FXMLLoader(
+					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/LoginView.fxml")
+			);
+			Parent root = loader.load();
+			Stage stage = new Stage();
+			stage.setTitle("Login");
+			stage.setScene(new Scene(root));
+			stage.show();
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 	}
 }
