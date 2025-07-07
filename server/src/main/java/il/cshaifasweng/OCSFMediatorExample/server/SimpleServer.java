@@ -13,10 +13,15 @@ import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
 public class SimpleServer extends AbstractServer {
     private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
-    private DbConnector dbConnector = null;
-    public SimpleServer(int port, DbConnector dbConnector) {
+
+    // TODO: 1) declare instance of the manager you need for a request handling
+    private ItemManager itemManager = null;
+
+    public SimpleServer(int port) {
         super(port);
-        this.dbConnector = dbConnector;
+        var sessionFactory = DbConnector.getInstance().getSessionFactory();
+        // TODO: 2) create an instance of the manager you need
+        this.itemManager = new ItemManager(sessionFactory);
     }
 
     @Override
@@ -58,7 +63,7 @@ public class SimpleServer extends AbstractServer {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
             //TODO : send a reply to user?
-            boolean success = DbConnector.getInstance().EditItem(updatedItem);
+            boolean success =  DbConnector.getInstance().EditItem(updatedItem);
             if (success){
                 System.out.println("Item edited successfully");
                 List<Item> updatedCatalog = DbConnector.getInstance().GetItemList(new ArrayList<>());
