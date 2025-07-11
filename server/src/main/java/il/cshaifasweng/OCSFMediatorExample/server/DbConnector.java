@@ -20,6 +20,9 @@ public class DbConnector implements AutoCloseable {
                 .applySettings(configuration.getProperties())
                 .build();
         sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+
+        ItemManager itemManager = new ItemManager(sessionFactory);
+        itemManager.AddTestItems();
     }
 
     public static synchronized DbConnector getInstance() {
