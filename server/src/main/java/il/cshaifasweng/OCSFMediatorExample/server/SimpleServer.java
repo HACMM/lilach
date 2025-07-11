@@ -52,8 +52,8 @@ public class SimpleServer extends AbstractServer {
               // throw new RuntimeException(e);
            // }
 
-            DbConnector db = DbConnector.getInstance();
-            List<Item> items = db.GetItemList(new ArrayList<>());
+
+            List<Item> items = itemManager.GetItemList(new ArrayList<>());
             System.out.println("Catalog received");
             System.out.println(items);
             try {
@@ -63,10 +63,10 @@ public class SimpleServer extends AbstractServer {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
             //TODO : send a reply to user?
-            boolean success =  DbConnector.getInstance().EditItem(updatedItem);
+            boolean success =  itemManager.EditItem(updatedItem);
             if (success){
                 System.out.println("Item edited successfully");
-                List<Item> updatedCatalog = DbConnector.getInstance().GetItemList(new ArrayList<>());
+                List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
                 try {
                     client.sendToClient(updatedCatalog); // Updating the view
                 } catch (IOException e) {
