@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MainPageController"
+            styleClass="anchor-pane root"
+            prefWidth="800" prefHeight="600"
+            style="
+              -fx-background-image: url('/images/flower_background.png');
+              -fx-background-repeat: no-repeat;
+              -fx-background-size: cover;
+              -fx-background-position: center;
+            ">
+
+    <children>
+        <Text text="Welcome to our Floral Shop"
+              styleClass="title"
+              AnchorPane.topAnchor="40"
+              AnchorPane.leftAnchor="50" />
+
+        <Label text="Where every bloom brightens your day!"
+               styleClass="welcome"
+               style="-fx-font-size: 18px;"
+               wrapText="true"
+               maxWidth="400"
+               AnchorPane.topAnchor="80"
+               AnchorPane.leftAnchor="50" />
+
+        <FlowPane AnchorPane.topAnchor="160"
+                  AnchorPane.leftAnchor="50"
+                  AnchorPane.rightAnchor="50"
+                  hgap="20"
+                  vgap="20"
+                  alignment="CENTER">
+            <Button fx:id="browseBtn"
+                    text="Browse Catalog"
+                    onAction="#onBrowseClicked"
+                    styleClass="button primary"
+                    prefWidth="180" prefHeight="60" />
+            <Button fx:id="ordersBtn"
+                    text="My Orders"
+                    onAction="#onOrdersClicked"
+                    styleClass="button secondary"
+                    prefWidth="180" prefHeight="60" />
+            <Button fx:id="complaintsBtn"
+                    text="Complaints"
+                    onAction="#onComplaintsClicked"
+                    styleClass="button secondary"
+                    prefWidth="180" prefHeight="60" />
+            <Button fx:id="reportsBtn"
+                    text="Reports"
+                    onAction="#onReportsClicked"
+                    styleClass="button secondary"
+                    prefWidth="180" prefHeight="60" />
+        </FlowPane>
+
+        <Button text="Log In"
+                onAction="#onLoginClicked"
+                styleClass="button primary"
+                AnchorPane.topAnchor="20"
+                AnchorPane.rightAnchor="20" />
+    </children>
+</AnchorPane>

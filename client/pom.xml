@@ -10,6 +10,7 @@
 	</parent>
 	<groupId>il.cshaifasweng.OCSFMediatorExample</groupId>
 	<artifactId>client</artifactId>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.openjfx</groupId>
@@ -42,7 +43,16 @@
 			<artifactId>entities</artifactId>
 		</dependency>
 	</dependencies>
+
 	<build>
+		<!-- make sure resources (FXML/CSS/etc) are packaged -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+
 		<plugins>
 			<plugin>
 				<groupId>org.openjfx</groupId>

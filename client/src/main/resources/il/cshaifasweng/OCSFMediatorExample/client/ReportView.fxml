@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ReportViewController"
+            prefWidth="500" prefHeight="360"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="anchor-pane root"
+            style="
+              -fx-background-color: white;
+              -fx-padding: 20;
+              -fx-border-radius: 8;
+              -fx-background-radius: 8;
+            ">
+    <children>
+        <!-- header with back arrow and title -->
+        <HBox spacing="10" layoutX="10" layoutY="10" alignment="CENTER_LEFT">
+            <Button text="←" onAction="#onBack" styleClass="back-button" prefWidth="40" prefHeight="30"/>
+            <Label text="Submit Report" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
+        </HBox>
+
+        <TextArea fx:id="reportText" layoutX="20" layoutY="55" prefWidth="460" prefHeight="220"
+                  promptText="Describe issue or feedback..." wrapText="true"/>
+
+        <Button fx:id="submitBtn" layoutX="20" layoutY="290" text="Submit" prefWidth="100" onAction="#onSubmit"/>
+    </children>
+</AnchorPane>

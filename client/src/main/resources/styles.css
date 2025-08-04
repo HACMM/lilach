@@ -1,0 +1,127 @@
+/*── base font & background ─────────────────────────────────────────*/
+.root {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 16px;
+    -fx-background-color: #FFF9F2;
+}
+
+/*── page titles ───────────────────────────────────────────────────*/
+.title {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #911D69;
+}
+
+/*── welcome banner / subtitle ─────────────────────────────────────*/
+.welcome {
+    -fx-font-family: "Georgia", serif;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #5A3E6B;
+    -fx-padding: 0 0 12px 0;
+}
+
+/*── primary buttons ───────────────────────────────────────────────*/
+.button.primary {
+    -fx-background-color: linear-gradient(to right, #F8C8DC, #FFB3D1);
+    -fx-text-fill: #471133;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 10 18;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);
+}
+
+/*── secondary buttons ─────────────────────────────────────────────*/
+.button.secondary {
+    -fx-background-color: linear-gradient(to right, #C8F8E0, #98E1C1);
+    -fx-text-fill: #255644;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 10 18;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+}
+
+/*── text fields & inputs ──────────────────────────────────────────*/
+.text-field, .combo-box, .text-area, .date-picker, .password-field {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-color: #DDDDDD;
+    -fx-border-radius: 6;
+    -fx-padding: 8px;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}
+
+/*── floral watermark ─────────────────────────────────────────────*/
+.anchor-pane {
+    -fx-background-image: url("/images/flower_background.png");
+    -fx-background-size: cover;
+}
+
+/*── back button refinements ───────────────────────────────────────*/
+.back-button {
+    -fx-background-color: linear-gradient(to right, #e8e4f2, #dcd3eb);
+    -fx-text-fill: #3f2b5b;
+    -fx-background-radius: 6;
+    -fx-border-color: #5A3E6B;
+    -fx-border-radius: 6;
+    -fx-padding: 4 12;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);
+}
+.back-button:hover {
+    -fx-effect: dropshadow(gaussian, rgba(90,62,107,0.4), 6, 0, 0, 2);
+}
+.back-button:focused {
+    -fx-border-color: #a475d1;
+    -fx-border-width: 2;
+}
+
+/*── hyperlink-like label ─────────────────────────────────────────*/
+.link-label {
+    -fx-text-fill: #5A3E6B;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+}
+.link-label:hover {
+    -fx-underline: true;
+}
+
+/*── form panel for contrast ──────────────────────────────────────*/
+.form-panel {
+    -fx-background-color: rgba(255,255,255,0.85);
+    -fx-background-radius: 12;
+    -fx-padding: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);
+}
+
+/*── input focus states ───────────────────────────────────────────*/
+.text-field:focused, .password-field:focused, .text-area:focused, .combo-box:focused {
+    -fx-border-color: #8A2BE2;
+    -fx-border-width: 2;
+}
+
+/*── primary button disabled state ───────────────────────────────*/
+.button.primary:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+/*── accessible focus outline for buttons ────────────────────────*/
+.button:focused {
+    -fx-border-color: #8A2BE2;
+    -fx-border-width: 2;
+}
+
+/*── warning / error label reserve space ─────────────────────────*/
+.warning-label {
+    -fx-text-fill: #b00020;
+    -fx-min-height: 18px;
+    -fx-font-size: 12px;
+}
