@@ -5,7 +5,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.persistence.*;
@@ -115,6 +117,12 @@ public class UserAccount implements Serializable {
     @Embedded
     private PaymentMethod defaultPaymentMethod;
 
+    @OneToMany(mappedBy = "userAccount")
+    private Set<Order> orderSet = new HashSet<>();
+
+    @OneToMany(mappedBy = "userAccount")
+    private Set<Complaint> complaintSet = new HashSet<>();
+
     public UserAccount(String login, String password, PaymentMethod defaultPaymentMethod) {
         this.login = login;
         // Generate salt, calculate hash, set salt and hash
@@ -171,5 +179,21 @@ public class UserAccount implements Serializable {
 
     public void setDefaultPaymentMethod(PaymentMethod defaultPaymentMethod) {
         this.defaultPaymentMethod = defaultPaymentMethod;
+    }
+
+    public Set<Order> getOrderSet() {
+        return orderSet;
+    }
+
+    public void setOrderSet(Set<Order> orderSet) {
+        this.orderSet = orderSet;
+    }
+
+    public Set<Complaint> getComplaintSet() {
+        return complaintSet;
+    }
+
+    public void setComplaintSet(Set<Complaint> complaintSet) {
+        this.complaintSet = complaintSet;
     }
 }

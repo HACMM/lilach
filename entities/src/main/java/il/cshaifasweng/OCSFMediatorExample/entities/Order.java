@@ -16,15 +16,16 @@ public class Order implements Serializable {
     private int id;
     @Column(name = "status") private String status;
 
-    @Column(name = "client_id") private String clientId;
+
+    @ManyToOne(optional = false)
+    private UserAccount userAccount;
 
     @ManyToMany
     @JoinTable(
             name = "items_in_order",
             joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "course_id")
+            inverseJoinColumns = @JoinColumn(name = "item_id")
     )
-
     private Set<Item> itemSet = new HashSet<>();
 
     @Embedded
@@ -35,15 +36,15 @@ public class Order implements Serializable {
     }
 
     // Using client default payment method
-    public Order(String ClientId, Set<Item> itemSet) {
-        this.clientId = ClientId;
+    public Order(UserAccount userAccount, Set<Item> itemSet) {
+        this.userAccount = userAccount;
         this.itemSet = itemSet;
-        this.setPaymentMethod(clientId);
+        this.useDefaultPaymentMethod();
     }
 
     // Using payment method other than users default payment method
-    public Order(String ClientId, Set<Item> itemSet, PaymentMethod paymentMethod) {
-        this.clientId = ClientId;
+    public Order(UserAccount userAccount, Set<Item> itemSet, PaymentMethod paymentMethod) {
+        this.userAccount = userAccount;
         this.itemSet = itemSet;
         this.paymentMethod = paymentMethod;
     }
@@ -72,14 +73,6 @@ public class Order implements Serializable {
         this.itemSet = items;
     }
 
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
@@ -88,7 +81,15 @@ public class Order implements Serializable {
         this.paymentMethod = paymentMethod;
     }
 
-    public void setPaymentMethod(String clientId) {
-        // TODO: implement using UserAccountManager
+    public void useDefaultPaymentMethod() {
+        this.paymentMethod = this.userAccount.getDefaultPaymentMethod();
+    }
+
+    public UserAccount getUserAccount() {
+        return userAccount;
+    }
+
+    public void setUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 }
