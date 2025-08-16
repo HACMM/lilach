@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "Order")
+@Table(name = "ItemOrder")
 public class Order implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
