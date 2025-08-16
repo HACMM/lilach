@@ -114,14 +114,19 @@ public class UserAccount implements Serializable {
     @Column(name = "login") private String login;
     @Column(name = "hash") private String hash;
     @Column(name = "salt") private String salt;
+    @Column(name = "is_active") private boolean is_active;
     @Embedded
     private PaymentMethod defaultPaymentMethod;
 
-    @OneToMany(mappedBy = "userAccount")
+    @OneToMany(mappedBy = "userAccount", orphanRemoval = false)
     private Set<Order> orderSet = new HashSet<>();
 
-    @OneToMany(mappedBy = "userAccount")
+    @OneToMany(mappedBy = "userAccount", orphanRemoval = false)
     private Set<Complaint> complaintSet = new HashSet<>();
+
+    // TODO: should we make this set specific for a ManagerAccount?
+    @OneToMany(mappedBy = "managerAccount", orphanRemoval = false)
+    private  Set<Complaint> managerComplaintSet = new HashSet<>();
 
     public UserAccount(String login, String password, PaymentMethod defaultPaymentMethod) {
         this.login = login;
@@ -195,5 +200,21 @@ public class UserAccount implements Serializable {
 
     public void setComplaintSet(Set<Complaint> complaintSet) {
         this.complaintSet = complaintSet;
+    }
+
+    public boolean isIs_active() {
+        return is_active;
+    }
+
+    public void setIs_active(boolean is_active) {
+        this.is_active = is_active;
+    }
+
+    public Set<Complaint> getManagerComplaintSet() {
+        return managerComplaintSet;
+    }
+
+    public void setManagerComplaintSet(Set<Complaint> managerComplaintSet) {
+        this.managerComplaintSet = managerComplaintSet;
     }
 }

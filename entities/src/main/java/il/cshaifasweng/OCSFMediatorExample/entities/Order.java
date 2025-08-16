@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,9 @@ public class Order implements Serializable {
 
     @Embedded
     private PaymentMethod paymentMethod;
+
+    @OneToMany(mappedBy = "order")
+    private Collection<Complaint> complaints = new HashSet<>();
 
     protected Order() {
 
@@ -91,5 +95,13 @@ public class Order implements Serializable {
 
     public void setUserAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
+    }
+
+    public Collection<Complaint> getComplaints() {
+        return complaints;
+    }
+
+    public void setComplaints(Collection<Complaint> complaints) {
+        this.complaints = complaints;
     }
 }
