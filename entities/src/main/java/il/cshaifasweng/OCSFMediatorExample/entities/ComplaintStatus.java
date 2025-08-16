@@ -5,6 +5,6 @@ public enum ComplaintStatus {
     UnderReview,        // Complaint is under review
     WaitingForResponse, // Additional information from a customer is required
     Rejected,           // Complaint is rejected
-    Satisfied           // Complaint is satisfied
+    Approved           // Complaint is approved
 }
 
