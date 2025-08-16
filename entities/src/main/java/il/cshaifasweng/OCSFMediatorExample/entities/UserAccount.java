@@ -112,6 +112,7 @@ public class UserAccount implements Serializable {
     @Column(name = "login") private String login;
     @Column(name = "hash") private String hash;
     @Column(name = "salt") private String salt;
+    @Embedded
     private PaymentMethod defaultPaymentMethod;
 
     public UserAccount(String login, String password, PaymentMethod defaultPaymentMethod) {
