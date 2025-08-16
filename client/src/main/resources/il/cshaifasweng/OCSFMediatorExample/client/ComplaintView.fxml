@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ComplaintController"
+            prefWidth="600" prefHeight="400"
+            styleClass="anchor-pane root">
+
+    <children>
+        <!-- Header with back button + title -->
+        <HBox spacing="12"
+              alignment="CENTER_LEFT"
+              AnchorPane.topAnchor="20"
+              AnchorPane.leftAnchor="20">
+            <Button fx:id="backBtn"
+                    onAction="#onBack"
+                    styleClass="button secondary back-button"
+                    accessibleText="Go back">
+                <graphic>
+                    <HBox spacing="4" alignment="CENTER">
+                        <Label text="←"/>
+                        <Label text="Back"/>
+                    </HBox>
+                </graphic>
+            </Button>
+            <Label text="Submit a Complaint"
+                   styleClass="title"/>
+        </HBox>
+
+        <!-- Complaint Type selector -->
+        <Label text="Complaint Type:"
+               AnchorPane.topAnchor="70"
+               AnchorPane.leftAnchor="20"/>
+        <ComboBox fx:id="typeCombo"
+                  prefWidth="200"
+                  AnchorPane.topAnchor="65"
+                  AnchorPane.leftAnchor="140">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Service"/>
+                    <String fx:value="Product Quality"/>
+                    <String fx:value="Delivery Delay"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+
+        <!-- Description field -->
+        <Label text="Description:"
+               AnchorPane.topAnchor="120"
+               AnchorPane.leftAnchor="20"/>
+        <TextArea fx:id="descriptionArea"
+                  wrapText="true"
+                  prefWidth="550"
+                  prefHeight="150"
+                  AnchorPane.topAnchor="150"
+                  AnchorPane.leftAnchor="20"/>
+
+        <!-- Submit button -->
+        <Button text="Send Complaint"
+                onAction="#onSendComplaint"
+                styleClass="button primary"
+                AnchorPane.bottomAnchor="20"
+                AnchorPane.rightAnchor="20"/>
+    </children>
+</AnchorPane>

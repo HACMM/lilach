@@ -1,12 +1,16 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "Complaint")
-public class Complaint {
+@Table(name = "complaints")
+public class Complaint implements Serializable {
+
+    // Unique ID for each complaint
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "complaint_id", nullable = false, unique = true)
@@ -15,10 +19,20 @@ public class Complaint {
     @ManyToOne(optional = false)
     private UserAccount userAccount;
 
+    // Category of the complaint (e.g., Service, Product Quality, Delivery Delay)
+    @Column(nullable = false)
+    private String type;
+
     @ManyToOne(optional = false)
     private Order order;
 
-    @Column(name = "description") private String description;
+    // Full description of what went wrong
+    @Column(name = "description", nullable = false, length = 2000)
+    private String description;
+
+    // Timestamp when the complaint was submitted
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "complaint", orphanRemoval = true)
     private Set<ComplaintEvent> complaintHistory = new HashSet<ComplaintEvent>();
@@ -26,9 +40,19 @@ public class Complaint {
     @ManyToOne(optional = false)
     private UserAccount managerAccount;
 
+    // Default constructor for JPA and serialization
+    protected Complaint() {}
+
+    public Complaint(String complaintType, String description){
+        this.type = complaintType;
+        this.description = description;
+        this.createdAt = LocalDateTime.now();
+    }
+
     public int getCompalint_id() {
         return compalint_id;
     }
+
     public UserAccount getManagerAccount() {
         return managerAccount;
     }
@@ -43,6 +67,13 @@ public class Complaint {
 
     public void setUserAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
+    }
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Order getOrder() {
@@ -67,5 +98,12 @@ public class Complaint {
 
     public void setComplaintHistory(Set<ComplaintEvent> complaintHistory) {
         this.complaintHistory = complaintHistory;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }
