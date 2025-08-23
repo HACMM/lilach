@@ -1,6 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -17,9 +19,11 @@ public class Item implements Serializable {
     @Column(name = "price") private double price;
     @Column(name = "image_link") private String imageLink;
 
-    public Item() {}
-    public Item(int id, String name, String type, double price) {
-        this.id = id;
+    @OneToMany(mappedBy = "primaryKey.item", cascade = CascadeType.ALL)
+    private Set<ItemSale> sales = new HashSet<>();
+
+    protected Item() {}
+    public Item(String name, String type, double price) {
         this.name = name;
         this.type = type;
         this.price = price;
@@ -41,6 +45,18 @@ public class Item implements Serializable {
 
     public void setImageLink(String imageLink) {
         this.imageLink = imageLink;
+    }
+
+    public Set<ItemSale> getSales() {
+        return sales;
+    }
+
+    public void setSales(Set<ItemSale> sales) {
+        this.sales = sales;
+    }
+
+    public void addSale(ItemSale sale) {
+        sales.add(sale);
     }
 }
 

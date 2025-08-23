@@ -19,6 +19,8 @@ public class DbConnector implements AutoCloseable {
         configuration.addAnnotatedClass(Complaint.class);
         configuration.addAnnotatedClass(Order.class);
         configuration.addAnnotatedClass(UserAccount.class);
+        configuration.addAnnotatedClass(Sale.class);
+        configuration.addAnnotatedClass(ItemSale.class);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
                 .build();
