@@ -10,7 +10,8 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Sale")
 public class Sale {
-    @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sale_id", nullable = false, unique = true)
     private int id;
 
@@ -30,8 +31,10 @@ public class Sale {
 
     @Column(name = "image_link") private String imageLink;
 
-    @OneToMany(mappedBy = "primaryKey.sale", cascade = CascadeType.ALL)
-    private Set<ItemSale> items = new HashSet<>();
+    @OneToMany(mappedBy = "primaryKey.sale",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<ItemSale> itemSales = new HashSet<>();
 
     protected Sale() {}
 
@@ -75,16 +78,16 @@ public class Sale {
         this.endDate = endDate;
     }
 
-    public Set<ItemSale> getItems() {
-        return items;
+    public Set<ItemSale> getItemSales() {
+        return itemSales;
     }
 
-    public void setItems(Set<ItemSale> items) {
-        this.items = items;
+    public void setItemSales(Set<ItemSale> items) {
+        this.itemSales = items;
     }
 
-    public void addItem(ItemSale item) {
-        items.add(item);
+    public void addItemSale (ItemSale item) {
+        itemSales.add(item);
     }
 
     public String getImageLink() {
@@ -93,5 +96,21 @@ public class Sale {
 
     public void setImageLink(String imageLink) {
         this.imageLink = imageLink;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public SaleStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SaleStatus status) {
+        this.status = status;
     }
 }

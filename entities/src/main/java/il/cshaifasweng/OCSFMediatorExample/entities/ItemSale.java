@@ -12,19 +12,17 @@ import javax.persistence.*;
 })
 public class ItemSale {
     @EmbeddedId
-    private ItemSaleId primaryKey;
+    private ItemSaleId primaryKey = new ItemSaleId();
 
-    @Column(name = "discount_value") private double discount;
+    @Column(name = "discount_value")
+    private double discount;
 
-    @Enumerated(EnumType.STRING) private DiscountType discountType;
+    @Enumerated(EnumType.STRING)
+    private DiscountType discountType;
 
-    public ItemSaleId getPrimaryKey() {
-        return primaryKey;
+    public ItemSale() {
     }
 
-    public void setPrimaryKey(ItemSaleId primaryKey) {
-        this.primaryKey = primaryKey;
-    }
     @Transient
     public Item getItem() {
         return primaryKey.getItem();
@@ -41,10 +39,16 @@ public class ItemSale {
         primaryKey.setSale(sale);
     }
 
+    public ItemSaleId getPrimaryKey() {
+        return primaryKey;
+    }
+    public void setPrimaryKey(ItemSaleId primaryKey) {
+        this.primaryKey = primaryKey;
+    }
+
     public double getDiscount() {
         return discount;
     }
-
     public void setDiscount(double discount) {
         this.discount = discount;
     }
@@ -52,7 +56,6 @@ public class ItemSale {
     public DiscountType getDiscountType() {
         return discountType;
     }
-
     public void setDiscountType(DiscountType discountType) {
         this.discountType = discountType;
     }

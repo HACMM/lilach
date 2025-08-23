@@ -12,10 +12,13 @@ import java.io.Serializable;
 
 @Embeddable
 public class ItemSaleId implements Serializable {
-    private Item item;
-    private Sale sale;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    private Item item;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Sale sale;
+
     public Item getItem() {
         return item;
     }
@@ -23,7 +26,6 @@ public class ItemSaleId implements Serializable {
         this.item = item;
     }
 
-    @ManyToOne(cascade = CascadeType.ALL)
     public Sale getSale() {
         return sale;
     }

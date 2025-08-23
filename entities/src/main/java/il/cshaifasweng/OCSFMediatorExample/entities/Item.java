@@ -19,10 +19,11 @@ public class Item implements Serializable {
     @Column(name = "price") private double price;
     @Column(name = "image_link") private String imageLink;
 
-    @OneToMany(mappedBy = "primaryKey.item", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "primaryKey.item",
+            cascade = CascadeType.ALL)
     private Set<ItemSale> sales = new HashSet<>();
 
-    protected Item() {}
+    public Item() {}
     public Item(String name, String type, double price) {
         this.name = name;
         this.type = type;
