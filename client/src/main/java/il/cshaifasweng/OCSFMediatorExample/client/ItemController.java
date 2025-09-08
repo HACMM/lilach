@@ -27,6 +27,7 @@ public class ItemController {
         typeLabel.setText(item.getType());
         priceLabel.setText(String.valueOf(item.getPrice())+"$");
         descriptionTextArea.setText(item.getDescription());
+        // TODO: check if there is discount and update the price label
     }
 
     @FXML

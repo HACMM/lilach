@@ -4,20 +4,20 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.net.URL;
@@ -33,8 +33,11 @@ public class CatalogController implements Initializable {
 	@FXML private TableColumn<Item, String> typeCol;
 	@FXML private TableColumn<Item, Double> priceCol;
 	@FXML private TableColumn<Item, ImageView> imageCol;
+	@FXML private ComboBox<String> categoryFilter;
 	@FXML private TextField filterField;
-	@FXML private Button searchBtn;
+	//@FXML private Button searchBtn;
+	private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
+	private final ObservableList<Item> filteredData = FXCollections.observableArrayList(); // הנתונים שמוצגים בטבלה
 
 	// ← Back button
 	@FXML private Button backBtn;
@@ -62,6 +65,15 @@ public class CatalogController implements Initializable {
 			return new SimpleObjectProperty<>(iv);
 		});
 
+		categoryFilter.setItems(FXCollections.observableArrayList("All", "Bouquet", "Single Flower", "Plant", "Accessory"));
+		categoryFilter.setValue("All");
+		categoryFilter.setOnAction(e -> applyFilters());
+
+
+		filterField.textProperty().addListener((obs, oldV, newV) -> applyFilters());
+
+		table.setItems(filteredData);
+
 		requestCatalog();
 	}
 
@@ -77,23 +89,33 @@ public class CatalogController implements Initializable {
 	}
 
 	/** Receive catalog and populate table */
-	@org.greenrobot.eventbus.Subscribe
+//	@Subscribe
+//	public void onCatalogReceived(List<Item> items) {
+//
+//		Platform.runLater(() -> table.getItems().setAll(items));
+//	}
+	@Subscribe
 	public void onCatalogReceived(List<Item> items) {
-		Platform.runLater(() -> table.getItems().setAll(items));
+		Platform.runLater(() -> {
+			masterData.setAll(items);
+			applyFilters();
+		});
 	}
 
+
 	/** Filter by name/type when Search clicked */
-	@FXML
-	private void onSearchClicked() {
-		String term = filterField.getText().toLowerCase();
-		List<Item> filtered = table.getItems().stream()
-				.filter(i ->
-						i.getName().toLowerCase().contains(term) ||
-								i.getType().toLowerCase().contains(term)
-				)
-				.collect(Collectors.toList());
-		table.getItems().setAll(filtered);
-	}
+//	@FXML
+//	private void onSearchClicked() {
+////		String term = filterField.getText().toLowerCase();
+////		List<Item> filtered = table.getItems().stream()
+////				.filter(i ->
+////						i.getName().toLowerCase().contains(term) ||
+////								i.getType().toLowerCase().contains(term)
+////				)
+////				.collect(Collectors.toList());
+////		table.getItems().setAll(filtered);
+//		applyFilters();
+//	}
 
 	/** Open detail view on double‐click */
 	@FXML
@@ -165,4 +187,17 @@ public class CatalogController implements Initializable {
 			ex.printStackTrace();
 		}
 	}
+
+
+private void applyFilters() {
+	String search = filterField.getText().toLowerCase().trim();
+	String category = categoryFilter.getValue();
+
+	List<Item> filtered = masterData.stream()
+			.filter(i -> (search.isEmpty() || i.getName().toLowerCase().contains(search) || i.getType().toLowerCase().contains(search)))
+			.filter(i -> ("All".equals(category) || i.getType().contains(category)))
+			.collect(Collectors.toList());
+
+	filteredData.setAll(filtered);
+}
 }
