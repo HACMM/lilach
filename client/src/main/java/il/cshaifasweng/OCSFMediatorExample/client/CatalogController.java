@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Filter;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
@@ -34,6 +35,8 @@ public class CatalogController implements Initializable {
 	@FXML private TableColumn<Item, Double> priceCol;
 	@FXML private TableColumn<Item, ImageView> imageCol;
 	@FXML private ComboBox<String> categoryFilter;
+	@FXML private ComboBox<String> colorFilter;
+	@FXML private ComboBox<String> priceFilter;
 	@FXML private TextField filterField;
 	//@FXML private Button searchBtn;
 	private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
@@ -190,14 +193,31 @@ public class CatalogController implements Initializable {
 
 
 private void applyFilters() {
-	String search = filterField.getText().toLowerCase().trim();
-	String category = categoryFilter.getValue();
+	Filter f = new Filter();
+	f.setSearchText(filterField.getText().trim());
+	f.setCategory(categoryFilter.getValue());
+
+	// f.setFlowerType(flowerTypeCombo.getValue());
+	f.setColor(colorFilter.getValue());
+	//f.setMinPrice(minPriceField.getValue());
+	//f.setMaxPrice(maxPriceField.getValue());
 
 	List<Item> filtered = masterData.stream()
-			.filter(i -> (search.isEmpty() || i.getName().toLowerCase().contains(search) || i.getType().toLowerCase().contains(search)))
-			.filter(i -> ("All".equals(category) || i.getType().contains(category)))
+			.filter(f::filter)
 			.collect(Collectors.toList());
 
 	filteredData.setAll(filtered);
+
+
+
+//	String search = filterField.getText().toLowerCase().trim();
+//	String category = categoryFilter.getValue();
+//
+//	List<Item> filtered = masterData.stream()
+//			.filter(i -> (search.isEmpty() || i.getName().toLowerCase().contains(search) || i.getType().toLowerCase().contains(search)))
+//			.filter(i -> ("All".equals(category) || i.getType().contains(category)))
+//			.collect(Collectors.toList());
+//
+//	filteredData.setAll(filtered);
 }
 }

@@ -18,16 +18,21 @@ public class Item implements Serializable {
     @Column(name = "type") private String type;
     @Column(name = "price") private double price;
     @Column(name = "image_link") private String imageLink;
+    @Column(name = "color") private String color;
+    @Column(name = "flower_type") private String flowerType;
 
     @OneToMany(mappedBy = "primaryKey.item",
             cascade = CascadeType.ALL)
     private Set<ItemSale> sales = new HashSet<>();
 
     public Item() {}
-    public Item(String name, String type, double price) {
+    public Item(String name, String type, double price, String imageLink, String color, String flowerType) {
         this.name = name;
         this.type = type;
         this.price = price;
+        this.imageLink = imageLink;
+        this.color = color;
+        this.flowerType = flowerType;
     }
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -39,6 +44,10 @@ public class Item implements Serializable {
     public void setType(String type) { this.type = type; }
     public double getPrice() { return price; }
     public void setPrice(double p) { this.price = p; }
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+    public String getFlowerType() { return flowerType; }
+    public void setFlowerType(String flowerType) { this.flowerType = flowerType; }
 
     public String getImageLink() {
         return imageLink;
