@@ -23,7 +23,7 @@ public class App extends Application implements Serializable {
     @Override
     public void start(Stage stage) throws IOException {
         EventBus.getDefault().register(this);
-        scene = new Scene(loadFXML("Init"), 640, 480);
+        scene = new Scene(loadFXML("Init"), 700, 500);
 
         var resource = Thread.currentThread()
                 .getContextClassLoader()

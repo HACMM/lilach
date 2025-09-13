@@ -19,12 +19,28 @@ public class Complaint implements Serializable {
     @ManyToOne(optional = false)
     private UserAccount userAccount;
 
-    // Category of the complaint (e.g., Service, Product Quality, Delivery Delay)
-    @Column(nullable = false)
-    private String type;
+//    // Category of the complaint (e.g., Service, Product Quality, Delivery Delay)
+//    @Column(nullable = false)
+//    private String type;
 
     @ManyToOne(optional = false)
     private Order order;
+
+    // Full description of what went wrong
+    @Column(name = "Branch", nullable = false, length = 2000)
+    private String branch;
+
+    // Full description of what went wrong
+    @Column(name = "Order Number", nullable = false, length = 2000)
+    private String orderNumber;
+
+    // Full description of what went wrong
+    @Column(name = "Client Name", nullable = false, length = 2000)
+    private String clientName;
+
+    // Full description of what went wrong
+    @Column(name = "Client Email", nullable = false, length = 2000)
+    private String clientEmail;
 
     // Full description of what went wrong
     @Column(name = "description", nullable = false, length = 2000)
@@ -43,8 +59,11 @@ public class Complaint implements Serializable {
     // Default constructor for JPA and serialization
     protected Complaint() {}
 
-    public Complaint(String complaintType, String description){
-        this.type = complaintType;
+    public Complaint(String branch, String orderNumber,String  clientName, String clientEmail, String description){
+        this.branch = branch;
+        this.orderNumber = orderNumber;
+        this.clientName = clientName;
+        this.clientEmail = clientEmail;
         this.description = description;
         this.createdAt = LocalDateTime.now();
     }
@@ -68,13 +87,13 @@ public class Complaint implements Serializable {
     public void setUserAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
     }
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
+//    public String getType() {
+//        return type;
+//    }
+//
+//    public void setType(String type) {
+//        this.type = type;
+//    }
 
     public Order getOrder() {
         return order;
