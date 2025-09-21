@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 
@@ -8,11 +8,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
+import il.cshaifasweng.OCSFMediatorExample.server.ocsf.UserAccountManager;
 
 public class SimpleServer extends AbstractServer {
     private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
+    private UserAccountManager userAccountManager;
 
     // TODO: 1) declare instance of the manager you need for a request handling
     private ItemManager itemManager = null;
@@ -22,6 +23,7 @@ public class SimpleServer extends AbstractServer {
         var sessionFactory = DbConnector.getInstance().getSessionFactory();
         // TODO: 2) create an instance of the manager you need
         this.itemManager = new ItemManager(sessionFactory);
+        this.userAccountManager = new UserAccountManager(sessionFactory);
     }
 
     @Override
@@ -44,13 +46,13 @@ public class SimpleServer extends AbstractServer {
                 throw new RuntimeException(e);
             }
         } else if (msgString.startsWith("getCatalog")) {
-           // try {
+            // try {
             //List<Item> catalog = dbConnector.GetItemList(new ArrayList<>());
-                //TODO : send catalog to client
-               // client.sendToClient("showCatalog");
-          //  } catch (IOException e) {
-              // throw new RuntimeException(e);
-           // }
+            //TODO : send catalog to client
+            // client.sendToClient("showCatalog");
+            //  } catch (IOException e) {
+            // throw new RuntimeException(e);
+            // }
 
 
             List<Item> items = itemManager.GetItemList(new ArrayList<>());
@@ -58,13 +60,15 @@ public class SimpleServer extends AbstractServer {
             System.out.println(items);
             try {
                 client.sendToClient(items);
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
             //TODO : send a reply to user?
-            boolean success =  itemManager.EditItem(updatedItem);
-            if (success){
+            boolean success = itemManager.EditItem(updatedItem);
+            if (success) {
                 System.out.println("Item edited successfully");
                 List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
                 try {
@@ -72,10 +76,29 @@ public class SimpleServer extends AbstractServer {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } else{
+            } else {
                 System.out.println("Item could not be edited");
             }
 
+        } else if (msg instanceof UserAccount) {
+
+        } else if (msg instanceof LoginRequest) {
+            LoginRequest req = (LoginRequest) msg;
+            try {
+                var opt = userAccountManager.authenticate(req.getLogin(), req.getPassword());
+                if (opt.isPresent()) {
+                    client.sendToClient(new LoginResult(LoginResult.Status.USER_FOUND, "OK"));
+                } else {
+                    client.sendToClient(new LoginResult(LoginResult.Status.USER_NOT_FOUND, "Invalid username or password"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new LoginResult(LoginResult.Status.ERROR, "Server error"));
+                } catch (IOException ignored) {
+                }
+            }
+            return;
         } else if (msgString.startsWith("remove client")) {
             if (!SubscribersList.isEmpty()) {
                 for (SubscribedClient subscribedClient : SubscribersList) {

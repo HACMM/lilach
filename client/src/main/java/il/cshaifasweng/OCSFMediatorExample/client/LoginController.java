@@ -48,7 +48,7 @@ public class LoginController {
             return;
         }
         try {
-            client.sendToServer(new UserAccount(user, pass));
+            client.sendToServer(new LoginRequest(user, pass));
         } catch (IOException e) {
             e.printStackTrace();
             warningLabel.setText("⚠ Connection error. Please try again.");
