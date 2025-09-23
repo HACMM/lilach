@@ -111,6 +111,10 @@ class Passwords {
 @Entity
 @Table(name = "UserAccount")
 public class UserAccount implements Serializable {
+
+    // TODO: add UserAccountType: branch/all brances/subscription
+    //       if the Branch type is chosen - save Branch
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, unique = true)

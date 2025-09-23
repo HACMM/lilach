@@ -31,7 +31,7 @@ public class Complaint implements Serializable {
     private String branch;
 
     // Full description of what went wrong
-    @Column(name = "Order Number", nullable = false, length = 2000)
+    @Column(name = "Order Number", nullable = true, length = 2000)
     private String orderNumber;
 
     // Full description of what went wrong

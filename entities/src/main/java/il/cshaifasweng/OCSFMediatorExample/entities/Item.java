@@ -9,10 +9,14 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Item")
 public class Item implements Serializable {
+
+    // TODO: add catagories that an Item is a part of
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id", nullable = false, unique = true)
     private int id;
+    // Item name: "Rose"
     @Column(name = "name") private String name;
     @Column(name = "description") private String description;
     @Column(name = "type") private String type;

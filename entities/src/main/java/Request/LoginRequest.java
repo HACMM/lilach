@@ -1,4 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.entities;
+package Request;
 
 import java.io.Serializable;
 
