@@ -1,4 +1,4 @@
-package il.cshaifasweng.OCSFMediatorExample.server;
+package il.cshaifasweng.OCSFMediatorExample.server.EntityManagers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Filter;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;

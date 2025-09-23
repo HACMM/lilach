@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.LoginRequest;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -10,7 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 import java.io.IOException;
-import il.cshaifasweng.OCSFMediatorExample.entities.User;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -48,7 +49,7 @@ public class LoginController {
             return;
         }
         try {
-            client.sendToServer(new UserAccount(user, pass));
+            client.sendToServer(new LoginRequest(user, pass));
         } catch (IOException e) {
             e.printStackTrace();
             warningLabel.setText("⚠ Connection error. Please try again.");

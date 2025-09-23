@@ -11,6 +11,10 @@ import java.util.Set;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.persistence.*;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
+import il.cshaifasweng.OCSFMediatorExample.entities.Role;
+
 
 /* A utility class to hash passwords and check passwords vs hashed values. It uses a combination of hashing and unique
  * salt. The algorithm used is PBKDF2WithHmacSHA1 which, although not the best for hashing password (vs. bcrypt) is
@@ -107,6 +111,10 @@ class Passwords {
 @Entity
 @Table(name = "UserAccount")
 public class UserAccount implements Serializable {
+
+    // TODO: add UserAccountType: branch/all brances/subscription
+    //       if the Branch type is chosen - save Branch
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, unique = true)
@@ -115,9 +123,10 @@ public class UserAccount implements Serializable {
     @Column(name = "hash") private String hash;
     @Column(name = "salt") private String salt;
     @Column(name = "is_active") private boolean is_active;
-    @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @Column(name = "role", nullable = false)
+    private Role role;   // CUSTOMER / EMPLOYEE / MANAGER
+
     @Embedded
     private PaymentMethod defaultPaymentMethod;
 
@@ -139,6 +148,8 @@ public class UserAccount implements Serializable {
         this.hash = new String(hash);
         this.salt = new String(generatedSalt);
         this.defaultPaymentMethod = defaultPaymentMethod;
+        this.is_active = true;
+        this.role = Role.CUSTOMER;
         // TODO: check
     }
     public UserAccount(String login, String password) {
@@ -220,4 +231,6 @@ public class UserAccount implements Serializable {
     public void setManagerComplaintSet(Set<Complaint> managerComplaintSet) {
         this.managerComplaintSet = managerComplaintSet;
     }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 }
