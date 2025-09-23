@@ -76,6 +76,7 @@ public class LoginController {
 public void onLoginResponse(LoginResponseEvent event) {
     Platform.runLater(() -> {
         if(event.isSuccess()) {
+            AppSession.setCurrentUser(event.getUser());
             try {
                 App.setRoot("CatalogView");
             } catch (IOException e) {

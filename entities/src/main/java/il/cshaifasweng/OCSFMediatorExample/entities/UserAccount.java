@@ -115,6 +115,9 @@ public class UserAccount implements Serializable {
     @Column(name = "hash") private String hash;
     @Column(name = "salt") private String salt;
     @Column(name = "is_active") private boolean is_active;
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     @Embedded
     private PaymentMethod defaultPaymentMethod;
 

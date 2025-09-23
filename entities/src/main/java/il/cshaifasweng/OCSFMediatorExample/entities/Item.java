@@ -22,7 +22,7 @@ public class Item implements Serializable {
     @Column(name = "flower_type") private String flowerType;
 
     @OneToMany(mappedBy = "primaryKey.item",
-            cascade = CascadeType.ALL)
+            cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<ItemSale> sales = new HashSet<>();
 
     public Item() {}

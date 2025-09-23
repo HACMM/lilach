@@ -68,6 +68,7 @@ public class SimpleServer extends AbstractServer {
                 System.out.println("Item edited successfully");
                 List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
                 try {
+                    //TODO: send the updated catalog to ALL CLIENTS
                     client.sendToClient(updatedCatalog); // Updating the view
                 } catch (IOException e) {
                     e.printStackTrace();

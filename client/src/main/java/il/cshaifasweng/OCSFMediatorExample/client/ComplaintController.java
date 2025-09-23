@@ -52,8 +52,6 @@ public class ComplaintController {
         return matcher.matches();
     }
 
-/// ////////////////////////////////////////////// im here!!
-/// TODO: add the new things that i added
     @FXML
     private void onSendComplaint() {
         //String type = typeCombo.getValue();
