@@ -1,8 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.DiscountType;
-import il.cshaifasweng.OCSFMediatorExample.entities.Item;
-import il.cshaifasweng.OCSFMediatorExample.entities.ItemSale;
+import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +21,8 @@ public class ItemController {
     private Item item;
     @FXML
     private Button addToCartBUTTON;
+    @FXML
+    private Button EditPriceBTN;
 
     @FXML
     void addToCart(ActionEvent event) {
@@ -34,6 +34,20 @@ public class ItemController {
     }
 
     public void init(Item item) {
+        UserAccount currentUser = AppSession.getCurrentUser();
+
+        if (currentUser != null) {
+            Role role = currentUser.getRole();
+
+            // just employee and manager see the button
+            if (role == Role.EMPLOYEE || role == Role.MANAGER) {
+                EditPriceBTN.setVisible(true);
+            } else {
+                EditPriceBTN.setVisible(false);
+            }
+        } else {
+            EditPriceBTN.setVisible(false);
+    }
         this.item = item;
         nameLabel.setText(item.getName());
         typeLabel.setText(item.getType());
