@@ -111,10 +111,6 @@ class Passwords {
 @Entity
 @Table(name = "UserAccount")
 public class UserAccount implements Serializable {
-
-    // TODO: add UserAccountType: branch/all brances/subscription
-    //       if the Branch type is chosen - save Branch
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, unique = true)
@@ -126,6 +122,16 @@ public class UserAccount implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;   // CUSTOMER / EMPLOYEE / MANAGER
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "branch_type", nullable = false)
+    private UserBranchType userBranchType;   // BRANCH / ALL_BRANCHES / SUBSCRIPTION
+
+    // If a user created an accout for a specific branch - this field should be filled
+    @OneToOne(cascade = CascadeType.ALL,
+        optional = true)
+    @JoinColumn(name = "branch_id", referencedColumnName = "branch_id")
+    private Branch branch;
 
     @Embedded
     private PaymentMethod defaultPaymentMethod;

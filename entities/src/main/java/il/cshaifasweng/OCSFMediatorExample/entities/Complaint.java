@@ -26,9 +26,9 @@ public class Complaint implements Serializable {
     @ManyToOne(optional = false)
     private Order order;
 
-    // Full description of what went wrong
-    @Column(name = "Branch", nullable = false, length = 2000)
-    private String branch;
+    // Branch
+    @Column(name = "Branch", nullable = true, length = 2000)
+    private Branch branch;
 
     // Full description of what went wrong
     @Column(name = "Order Number", nullable = true, length = 2000)
@@ -59,7 +59,7 @@ public class Complaint implements Serializable {
     // Default constructor for JPA and serialization
     protected Complaint() {}
 
-    public Complaint(String branch, String orderNumber,String  clientName, String clientEmail, String description){
+    public Complaint(Branch branch, String orderNumber,String  clientName, String clientEmail, String description){
         this.branch = branch;
         this.orderNumber = orderNumber;
         this.clientName = clientName;
@@ -124,5 +124,13 @@ public class Complaint implements Serializable {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Branch getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
     }
 }

@@ -35,6 +35,9 @@ public class Order implements Serializable {
     @OneToMany(mappedBy = "order")
     private Collection<Complaint> complaints = new HashSet<>();
 
+    @ManyToOne(optional = false)
+    private Branch branch;
+
     protected Order() {
 
     }

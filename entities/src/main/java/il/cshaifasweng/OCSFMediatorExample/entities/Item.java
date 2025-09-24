@@ -9,9 +9,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Item")
 public class Item implements Serializable {
-
-    // TODO: add catagories that an Item is a part of
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id", nullable = false, unique = true)
@@ -28,6 +25,14 @@ public class Item implements Serializable {
     @OneToMany(mappedBy = "primaryKey.item",
             cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<ItemSale> sales = new HashSet<>();
+
+    @OneToMany(mappedBy = "primaryKey.item",
+            cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<ItemCategory> categories = new HashSet<>();
+
+    @OneToMany(mappedBy = "primaryKey.item",
+            cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<BranchInventory> branchInventory = new HashSet<>();
 
     public Item() {}
     public Item(String name, String type, double price, String imageLink, String color, String flowerType) {
@@ -71,6 +76,30 @@ public class Item implements Serializable {
 
     public void addSale(ItemSale sale) {
         sales.add(sale);
+    }
+
+    public Set<ItemCategory> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<ItemCategory> categories) {
+        this.categories = categories;
+    }
+
+    public void addCategory(ItemCategory category) {
+        categories.add(category);
+    }
+
+    public void removeCategory(ItemCategory category) {
+        categories.remove(category);
+    }
+
+    public Set<BranchInventory> getBranchInventory() {
+        return branchInventory;
+    }
+
+    public void setBranchInventory(Set<BranchInventory> branchInventory) {
+        this.branchInventory = branchInventory;
     }
 }
 
