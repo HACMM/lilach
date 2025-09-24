@@ -1,4 +1,6 @@
-package il.cshaifasweng.OCSFMediatorExample.entities;
+package Request;
+
+import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 
 public class Filter {
     private String searchText;

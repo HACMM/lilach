@@ -2,8 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Complaint;
-import il.cshaifasweng.OCSFMediatorExample.entities.ComplaintEvent;
-import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import Request.Message;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -75,7 +74,10 @@ public class ComplaintController {
             if (sendButton != null) sendButton.setDisable(true);
             {
                 LocalDateTime timeNow = LocalDateTime.now(); // Get the current time
-                Complaint complaint = new Complaint(branch, order, name, email, desc);
+                // TODO: Branch class was implemented, we should eather leave "branch" field empty
+                //      or send branch id picked by user or loaded from order info idk
+
+                Complaint complaint = new Complaint(null, order, name, email, desc);
                 client.sendToServer(new Message("newComplaint", complaint));
             }
 

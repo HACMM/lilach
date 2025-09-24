@@ -4,7 +4,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import Request.LoginResult;
 import org.greenrobot.eventbus.EventBus;
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
-import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
+import Request.Warning;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 

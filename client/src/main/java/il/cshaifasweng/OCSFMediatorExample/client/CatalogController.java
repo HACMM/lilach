@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Filter;
+import Request.Filter;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;

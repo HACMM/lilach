@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server;
 
 import Request.LoginRequest;
 import Request.LoginResult;
+import Request.Warning;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ItemManager;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
