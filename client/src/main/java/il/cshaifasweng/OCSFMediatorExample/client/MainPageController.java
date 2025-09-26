@@ -24,6 +24,11 @@ public class MainPageController {
     }
 
     @FXML
+    private void onCartClicked(ActionEvent event) {
+        switchTo("CartView");
+    }
+
+    @FXML
     private void onComplaintsClicked(ActionEvent event) {
         switchTo("ComplaintView");
     }
@@ -45,5 +50,4 @@ public class MainPageController {
             e.printStackTrace();
         }
     }
-
 }

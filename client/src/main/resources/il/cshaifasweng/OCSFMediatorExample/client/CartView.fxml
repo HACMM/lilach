@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CartViewController">
+
+    <!-- Header -->
+    <top>
+        <HBox spacing="12" style="-fx-padding: 14;">
+            <Button text="← Back"
+                    onAction="#onBack"
+                    styleClass="back-button"/>
+
+            <Text text="Your Cart" styleClass="title"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Clear"
+                    onAction="#onClear"
+                    styleClass="button secondary"/>
+        </HBox>
+    </top>
+
+    <!-- Main content in a soft panel -->
+    <center>
+        <VBox spacing="14" style="-fx-padding: 0 14 14 14;">
+            <VBox styleClass="form-panel" spacing="12">
+                <TableView fx:id="table" prefHeight="420">
+                    <columns>
+                        <TableColumn fx:id="nameCol" text="Name" prefWidth="280"/>
+                        <TableColumn fx:id="qtyCol"  text="Qty"  prefWidth="90"/>
+                        <TableColumn fx:id="priceCol" text="Price" prefWidth="110"/>
+                        <TableColumn fx:id="subtotalCol" text="Subtotal" prefWidth="130"/>
+                        <TableColumn fx:id="removeCol" text="" prefWidth="120"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <!-- Footer total + checkout -->
+            <HBox spacing="12" alignment="CENTER_RIGHT">
+                <Label text="Total:" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
+                <Label fx:id="totalLbl" style="-fx-font-size: 16px;"/>
+                <Button fx:id="checkoutBtn"
+                        text="Checkout"
+                        onAction="#onCheckout"
+                        styleClass="button primary"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
