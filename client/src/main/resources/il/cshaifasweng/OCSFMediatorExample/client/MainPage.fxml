@@ -70,10 +70,6 @@
 
         </FlowPane>
 
-        <Button text="Log In"
-                onAction="#onLoginClicked"
-                styleClass="button primary"
-                AnchorPane.topAnchor="20"
-                AnchorPane.rightAnchor="20" />
+        <Button fx:id="LogInBtn" onAction="#onLoginClicked" styleClass="button primary" text="Log In" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20" />
     </children>
 </AnchorPane>
