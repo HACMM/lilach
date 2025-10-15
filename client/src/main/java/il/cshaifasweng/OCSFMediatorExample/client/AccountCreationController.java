@@ -1,7 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import Request.SignupRequest;
-import il.cshaifasweng.OCSFMediatorExample.entities.User;
+import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import Request.Warning;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -57,13 +57,21 @@ public class AccountCreationController {
             return;
         }
 
+        //make sure email is valid
+        if (!email.contains("@") || !email.contains(".")) {
+            EventBus.getDefault().post(
+                    new WarningEvent(new Warning("Invalid email address!"))
+            );
+            return;
+        }
+
+
         // send data off to server
+        UserAccount newUser = new UserAccount(username, password, name, email);
         try {
-            SignupRequest req = new SignupRequest(username, password, name, email);
-            client.sendToServer(req);
+            client.sendToServer(new Message("sign up", newUser));
         } catch (IOException e) {
             e.printStackTrace();
-            warningLabel.setText("⚠ Connection error. Please try again.");
         }
     }
 

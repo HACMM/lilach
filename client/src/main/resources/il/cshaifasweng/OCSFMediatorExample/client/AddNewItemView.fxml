@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AddNewItemController"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="400" prefWidth="420" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AddItemController">
 
+    <children>
+        <VBox spacing="12" AnchorPane.leftAnchor="30" AnchorPane.rightAnchor="30" AnchorPane.topAnchor="20">
+            <Label style="-fx-font-size: 20; -fx-font-weight: bold;" text="Add New Item" />
+            <TextField fx:id="nameField" promptText="Name" />
+            <TextField fx:id="typeField" promptText="Type (e.g., Flower, Bouquet)" />
+            <TextField fx:id="priceField" promptText="Price (e.g., 12.5)" />
+            <Label fx:id="errorLabel" style="-fx-text-fill: #b00020;" />
+            <HBox spacing="10" />
+        </VBox>
+        <Region layoutX="111.0" layoutY="327.0" />
+        <Button layoutX="235.0" layoutY="337.0" onAction="#handleCancel" text="Cancel" />
+        <Button defaultButton="true" layoutX="303.0" layoutY="337.0" onAction="#handleSave" text="Save" />
+        <TextArea fx:id="DescriptionArea" layoutX="30.0" layoutY="176.0" prefHeight="94.0" prefWidth="360.0" promptText="Description" />
+        <ComboBox fx:id="branchComboBox" layoutX="30.0" layoutY="285.0" prefWidth="150.0" promptText="Select branch" />
+    </children>
 </AnchorPane>
