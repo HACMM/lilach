@@ -1,8 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Item;
-import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
+import il.cshaifasweng.OCSFMediatorExample.entities.*;
 
+import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ItemManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
@@ -15,7 +15,13 @@ public class DbConnector implements AutoCloseable {
     private DbConnector() {
         Configuration configuration = new Configuration();
         configuration.addAnnotatedClass(Item.class);
+        configuration.addAnnotatedClass(PaymentMethod.class);
+        configuration.addAnnotatedClass(ComplaintEvent.class);
+        configuration.addAnnotatedClass(Complaint.class);
+        configuration.addAnnotatedClass(Order.class);
         configuration.addAnnotatedClass(UserAccount.class);
+        configuration.addAnnotatedClass(Sale.class);
+        configuration.addAnnotatedClass(ItemSale.class);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties())
                 .build();

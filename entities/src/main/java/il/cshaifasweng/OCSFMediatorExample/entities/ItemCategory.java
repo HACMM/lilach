@@ -1,0 +1,44 @@
+package il.cshaifasweng.OCSFMediatorExample.entities;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "items_sales")
+@AssociationOverrides({
+        @AssociationOverride(name = "primaryKey.item",
+                joinColumns = @JoinColumn(name = "item_id")),
+        @AssociationOverride(name = "primaryKey.sale",
+                joinColumns = @JoinColumn(name = "sale_id"))
+})
+public class ItemCategory {
+    @EmbeddedId
+    private ItemCategoryId primaryKey = new ItemCategoryId();
+
+    public ItemCategory() {
+    }
+
+    // We can add some specific information here
+
+    @Transient
+    public Item getItem() {
+        return primaryKey.getItem();
+    }
+    public void setItem(Item item) {
+        primaryKey.setItem(item);
+    }
+
+    @Transient
+    public Category getCategory() {
+        return primaryKey.getCategory();
+    }
+    public void setCategory(Category category) {
+        primaryKey.setCategory(category);
+    }
+
+    public ItemCategoryId getPrimaryKey() {
+        return primaryKey;
+    }
+    public void setPrimaryKey(ItemCategoryId primaryKey) {
+        this.primaryKey = primaryKey;
+    }
+}

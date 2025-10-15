@@ -5,10 +5,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.persistence.*;
+import javax.persistence.Enumerated;
+import javax.persistence.EnumType;
+import il.cshaifasweng.OCSFMediatorExample.entities.Role;
+
 
 /* A utility class to hash passwords and check passwords vs hashed values. It uses a combination of hashing and unique
  * salt. The algorithm used is PBKDF2WithHmacSHA1 which, although not the best for hashing password (vs. bcrypt) is
@@ -112,7 +118,33 @@ public class UserAccount implements Serializable {
     @Column(name = "login") private String login;
     @Column(name = "hash") private String hash;
     @Column(name = "salt") private String salt;
+    @Column(name = "is_active") private boolean is_active;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;   // CUSTOMER / EMPLOYEE / MANAGER
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "branch_type", nullable = false)
+    private UserBranchType userBranchType;   // BRANCH / ALL_BRANCHES / SUBSCRIPTION
+
+    // If a user created an accout for a specific branch - this field should be filled
+    @OneToOne(cascade = CascadeType.ALL,
+        optional = true)
+    @JoinColumn(name = "branch_id", referencedColumnName = "branch_id")
+    private Branch branch;
+
+    @Embedded
     private PaymentMethod defaultPaymentMethod;
+
+    @OneToMany(mappedBy = "userAccount", orphanRemoval = false)
+    private Set<Order> orderSet = new HashSet<>();
+
+    @OneToMany(mappedBy = "userAccount", orphanRemoval = false)
+    private Set<Complaint> complaintSet = new HashSet<>();
+
+    // TODO: should we make this set specific for a ManagerAccount?
+    @OneToMany(mappedBy = "managerAccount", orphanRemoval = false)
+    private  Set<Complaint> managerComplaintSet = new HashSet<>();
 
     public UserAccount(String login, String password, PaymentMethod defaultPaymentMethod) {
         this.login = login;
@@ -122,6 +154,8 @@ public class UserAccount implements Serializable {
         this.hash = new String(hash);
         this.salt = new String(generatedSalt);
         this.defaultPaymentMethod = defaultPaymentMethod;
+        this.is_active = true;
+        this.role = Role.CUSTOMER;
         // TODO: check
     }
     public UserAccount(String login, String password) {
@@ -171,4 +205,38 @@ public class UserAccount implements Serializable {
     public void setDefaultPaymentMethod(PaymentMethod defaultPaymentMethod) {
         this.defaultPaymentMethod = defaultPaymentMethod;
     }
+
+    public Set<Order> getOrderSet() {
+        return orderSet;
+    }
+
+    public void setOrderSet(Set<Order> orderSet) {
+        this.orderSet = orderSet;
+    }
+
+    public Set<Complaint> getComplaintSet() {
+        return complaintSet;
+    }
+
+    public void setComplaintSet(Set<Complaint> complaintSet) {
+        this.complaintSet = complaintSet;
+    }
+
+    public boolean isIs_active() {
+        return is_active;
+    }
+
+    public void setIs_active(boolean is_active) {
+        this.is_active = is_active;
+    }
+
+    public Set<Complaint> getManagerComplaintSet() {
+        return managerComplaintSet;
+    }
+
+    public void setManagerComplaintSet(Set<Complaint> managerComplaintSet) {
+        this.managerComplaintSet = managerComplaintSet;
+    }
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 }

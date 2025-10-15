@@ -6,6 +6,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
+
+    // TODO: refactor or remove - it duplicates the UserAccount
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -28,6 +31,12 @@ public class User implements Serializable {
         this.name = name;
         this.email = email;
     }
+
+    public User(String user, String pass) {
+        this.username = user;
+        this.password = pass;
+    }
+
     public int getId() {
         return id;
     }
