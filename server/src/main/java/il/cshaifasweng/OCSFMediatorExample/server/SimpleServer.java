@@ -1,33 +1,34 @@
 package il.cshaifasweng.OCSFMediatorExample.server;
 
-import Request.LoginRequest;
-import Request.LoginResult;
-import Request.Warning;
+import Request.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ItemManager;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
-import il.cshaifasweng.OCSFMediatorExample.server.ocsf.UserAccountManager;
+import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 
 public class SimpleServer extends AbstractServer {
     private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
-    private UserAccountManager userAccountManager;
+    private final SessionFactory sessionFactory;
+
 
     // TODO: 1) declare instance of the manager you need for a request handling
     private ItemManager itemManager = null;
 
     public SimpleServer(int port) {
         super(port);
-        var sessionFactory = DbConnector.getInstance().getSessionFactory();
+        this.sessionFactory = DbConnector.getInstance().getSessionFactory();
         // TODO: 2) create an instance of the manager you need
         this.itemManager = new ItemManager(sessionFactory);
-        this.userAccountManager = new UserAccountManager(sessionFactory);
     }
 
     @Override
@@ -89,13 +90,19 @@ public class SimpleServer extends AbstractServer {
 
         } else if (msg instanceof LoginRequest) {
             LoginRequest req = (LoginRequest) msg;
-            try {
-                var opt = userAccountManager.authenticate(req.getLogin(), req.getPassword());
-                if (opt.isPresent()) {
-                    client.sendToClient(new LoginResult(LoginResult.Status.USER_FOUND, "OK"));
-                } else {
-                    client.sendToClient(new LoginResult(LoginResult.Status.USER_NOT_FOUND, "Invalid username or password"));
-                }
+            try (Session s = sessionFactory.openSession()) {
+                UserAccount user = s.createQuery(
+                                "from UserAccount where login = :login", UserAccount.class)
+                        .setParameter("login", req.getLogin())
+                        .uniqueResult();
+
+                boolean ok = (user != null) && user.verifyPassword(req.getPassword());
+
+                client.sendToClient(
+                        ok
+                                ? new LoginResult(LoginResult.Status.USER_FOUND, "OK")
+                                : new LoginResult(LoginResult.Status.USER_NOT_FOUND, "Invalid username or password")
+                );
             } catch (Exception e) {
                 e.printStackTrace();
                 try {
@@ -103,7 +110,53 @@ public class SimpleServer extends AbstractServer {
                 } catch (IOException ignored) {
                 }
             }
-            return;
+        } else if (msg instanceof SignupRequest) {
+            SignupRequest req = (SignupRequest) msg;
+
+            try (Session s = sessionFactory.openSession()) {
+                Transaction tx = null;
+                try {
+                    // בדיקת כפילות שם משתמש (נעים ל-UX; בפועל להסתמך גם על UNIQUE ב-DB)
+                    Long cnt = s.createQuery(
+                            "select count(u) from UserAccount u where u.login = :login",
+                            Long.class
+                    ).setParameter("login", req.getUsername()).uniqueResult();
+
+                    if (cnt != null && cnt > 0) {
+                        try {
+                            client.sendToClient(SignupResult.usernameTaken());
+                        } catch (IOException ignored) {
+                        }
+                        return;
+                    }
+
+                    // יצירה ושמירה
+                    tx = s.beginTransaction();
+                    UserAccount ua = new UserAccount(req.getUsername(), req.getPassword()); // הבנאי יוצר salt+hash
+                    s.save(ua);
+                    tx.commit();
+
+                    try {
+                        client.sendToClient(SignupResult.ok());
+                    } catch (IOException ignored) {
+                    }
+                }
+                // אם יש UNIQUE על login והתרחש מרוץ – ניפול לכאן
+                catch (ConstraintViolationException ex) {
+                    if (tx != null) tx.rollback();
+                    try {
+                        client.sendToClient(SignupResult.usernameTaken());
+                    } catch (IOException ignored) {
+                    }
+                } catch (Exception ex) {
+                    if (tx != null) tx.rollback();
+                    ex.printStackTrace();
+                    try {
+                        client.sendToClient(SignupResult.error());
+                    } catch (IOException ignored) {
+                    }
+                }
+            }
         } else if (msgString.startsWith("remove client")) {
             if (!SubscribersList.isEmpty()) {
                 for (SubscribedClient subscribedClient : SubscribersList) {

@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.SignupResult;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import Request.LoginResult;
 import org.greenrobot.eventbus.EventBus;
@@ -32,6 +33,9 @@ public class SimpleClient extends AbstractClient {
             } else if (msg instanceof LoginResult) {
                 LoginResult loginResult = (LoginResult) msg;
                 EventBus.getDefault().post(new LoginResponseEvent(loginResult.isSuccess(), null));
+            }
+            else if (msg instanceof SignupResult) {
+                EventBus.getDefault().post((SignupResult) msg);
             } else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
                 if (!list.isEmpty() && list.get(0) instanceof Item) {

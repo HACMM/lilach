@@ -1,6 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import Request.Message;
+import Request.SignupRequest;
 import il.cshaifasweng.OCSFMediatorExample.entities.User;
 import Request.Warning;
 import javafx.event.ActionEvent;
@@ -58,11 +58,12 @@ public class AccountCreationController {
         }
 
         // send data off to server
-        User newUser = new User(username, password, name, email);
         try {
-            client.sendToServer(new Message("sign up", newUser));
+            SignupRequest req = new SignupRequest(username, password, name, email);
+            client.sendToServer(req);
         } catch (IOException e) {
             e.printStackTrace();
+            warningLabel.setText("⚠ Connection error. Please try again.");
         }
     }
 

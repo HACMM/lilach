@@ -1,13 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.persistence.*;
@@ -115,7 +113,8 @@ public class UserAccount implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, unique = true)
     private int userId;
-    @Column(name = "login") private String login;
+    @Column(name = "login", unique = true, nullable = false)
+    private String login;
     @Column(name = "hash") private String hash;
     @Column(name = "salt") private String salt;
     @Column(name = "is_active") private boolean is_active;
@@ -156,7 +155,7 @@ public class UserAccount implements Serializable {
         this.defaultPaymentMethod = defaultPaymentMethod;
         this.is_active = true;
         this.role = Role.CUSTOMER;
-        // TODO: check
+        this.userBranchType = UserBranchType.SUBSCRIPTION;
     }
     public UserAccount(String login, String password) {
         this(login, password, null);
@@ -239,4 +238,18 @@ public class UserAccount implements Serializable {
     }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+
+    // ממיר מחרוזת מה-DB לבייטים: קודם Base64; אם נכשל – ISO-8859-1 לתמיכה בנתונים ישנים
+    private static byte[] decodeFromStorage(String stored) {
+        try { return Base64.getDecoder().decode(stored); }
+        catch (IllegalArgumentException e) { return stored.getBytes(StandardCharsets.ISO_8859_1); }
+    }
+
+    // אימות סיסמה גולמית מול ה-hash+salt השמורים למשתמש
+    public boolean verifyPassword(String plainPassword) {
+        byte[] salt = decodeFromStorage(this.salt);
+        byte[] expected = decodeFromStorage(this.hash);
+        return Passwords.isExpectedPassword(plainPassword.toCharArray(), salt, expected);
+    }
+
 }
