@@ -37,37 +37,26 @@
                   hgap="20"
                   vgap="20"
                   alignment="CENTER">
-
             <Button fx:id="browseBtn"
                     text="Browse Catalog"
                     onAction="#onBrowseClicked"
                     styleClass="button primary"
                     prefWidth="180" prefHeight="60" />
-
             <Button fx:id="ordersBtn"
                     text="My Orders"
                     onAction="#onOrdersClicked"
                     styleClass="button secondary"
                     prefWidth="180" prefHeight="60" />
-
-            <Button fx:id="cartBtn"
-                    text="Cart"
-                    onAction="#onCartClicked"
-                    styleClass="button secondary"
-                    prefWidth="180" prefHeight="60" />
-
             <Button fx:id="complaintsBtn"
                     text="Complaints"
                     onAction="#onComplaintsClicked"
                     styleClass="button secondary"
                     prefWidth="180" prefHeight="60" />
-
             <Button fx:id="reportsBtn"
                     text="Reports"
                     onAction="#onReportsClicked"
                     styleClass="button secondary"
                     prefWidth="180" prefHeight="60" />
-
         </FlowPane>
 
         <Button text="Log In"
