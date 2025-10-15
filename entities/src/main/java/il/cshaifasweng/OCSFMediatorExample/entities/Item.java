@@ -9,11 +9,13 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Item")
 public class Item implements Serializable {
+
+    // TODO: add catagories that an Item is a part of
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id", nullable = false, unique = true)
     private int id;
-    // Item name: "Rose"
     @Column(name = "name") private String name;
     @Column(name = "description") private String description;
     @Column(name = "type") private String type;
@@ -25,14 +27,6 @@ public class Item implements Serializable {
     @OneToMany(mappedBy = "primaryKey.item",
             cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Set<ItemSale> sales = new HashSet<>();
-
-    @OneToMany(mappedBy = "primaryKey.item",
-            cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Set<ItemCategory> categories = new HashSet<>();
-
-    @OneToMany(mappedBy = "primaryKey.item",
-            cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<BranchInventory> branchInventory = new HashSet<>();
 
     public Item() {}
     public Item(String name, String type, double price, String imageLink, String color, String flowerType) {
@@ -103,3 +97,11 @@ public class Item implements Serializable {
     }
 }
 
+    public void setSales(Set<ItemSale> sales) {
+        this.sales = sales;
+    }
+
+    public void addSale(ItemSale sale) {
+        sales.add(sale);
+    }
+}
