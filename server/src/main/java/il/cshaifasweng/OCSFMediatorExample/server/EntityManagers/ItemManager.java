@@ -1,6 +1,6 @@
-package il.cshaifasweng.OCSFMediatorExample.server;
+package il.cshaifasweng.OCSFMediatorExample.server.EntityManagers;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Filter;
+import Request.Filter;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

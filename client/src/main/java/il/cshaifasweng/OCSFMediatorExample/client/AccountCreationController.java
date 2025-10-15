@@ -1,8 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.User;
-import il.cshaifasweng.OCSFMediatorExample.entities.Warning;
+import Request.Warning;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

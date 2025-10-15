@@ -2,47 +2,92 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Complaint;
-import il.cshaifasweng.OCSFMediatorExample.entities.Message;
+import Request.Message;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-
+import javafx.scene.control.TextField;
 import java.io.IOException;
-
+import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class ComplaintController {
-    @FXML private ComboBox<String> typeCombo;
-    @FXML private TextArea descriptionArea;
-    @FXML private Button backBtn;
-    @FXML private Button sendButton; // if you give the send button fx:id in FXML, e.g., fx:id="sendButton"
+    @FXML
+    private ComboBox<String> BranchCombo;
 
     @FXML
+    private TextField EmailTextField;
+
+    @FXML
+    private TextField NameTextField;
+
+    @FXML
+    private TextField OrderNumberTextField;
+
+    @FXML
+    private Button backBtn;
+
+    @FXML
+    private Button sendButton;
+
+    @FXML
+    private TextArea descriptionArea;
+
+
+        @FXML
     public void initialize() {
         // initial setup if needed
     }
 
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
     @FXML
     private void onSendComplaint() {
-        String type = typeCombo.getValue();
+        //String type = typeCombo.getValue();
         String desc = descriptionArea.getText().trim();
-        if (type == null || desc.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING, "Please select type and enter description.");
+        String name = NameTextField.getText().trim();
+        String order = OrderNumberTextField.getText().trim();
+        String email = EmailTextField.getText().trim();
+        String branch = BranchCombo.getSelectionModel().getSelectedItem();
+        if (desc.isEmpty() || branch == null || name.isEmpty() || order.isEmpty() || email.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Please fill all fields");
             alert.showAndWait();
             return;
+        } else { if (!isValidEmail(email)) {
+            Alert alert = new Alert(Alert.AlertType.WARNING, "Please enter a valid email address");
+            alert.showAndWait();
+            return;
+            }
         }
 
-        Complaint complaint = new Complaint(type, desc);
         try {
             if (sendButton != null) sendButton.setDisable(true);
-            client.sendToServer(new Message("newComplaint", complaint));
+            {
+                LocalDateTime timeNow = LocalDateTime.now(); // Get the current time
+                // TODO: Branch class was implemented, we should eather leave "branch" field empty
+                //      or send branch id picked by user or loaded from order info idk
+
+                Complaint complaint = new Complaint(null, order, name, email, desc);
+                client.sendToServer(new Message("newComplaint", complaint));
+            }
+
             Alert ok = new Alert(Alert.AlertType.INFORMATION, "Complaint submitted!");
             ok.showAndWait();
             // reset fields
-            typeCombo.getSelectionModel().clearSelection();
+            BranchCombo.getSelectionModel().clearSelection();
+            NameTextField.clear();
+            OrderNumberTextField.clear();
+            EmailTextField.clear();
             descriptionArea.clear();
         } catch (IOException e) {
             e.printStackTrace();

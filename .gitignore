@@ -54,3 +54,5 @@ nb-configuration.xml
 release.properties
 pom.xml.releaseBackup
 pom.xml.tag
+server/src/main/resources/hibernate.properties
+server/src/main/resources/hibernate.properties
