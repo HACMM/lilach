@@ -1,5 +1,9 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import il.cshaifasweng.OCSFMediatorExample.entities.Order;
+import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -8,10 +12,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 import javafx.util.converter.IntegerStringConverter;
-
+import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CartViewController {
     @FXML private TableView<CartItem> table;
@@ -103,17 +110,35 @@ public class CartViewController {
 
     @FXML
     private void onCheckout() {
-        // TODO: integrate with OCSF order creation
-        Alert ok = new Alert(Alert.AlertType.INFORMATION,
-                "Order placed! (demo)\nTotal: " + totalLbl.getText());
-        ok.setHeaderText("Checkout");
-        ok.showAndWait();
+        try {
+            UserAccount currentUser = AppSession.getCurrentUser();
+            Set<Item> items = new HashSet<>(CartService.get().items()
+                    .stream()
+                    .map(CartItem::getItem)
+                    .collect(Collectors.toList()));
 
-        CartService.get().clear();
-        refreshTotals();
-        try { App.setRoot("MyOrdersView"); } catch (IOException e) { e.printStackTrace(); }
+            Order newOrder = new Order(currentUser, items);
+
+            // TODO: ask the customer if he wants to change the payment method
+            // newOrder.setPaymentMethod(customPaymentMethod);
+
+            client.sendToServer(new Message("newOrder", newOrder));
+
+            Alert ok = new Alert(Alert.AlertType.INFORMATION,
+                    "Your order has been placed successfully!");
+            ok.setHeaderText("Order Sent");
+            ok.showAndWait();
+
+            CartService.get().clear();
+            App.setRoot("MyOrdersView");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to send order to server.").showAndWait();
+        }
     }
 
+
     // Optional: if you later want a Spinner cell instead of text editing,
-    // I can swap qtyCol to a Spinner-based cell with validation.
+    // I can swap qtyCol to a Spinner-based cell with validation.
 }

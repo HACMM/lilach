@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import Request.Warning;
 import javafx.event.ActionEvent;

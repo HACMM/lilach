@@ -121,6 +121,9 @@ public class UserAccount implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;   // CUSTOMER / EMPLOYEE / MANAGER
+    @Column(name = "Name") private String Name;
+    @Column(name = "email") private String email;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "branch_type", nullable = false)
@@ -145,7 +148,7 @@ public class UserAccount implements Serializable {
     @OneToMany(mappedBy = "managerAccount", orphanRemoval = false)
     private  Set<Complaint> managerComplaintSet = new HashSet<>();
 
-    public UserAccount(String login, String password, PaymentMethod defaultPaymentMethod) {
+    public UserAccount(String login, String password, String Name,String email, PaymentMethod defaultPaymentMethod) {
         this.login = login;
         // Generate salt, calculate hash, set salt and hash
         var generatedSalt = Passwords.getNextSalt();
@@ -156,9 +159,11 @@ public class UserAccount implements Serializable {
         this.is_active = true;
         this.role = Role.CUSTOMER;
         this.userBranchType = UserBranchType.SUBSCRIPTION;
+        this.Name = Name;
+        this.email = email;
     }
-    public UserAccount(String login, String password) {
-        this(login, password, null);
+    public UserAccount(String login, String password, String Name,String email) {
+        this(login, password,Name, email, null);
     }
 
     protected UserAccount() {

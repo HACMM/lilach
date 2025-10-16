@@ -1,8 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 
+import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
+import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Complaint;
 import Request.Message;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -10,6 +13,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.regex.Matcher;
@@ -18,7 +24,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class ComplaintController {
     @FXML
-    private ComboBox<String> BranchCombo;
+    private ComboBox<Branch> BranchCombo;
 
     @FXML
     private TextField EmailTextField;
@@ -39,9 +45,14 @@ public class ComplaintController {
     private TextArea descriptionArea;
 
 
-        @FXML
+    @FXML
     public void initialize() {
-        // initial setup if needed
+            EventBus.getDefault().register(this);
+            try {
+                client.sendToServer("#getAllBranches");
+            } catch (IOException e) {
+                System.err.println("Failed to request branch list: " + e.getMessage());
+            }
     }
 
     private boolean isValidEmail(String email) {
@@ -58,7 +69,7 @@ public class ComplaintController {
         String name = NameTextField.getText().trim();
         String order = OrderNumberTextField.getText().trim();
         String email = EmailTextField.getText().trim();
-        String branch = BranchCombo.getSelectionModel().getSelectedItem();
+        Branch branch = BranchCombo.getSelectionModel().getSelectedItem();
         if (desc.isEmpty() || branch == null || name.isEmpty() || order.isEmpty() || email.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING, "Please fill all fields");
             alert.showAndWait();
@@ -74,10 +85,7 @@ public class ComplaintController {
             if (sendButton != null) sendButton.setDisable(true);
             {
                 LocalDateTime timeNow = LocalDateTime.now(); // Get the current time
-                // TODO: Branch class was implemented, we should eather leave "branch" field empty
-                //      or send branch id picked by user or loaded from order info idk
-
-                Complaint complaint = new Complaint(null, order, name, email, desc);
+                Complaint complaint = new Complaint(branch, order, name, email, desc);
                 client.sendToServer(new Message("newComplaint", complaint));
             }
 
@@ -107,5 +115,12 @@ public class ComplaintController {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Could not navigate back.");
             alert.showAndWait();
         }
+    }
+
+    @Subscribe
+    public void onBranchListReceived(BranchListEvent event) {
+        Platform.runLater(() -> {
+            BranchCombo.getItems().setAll(event.getBranches());
+        });
     }
 }

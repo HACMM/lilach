@@ -1,18 +1,19 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
-import javafx.scene.control.TextArea;
 
 
 import java.io.IOException;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class ItemController {
     @FXML
@@ -23,10 +24,19 @@ public class ItemController {
     private Button addToCartBUTTON;
     @FXML
     private Button EditPriceBTN;
+    @FXML
+    private Button RemoveBTN;
 
     @FXML
     void addToCart(ActionEvent event) {
-        //TODO: implement when the cart page is ready
+        if (item == null) return;
+
+        CartService.get().addOne(item);
+
+        Alert ok = new Alert(Alert.AlertType.INFORMATION,
+                item.getName() + " added to your cart!");
+        ok.setHeaderText("Added to Cart");
+        ok.showAndWait();
     }
 
     public void updatePriceLabel(double newPrice) {
@@ -42,11 +52,14 @@ public class ItemController {
             // just employee and manager see the button
             if (role == Role.EMPLOYEE || role == Role.MANAGER) {
                 EditPriceBTN.setVisible(true);
+                RemoveBTN.setVisible(true);
             } else {
                 EditPriceBTN.setVisible(false);
+                RemoveBTN.setVisible(false);
             }
         } else {
             EditPriceBTN.setVisible(false);
+            RemoveBTN.setVisible(false);
     }
         this.item = item;
         nameLabel.setText(item.getName());
@@ -92,4 +105,28 @@ public class ItemController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    void onRemoveItem(ActionEvent event) {
+        if (item == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                "Are you sure you want to remove " + item.getName() + "?",
+                ButtonType.YES, ButtonType.NO);
+        confirm.setHeaderText("Confirm Removal");
+        confirm.showAndWait();
+
+        if (confirm.getResult() == ButtonType.YES) {
+            try {
+                client.sendToServer(new Message("removeItem", item));
+                Alert ok = new Alert(Alert.AlertType.INFORMATION,
+                        "Item removed successfully!");
+                ok.showAndWait();
+            } catch (IOException e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Failed to contact server.").showAndWait();
+            }
+        }
+    }
+
 }

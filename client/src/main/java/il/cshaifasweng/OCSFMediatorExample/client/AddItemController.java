@@ -1,25 +1,33 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
+import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.scene.control.TextArea;
+import java.util.List;
 import java.util.function.Consumer;
 import javafx.scene.control.ComboBox;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class AddItemController {
 
     @FXML private TextField nameField;
     @FXML private TextField typeField;
     @FXML private TextField priceField;
+    @FXML private TextField colorField;
     @FXML private Label     errorLabel;
     @FXML private TextArea DescriptionArea;
-    @FXML private ComboBox<String> branchComboBox;
+    @FXML private ComboBox<Branch> branchComboBox;
+    private List<Branch> branches;
 
     @FXML
     public void initialize() {
@@ -43,11 +51,12 @@ public class AddItemController {
             String name = nameField.getText().trim();
             String type = typeField.getText().trim();
             String priceStr = priceField.getText().trim();
+            String color = colorField.getText().trim();
             String description = DescriptionArea.getText().trim();
-            String branch = branchComboBox.getSelectionModel().getSelectedItem();
+            Branch branch = branchComboBox.getSelectionModel().getSelectedItem();
 
-            if (name.isEmpty() || type.isEmpty() || priceStr.isEmpty() || description.isEmpty() || branch.isEmpty()) {
-                errorLabel.setText("Please fill name, type, price and description.");
+            if (name.isEmpty() || type.isEmpty() || priceStr.isEmpty() || description.isEmpty() || branch == null) {
+                errorLabel.setText("Please fill name, type, price, color and description.");
                 return;
             }
             double price = Double.parseDouble(priceStr);
@@ -56,10 +65,10 @@ public class AddItemController {
                 return;
             }
 
-            Item newItem = new Item(name, type, description, price, null); // no image
+            Item newItem = new Item(name, type, description, price, null, color); // no image
 
             // TODO: Make AddItemMessage
-            //client.sendToServer(new AddItemMessage(newItem));
+            client.sendToServer(new Message("AddItem",newItem));
 
             if (onSaved != null) onSaved.accept(newItem);
             close();
@@ -78,10 +87,20 @@ public class AddItemController {
         stage.close();
     }
 
-    //TODO: fill the comboBox with all the branches
-//    @Subscribe
-//    public void onBranchListReceived(BranchListEvent event) {
-//        branchComboBox.getItems().setAll(event.getBranches());
-//}
+    @Subscribe
+    public void onBranchListReceived(BranchListEvent event) {
+            Platform.runLater(() -> {
+                branchComboBox.getItems().setAll(event.getBranches());
+            });
+    }
+
+//        branches = event.getBranches();
+//        Platform.runLater(() -> {
+//            branchComboBox.getItems().clear();
+//            for (Branch branch : branches) {
+//                branchComboBox.getItems().add(branch);
+//            }
+//        });
 
 }
+
