@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.time.LocalDate;
 import java.util.*;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -123,6 +124,14 @@ public class UserAccount implements Serializable {
     private Role role;   // CUSTOMER / EMPLOYEE / MANAGER
     @Column(name = "Name") private String Name;
     @Column(name = "email") private String email;
+    @Column(name = "id_number") private String idNumber;  // ת"ז
+    @Column(name = "credit_card") private String creditCardNumber;
+
+    @Column(name = "subscription_start_date")
+    private LocalDate subscriptionStartDate;
+
+    @Column(name = "subscription_expiration_date")
+    private LocalDate subscriptionExpirationDate;
 
 
     @Enumerated(EnumType.STRING)
@@ -148,7 +157,7 @@ public class UserAccount implements Serializable {
     @OneToMany(mappedBy = "managerAccount", orphanRemoval = false)
     private  Set<Complaint> managerComplaintSet = new HashSet<>();
 
-    public UserAccount(String login, String password, String Name,String email, PaymentMethod defaultPaymentMethod) {
+    public UserAccount(String login, String password, String Name,String email, PaymentMethod defaultPaymentMethod, UserBranchType BranchType) {
         this.login = login;
         // Generate salt, calculate hash, set salt and hash
         var generatedSalt = Passwords.getNextSalt();
@@ -158,16 +167,22 @@ public class UserAccount implements Serializable {
         this.defaultPaymentMethod = defaultPaymentMethod;
         this.is_active = true;
         this.role = Role.CUSTOMER;
-        this.userBranchType = UserBranchType.SUBSCRIPTION;
+        this.userBranchType = BranchType;
+        if (BranchType == UserBranchType.SUBSCRIPTION) {
+            activateSubscription();
+        }
+
         this.Name = Name;
         this.email = email;
     }
     public UserAccount(String login, String password, String Name,String email) {
-        this(login, password,Name, email, null);
+        this(login, password,Name, email, null, UserBranchType.ALL_BRANCHES);
     }
 
-    protected UserAccount() {
+    protected UserAccount() {}
 
+    public UserAccount(String login, String password) {
+        this(login, password,null , null, null, UserBranchType.ALL_BRANCHES);
     }
 
     public int getUserId() {
@@ -243,6 +258,25 @@ public class UserAccount implements Serializable {
     }
     public Role getRole() { return role; }
     public void setRole(Role role) { this.role = role; }
+    public String getName() {
+        return Name;
+    }
+    public void setName(String name) {
+        Name = name;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public String getIdNumber() {
+        return idNumber;
+    }
+    public void setIdNumber(String idNumber) {
+        this.idNumber = idNumber;
+    }
+
 
     // ממיר מחרוזת מה-DB לבייטים: קודם Base64; אם נכשל – ISO-8859-1 לתמיכה בנתונים ישנים
     private static byte[] decodeFromStorage(String stored) {
@@ -256,5 +290,25 @@ public class UserAccount implements Serializable {
         byte[] expected = decodeFromStorage(this.hash);
         return Passwords.isExpectedPassword(plainPassword.toCharArray(), salt, expected);
     }
+
+    public void activateSubscription() {
+        this.userBranchType = UserBranchType.SUBSCRIPTION;
+        this.subscriptionStartDate = LocalDate.now();
+        this.subscriptionExpirationDate = subscriptionStartDate.plusYears(1);
+    }
+
+    public boolean isSubscriptionUser() {
+        return this.userBranchType == UserBranchType.SUBSCRIPTION;
+    }
+
+    public double calculateDiscount(double totalAmount) {
+        if (isSubscriptionUser() && totalAmount >= 50) {
+            return totalAmount * 0.10;
+        }
+        return 0;
+    }
+
+
+
 
 }

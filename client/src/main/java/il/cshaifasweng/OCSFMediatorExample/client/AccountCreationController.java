@@ -1,16 +1,19 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import Request.Warning;
+import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Label;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
@@ -24,11 +27,35 @@ public class AccountCreationController {
     @FXML private TextField     usernameField;
     @FXML private PasswordField passwordField;
     @FXML private Label         warningLabel;
-
-
+    @FXML private Button addPaymentBtn;
     @FXML private Button backBtn;
+    @FXML private ComboBox<String> accountTypeCombo;
+    //@FXML private Label subscriptionNote;
+    @FXML private Button ChooseCard;
+    @FXML private Button checkoutBtn;
 
+
+    private PaymentMethod selectedPaymentMethod;
     // existing fields and methods...
+
+
+    @FXML
+    public void initialize() {
+        accountTypeCombo.getItems().addAll(
+                "Branch Account",
+                "Network Account",
+                "Yearly Subscription"
+        );
+        accountTypeCombo.setValue("Branch Account");
+
+        accountTypeCombo.setOnAction(e -> {
+            String selected = accountTypeCombo.getValue();
+            //subscriptionNote.setVisible("Yearly Subscription".equals(selected));
+            ChooseCard.setVisible("Yearly Subscription".equals(selected));
+            checkoutBtn.setVisible("Yearly Subscription".equals(selected));
+        });
+    }
+
 
     @FXML
     private void onBack(ActionEvent event) {
@@ -40,6 +67,27 @@ public class AccountCreationController {
             // optionally show user feedback
         }
     }
+
+    @FXML
+    private void onAddPaymentClicked(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
+            Parent root = loader.load();
+
+            PaymentMethodController controller = loader.getController();
+
+            Stage stage = new Stage();
+            stage.setTitle("Add Payment Method");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            selectedPaymentMethod = controller.getPaymentMethod();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /** when you hit “Sign me Up!” */
     @FXML
     private void onSignUpClicked(ActionEvent event) {
@@ -58,6 +106,11 @@ public class AccountCreationController {
             return;
         }
 
+        if (selectedPaymentMethod == null) {
+            warningLabel.setText("Please add a payment method before signing up.");
+            return;
+        }
+
         //make sure email is valid
         if (!email.contains("@") || !email.contains(".")) {
             EventBus.getDefault().post(
@@ -66,9 +119,17 @@ public class AccountCreationController {
             return;
         }
 
+        UserBranchType branchType = switch (accountTypeCombo.getValue()) {
+            case "Branch Account" -> UserBranchType.BRANCH;
+            case "Network Account" -> UserBranchType.ALL_BRANCHES;
+            case "Yearly Subscription" -> UserBranchType.SUBSCRIPTION;
+            default -> UserBranchType.ALL_BRANCHES;
+        };
+
 
         // send data off to server
-        UserAccount newUser = new UserAccount(username, password, name, email);
+        UserAccount newUser = new UserAccount(username, password, name, email, selectedPaymentMethod, branchType);
+
         try {
             client.sendToServer(new Message("sign up", newUser));
         } catch (IOException e) {
@@ -85,5 +146,45 @@ public class AccountCreationController {
             ex.printStackTrace();
             warningLabel.setText("⚠ Couldn’t open login page.");
         }
+    }
+
+    public void onChooseCardClicked(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
+            Parent root = loader.load();
+
+            PaymentMethodController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.setTitle("Choose Payment Method");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+            selectedPaymentMethod = controller.getPaymentMethod();
+
+            if (selectedPaymentMethod != null) {
+                warningLabel.setText("Payment method selected successfully.");
+            } else {
+                warningLabel.setText("No payment method selected.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            warningLabel.setText("Error opening payment window.");
+        }
+    }
+
+    public void onCheckoutClicked(ActionEvent actionEvent) {
+        if (selectedPaymentMethod == null) {
+            warningLabel.setText("Please choose a payment method before checkout.");
+            return;
+        }
+
+        // תשלום (מדומה) של 100 ₪
+        Alert paymentAlert = new Alert(Alert.AlertType.INFORMATION);
+        paymentAlert.setTitle("Payment Successful");
+        paymentAlert.setHeaderText("Yearly Subscription Activated");
+        paymentAlert.setContentText("Your yearly subscription has been paid successfully (100₪).");
+        paymentAlert.showAndWait();
     }
 }
