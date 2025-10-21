@@ -8,6 +8,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CatalogController">
 
     <!-- Top bar: back arrow + search -->
@@ -21,6 +23,20 @@
          <ComboBox prefWidth="85.0" promptText="Price" />
          <ComboBox fx:id="colorFilter" prefWidth="85.0" promptText="Color" />
          <ComboBox fx:id="categoryFilter" prefHeight="25.0" prefWidth="85.0" promptText="Catagory" />
+
+            <!-- Spacer (ידחוף את האייקון לימין) -->
+            <HBox HBox.hgrow="ALWAYS" />
+
+            <!-- Profile button -->
+            <Button fx:id="profileBtn" onAction="#onProfileClicked" style="-fx-background-color: transparent;">
+                <graphic>
+                    <ImageView fitHeight="25" fitWidth="25" preserveRatio="true">
+                        <image>
+                            <Image url="@/images/user_icon.png" />
+                        </image>
+                    </ImageView>
+                </graphic>
+            </Button>
         </HBox>
     </top>
 
@@ -35,4 +51,15 @@
             </columns>
         </TableView>
     </center>
+
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 10;">
+            <Button fx:id="addItemBtn"
+                    text="+ Add Item"
+                    onAction="#onAddItemClicked"
+                    style="-fx-background-color: #832018; -fx-text-fill: white;"
+                    visible="false" />
+        </HBox>
+    </bottom>
+
 </BorderPane>

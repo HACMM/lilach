@@ -309,6 +309,11 @@ public class UserAccount implements Serializable {
     }
 
 
+    public Object getSubscriptionExpirationDate() {
+        return this.subscriptionExpirationDate;
+    }
 
-
+    public Object getUserBranchType() {
+        return this.userBranchType;
+    }
 }

@@ -6,10 +6,27 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.text.Text?>
 
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 <AnchorPane prefHeight="600" prefWidth="800" style="               -fx-background-image: url('/images/flower_background.png');               -fx-background-repeat: no-repeat;               -fx-background-size: cover;               -fx-background-position: center;             " styleClass="anchor-pane root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MainPageController">
 
-    
+
     <children>
+
+        <Button fx:id="profileBtn"
+                layoutX="730" layoutY="10"
+                onAction="#onProfileClicked"
+                style="-fx-background-color: transparent;">
+            <graphic>
+                <ImageView> fitHeight="25" fitWidth="25"
+                           pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@/images/user_icon.png" />
+                    </image>
+                </ImageView>
+            </graphic>
+        </Button>
+
         <Text styleClass="title" text="Welcome to our Floral Shop" AnchorPane.leftAnchor="50" AnchorPane.topAnchor="40" />
 
         <Label maxWidth="400" style="-fx-font-size: 18px;" styleClass="welcome" text="Where every bloom brightens your day!" wrapText="true" AnchorPane.leftAnchor="50" AnchorPane.topAnchor="80" />

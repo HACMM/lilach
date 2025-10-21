@@ -4,6 +4,8 @@ import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import Request.Message;
@@ -51,9 +53,9 @@ public class PersonalDetailsController {
 
         try {
             client.sendToServer(new Message("update user details", currentUser));
-            statusLabel.setText("✅ Details updated successfully!");
+            statusLabel.setText("Details updated successfully!");
         } catch (Exception e) {
-            statusLabel.setText("❌ Failed to update details.");
+            statusLabel.setText("Failed to update details.");
         }
     }
 
@@ -66,9 +68,12 @@ public class PersonalDetailsController {
             st.setTitle("Change Payment Method");
             st.showAndWait();
 
-            PaymentMethod newPayment = loader.getController().getPaymentMethod();
+            PaymentMethodController controller = loader.getController();
+            PaymentMethod newPayment = controller.getPaymentMethod();
+
             if (newPayment != null) {
                 currentUser.setDefaultPaymentMethod(newPayment);
+                client.sendToServer(new Message("update payment method", currentUser));
                 statusLabel.setText("💳 Payment method updated!");
             }
         } catch (Exception e) {
@@ -78,13 +83,11 @@ public class PersonalDetailsController {
 
     @FXML
     private void onPurchaseSubscription() {
-        // כאן אפשר להוסיף חלון תשלום (100₪)
         statusLabel.setText("✅ Subscription purchased successfully!");
     }
 
     @FXML
     private void onRenewSubscription() {
-        // כאן אפשר לקרוא למתודה renewSubscription
         currentUser.activateSubscription();
         subscriptionExpiryLbl.setText(currentUser.getSubscriptionExpirationDate().toString());
         statusLabel.setText("🔁 Subscription renewed!");

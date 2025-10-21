@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -220,4 +221,22 @@ private void applyFilters() {
 //
 //	filteredData.setAll(filtered);
 }
+
+	@FXML
+	private void onProfileClicked(ActionEvent event) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(
+					"/il/cshaifasweng/OCSFMediatorExample/client/PersonalDetailsView.fxml"));
+			Stage stage = new Stage();
+			stage.setScene(new Scene(loader.load()));
+			stage.setTitle("Personal Details");
+			stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@FXML
+	public void onAddItemClicked(ActionEvent actionEvent) {
+	}
 }
