@@ -132,7 +132,7 @@ public class SimpleServer extends AbstractServer {
 
                     // יצירה ושמירה
                     tx = s.beginTransaction();
-                    UserAccount ua = new UserAccount(req.getUsername(), req.getPassword()); // הבנאי יוצר salt+hash
+                    UserAccount ua = new UserAccount(req.getUsername(), req.getPassword(), req.getName(), req.getEmail()); // הבנאי יוצר salt+hash
                     s.save(ua);
                     tx.commit();
 
@@ -157,6 +157,38 @@ public class SimpleServer extends AbstractServer {
                     }
                 }
             }
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("AddItem")) {
+            Message message = (Message) msg;
+
+            Item in = (Item) message.getData();
+
+            var item = new Item(in.getName(), in.getType(), in.getDescription(), in.getPrice(), in.getImageLink(), in.getColor());
+
+            var sf = DbConnector.getInstance().getSessionFactory();
+            org.hibernate.Transaction tx = null;
+            try (org.hibernate.Session session = sf.openSession()) {
+                tx = session.beginTransaction();
+                session.persist(item);
+                tx.commit();
+
+                client.sendToClient(new Message("item added successfully", item));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("show branches")) {
+            var sessionf = DbConnector.getInstance().getSessionFactory();
+
+            try (org.hibernate.Session session = sessionf.openSession()) {
+                java.util.List<Branch> branches =
+                        session.createQuery("from Branch", Branch.class)
+                                .getResultList();
+
+                client.sendToClient(new Message("branch list", branches));
+            } catch (Exception e) {
+                try { client.sendToClient(new Request.Message("branch list error", e.getMessage())); }
+                catch (Exception ignore) {}
+            }
+
         } else if (msgString.startsWith("remove client")) {
             if (!SubscribersList.isEmpty()) {
                 for (SubscribedClient subscribedClient : SubscribersList) {

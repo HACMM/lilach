@@ -8,6 +8,7 @@ public class SignupRequest implements Serializable {
     private String password;
     private String name;
     private String email;
+    private String payment;
 
     public SignupRequest() { }
 
