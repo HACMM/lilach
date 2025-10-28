@@ -9,14 +9,27 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.scene.control.TextArea;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Consumer;
 import javafx.scene.control.ComboBox;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import javax.imageio.ImageIO;
 
 public class AddItemController {
 
@@ -27,6 +40,10 @@ public class AddItemController {
     @FXML private Label     errorLabel;
     @FXML private TextArea DescriptionArea;
     @FXML private ComboBox<Branch> branchComboBox;
+    @FXML private Label imageNameLabel;
+    @FXML private ImageView previewImage;
+
+    private File selectedImageFile; // הקובץ שנבחר
     private List<Branch> branches;
 
     @FXML
@@ -36,6 +53,51 @@ public class AddItemController {
             client.sendToServer("#getAllBranches");
         } catch (Exception e) {
             errorLabel.setText("Failed to load branches.");
+        }
+    }
+
+    public static byte[] imageToByteArray(Image image) {
+        if (image == null) {
+            throw new IllegalArgumentException("Image cannot be null");
+        }
+
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
+        PixelReader pixelReader = image.getPixelReader();
+
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int argb = pixelReader.getArgb(x, y);
+                bufferedImage.setRGB(x, y, argb);
+            }
+        }
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ImageIO.write(bufferedImage, "png", outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    @FXML
+    private void handleUploadImage(ActionEvent e) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Item Image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        Stage stage = (Stage) nameField.getScene().getWindow();
+        selectedImageFile = fileChooser.showOpenDialog(stage);
+
+        if (selectedImageFile != null) {
+            Image image = new Image(selectedImageFile.toURI().toString());
+            previewImage.setImage(image);
+            imageNameLabel.setText(selectedImageFile.getName());
         }
     }
 
@@ -62,10 +124,15 @@ public class AddItemController {
             double price = Double.parseDouble(priceStr);
             if (price <= 0) {
                 errorLabel.setText("Price must be positive.");
+                errorLabel.setStyle("-fx-text-fill: red;");
                 return;
             }
 
-            Item newItem = new Item(name, type, description, price, null, color); // no image
+            byte[] imagebytes = null;
+            if (previewImage.getImage() != null) {
+                imagebytes = imageToByteArray(previewImage.getImage());
+            }
+            Item newItem = new Item(name, type, description, price, imagebytes, color);
 
             // TODO: Make AddItemMessage
             client.sendToServer(new Message("AddItem",newItem));

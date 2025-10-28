@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.LoginController"
+            prefWidth="600" prefHeight="420"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
+    <children>
+        <!-- קופסה לבנה שקופה במרכז -->
+        <VBox alignment="CENTER"
+              spacing="16"
+              AnchorPane.leftAnchor="100"
+              AnchorPane.rightAnchor="100"
+              AnchorPane.topAnchor="60"
+              AnchorPane.bottomAnchor="60"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 14;
+                     -fx-padding: 25;">
+
+            <!-- 🔹 כפתור חזרה -->
+            <Button fx:id="backBtn"
+                    text="← Back"
+                    onAction="#onBackClicked"
+                    alignment="CENTER_LEFT"
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: #a0537a;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 13;
+                           -fx-cursor: hand;"
+                    VBox.margin="0 0 5 0"/>
+
+            <!-- 🔹 כותרת -->
+            <Text text="Welcome to Lilach 🌸"
+                  style="-fx-font-size: 20;
+                         -fx-font-weight: bold;
+                         -fx-fill: #93345c;"/>
+
+            <Text text="Log in to your account"
+                  style="-fx-font-size: 15;
+                         -fx-fill: #c36b91;
+                         -fx-font-style: italic;"/>
+
+            <!-- 🔹 שדות התחברות -->
+            <TextField fx:id="usernameField"
+                       promptText="Username"
+                       prefWidth="220"
+                       style="-fx-background-color: #fff;
+                              -fx-border-color: #e1a6c2;
+                              -fx-border-radius: 8;
+                              -fx-background-radius: 8;
+                              -fx-font-size: 13;"/>
+
+            <PasswordField fx:id="passwordField"
+                           promptText="Password"
+                           prefWidth="220"
+                           style="-fx-background-color: #fff;
+                                  -fx-border-color: #e1a6c2;
+                                  -fx-border-radius: 8;
+                                  -fx-background-radius: 8;
+                                  -fx-font-size: 13;"/>
+
+            <!-- 🔹 הודעת שגיאה -->
+            <Label fx:id="warningLabel"
+                   wrapText="true"
+                   style="-fx-text-fill: #c0392b;
+                          -fx-font-size: 12;
+                          -fx-font-weight: bold;"/>
+
+            <!-- 🔹 כפתור כניסה -->
+            <Button fx:id="loginBtn"
+                    text="Log In"
+                    onAction="#onLoginClicked"
+                    prefWidth="140"
+                    style="-fx-background-color: #e7b3d1;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 14;
+                           -fx-background-radius: 22;
+                           -fx-padding: 8 18 8 18;
+                           -fx-cursor: hand;"/>
+
+            <!-- 🔹 מעבר להרשמה -->
+            <Label fx:id="signupLabel"
+                   text="Don’t have an account? Sign Up"
+                   onMouseClicked="#onSignUpClicked"
+                   style="-fx-font-size: 14;
+                          -fx-text-fill: #a0537a;
+                          -fx-font-weight: bold;
+                          -fx-cursor: hand;"/>
+
+        </VBox>
+    </children>
+</AnchorPane>

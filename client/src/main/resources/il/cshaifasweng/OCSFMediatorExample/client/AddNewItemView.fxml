@@ -3,29 +3,52 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400" prefWidth="420" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AddItemController">
+<AnchorPane prefHeight="500" prefWidth="450" style="                 -fx-background-image: url('/images/flower_background.png');                 -fx-background-repeat: no-repeat;                 -fx-background-size: cover;                 -fx-background-position: center;                 -fx-padding: 20;             " xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AddItemController">
 
     <children>
-        <VBox spacing="12" AnchorPane.leftAnchor="30" AnchorPane.rightAnchor="30" AnchorPane.topAnchor="20">
-            <Label style="-fx-font-size: 20; -fx-font-weight: bold;" text="Add New Item" />
+        <VBox spacing="12" style="-fx-background-color: rgba(255,255,255,0.85); -fx-background-radius: 12; -fx-padding: 20;" AnchorPane.leftAnchor="30" AnchorPane.rightAnchor="30" AnchorPane.topAnchor="20">
+
+            <!-- 🔹 כותרת -->
+            <Label style="-fx-font-size: 22; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Add New Item" />
+
+            <!-- 🔹 אזור העלאת תמונה -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <VBox spacing="5">
+                    <Button onAction="#handleUploadImage" style="-fx-background-color: #e7b3d1; -fx-text-fill: white; -fx-font-weight: bold;" text="Upload Image" />
+                    <Label fx:id="imageNameLabel" style="-fx-text-fill: #555; -fx-font-size: 12px;" text="No image selected" />
+                </VBox>
+
+                <ImageView fx:id="previewImage" fitHeight="120" fitWidth="120" preserveRatio="true" style="-fx-border-color: #ccc; -fx-border-radius: 8; -fx-padding: 3;" />
+            </HBox>
+
+            <Separator />
+
+            <!-- 🔹 שדות הקלט -->
             <TextField fx:id="nameField" promptText="Name" />
             <TextField fx:id="typeField" promptText="Type (e.g., Flower, Bouquet)" />
             <TextField fx:id="priceField" promptText="Price (e.g., 12.5)" />
-         <TextField fx:id="colorField" promptText="Color" />
-            <Label fx:id="errorLabel" style="-fx-text-fill: #b00020;" />
-            <HBox spacing="10" />
+            <TextField fx:id="colorField" promptText="Color" />
+            <TextArea fx:id="DescriptionArea" prefHeight="100" promptText="Description" wrapText="true" />
+
+            <!-- 🔹 סניף -->
+            <ComboBox fx:id="branchComboBox" prefWidth="200" promptText="Select branch" />
+
+            <!-- 🔹 תווית לשגיאות -->
+            <Label fx:id="errorLabel" style="-fx-text-fill: #b00020; -fx-font-weight: bold;" />
+
+            <!-- 🔹 כפתורים -->
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Button onAction="#handleCancel" style="-fx-background-color: #cccccc; -fx-text-fill: #333; -fx-font-weight: bold;" text="Cancel" />
+                <Button defaultButton="true" onAction="#handleSave" style="-fx-background-color: #e7b3d1; -fx-text-fill: white; -fx-font-weight: bold;" text="Save" />
+            </HBox>
         </VBox>
-        <Region layoutX="111.0" layoutY="327.0" />
-        <Button layoutX="235.0" layoutY="337.0" onAction="#handleCancel" text="Cancel" />
-        <Button defaultButton="true" layoutX="303.0" layoutY="337.0" onAction="#handleSave" text="Save" />
-        <TextArea fx:id="DescriptionArea" layoutX="30.0" layoutY="211.0" prefHeight="94.0" prefWidth="360.0" promptText="Description" />
-        <ComboBox fx:id="branchComboBox" layoutX="30.0" layoutY="314.0" prefWidth="150.0" promptText="Select branch" />
     </children>
 </AnchorPane>

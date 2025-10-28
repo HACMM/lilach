@@ -1,43 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.image.Image?>
-<AnchorPane prefHeight="600" prefWidth="800" style="               -fx-background-image: url('/images/flower_background.png');               -fx-background-repeat: no-repeat;               -fx-background-size: cover;               -fx-background-position: center;             " styleClass="anchor-pane root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MainPageController">
-
+<AnchorPane prefHeight="600" prefWidth="800"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MainPageController">
 
     <children>
 
-        <Button fx:id="profileBtn"
-                layoutX="730" layoutY="10"
-                onAction="#onProfileClicked"
-                style="-fx-background-color: transparent;">
-            <graphic>
-                <ImageView> fitHeight="25" fitWidth="25"
-                           pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@/images/user_icon.png" />
-                    </image>
-                </ImageView>
-            </graphic>
-        </Button>
+        <!-- 🔹 תיבה לבנה שקופה -->
+        <VBox alignment="CENTER" spacing="20"
+              AnchorPane.topAnchor="60"
+              AnchorPane.bottomAnchor="60"
+              AnchorPane.leftAnchor="80"
+              AnchorPane.rightAnchor="80"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 16;
+                     -fx-padding: 25;
+                     -fx-border-color: #f3b3cb;
+                     -fx-border-radius: 16;">
 
-        <Text styleClass="title" text="Welcome to our Floral Shop" AnchorPane.leftAnchor="50" AnchorPane.topAnchor="40" />
+            <!-- 🔹 כפתור PROFILE (האיש הקטן – נשמר השם המקורי שלך) -->
+            <HBox alignment="TOP_RIGHT" prefWidth="100%" spacing="8">
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="profileBtn"
+                        onAction="#onProfileClicked"
+                        style="-fx-background-color: transparent;
+                               -fx-cursor: hand;
+                               -fx-padding: 4;">
+                    <graphic>
+                        <ImageView fitHeight="32" fitWidth="32" preserveRatio="true">
+                            <image>
+                                <Image url="@/images/personal_details_icon.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </HBox>
 
-        <Label maxWidth="400" style="-fx-font-size: 18px;" styleClass="welcome" text="Where every bloom brightens your day!" wrapText="true" AnchorPane.leftAnchor="50" AnchorPane.topAnchor="80" />
+            <!-- 🔹 כותרת -->
+            <Text text="🌸 Welcome to Lilach 🌸"
+                  style="-fx-font-size: 22;
+                         -fx-font-weight: bold;
+                         -fx-fill: #93345c;"/>
 
-        <FlowPane alignment="CENTER" hgap="20" vgap="20" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="160">
-            <Button fx:id="browseBtn" onAction="#onBrowseClicked" prefHeight="60" prefWidth="180" styleClass="button primary" text="Browse Catalog" />
-            <Button fx:id="ordersBtn" onAction="#onOrdersClicked" prefHeight="60" prefWidth="180" styleClass="button secondary" text="My Orders" />
-            <Button fx:id="complaintsBtn" onAction="#onComplaintsClicked" prefHeight="60" prefWidth="180" styleClass="button secondary" text="Complaints" />
-            <Button fx:id="reportsBtn" onAction="#onReportsClicked" prefHeight="60" prefWidth="180" styleClass="button secondary" text="Reports" />
-        </FlowPane>
+            <Text text="Where every bloom brightens your day"
+                  style="-fx-font-size: 15;
+                         -fx-fill: #c36b91;
+                         -fx-font-style: italic;"/>
 
-        <Button fx:id="LogInBtn" onAction="#onLoginClicked" styleClass="button primary" text="Log In" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20" />
+            <!-- 🔹 תפריט כפתורים -->
+            <FlowPane alignment="CENTER" hgap="20" vgap="15">
+                <Button fx:id="browseBtn"
+                        text="Browse Catalog"
+                        onAction="#onBrowseClicked"
+                        prefWidth="200" prefHeight="55"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14;
+                               -fx-background-radius: 25;
+                               -fx-cursor: hand;
+                               -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                <Button fx:id="ordersBtn"
+                        text="My Orders"
+                        onAction="#onOrdersClicked"
+                        prefWidth="200" prefHeight="55"
+                        style="-fx-background-color: rgba(255,255,255,0.9);
+                               -fx-text-fill: #a64f73;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14;
+                               -fx-background-radius: 25;
+                               -fx-border-color: #e7b3d1;
+                               -fx-border-radius: 25;
+                               -fx-cursor: hand;"/>
+
+                <Button fx:id="complaintsBtn"
+                        text="Complaints"
+                        onAction="#onComplaintsClicked"
+                        prefWidth="200" prefHeight="55"
+                        style="-fx-background-color: rgba(255,255,255,0.9);
+                               -fx-text-fill: #a64f73;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14;
+                               -fx-background-radius: 25;
+                               -fx-border-color: #e7b3d1;
+                               -fx-border-radius: 25;
+                               -fx-cursor: hand;"/>
+
+                <Button fx:id="reportsBtn"
+                        text="Reports"
+                        onAction="#onReportsClicked"
+                        prefWidth="200" prefHeight="55"
+                        style="-fx-background-color: rgba(255,255,255,0.9);
+                               -fx-text-fill: #a64f73;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 14;
+                               -fx-background-radius: 25;
+                               -fx-border-color: #e7b3d1;
+                               -fx-border-radius: 25;
+                               -fx-cursor: hand;"/>
+            </FlowPane>
+
+            <!-- 🔹 כפתור כניסה -->
+            <Button fx:id="LogInBtn"
+                    text="Log In"
+                    onAction="#onLoginClicked"
+                    prefWidth="160"
+                    style="-fx-background-color: linear-gradient(to bottom, #f6c1e1, #e7a5d1);
+                           -fx-text-fill: #4a004e;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 14;
+                           -fx-background-radius: 30;
+                           -fx-padding: 8 20 8 20;
+                           -fx-cursor: hand;
+                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
+        </VBox>
     </children>
 </AnchorPane>

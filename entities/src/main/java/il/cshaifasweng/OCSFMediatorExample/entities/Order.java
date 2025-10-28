@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,6 +38,34 @@ public class Order implements Serializable {
 
     @ManyToOne(optional = false)
     private Branch branch;
+
+    @Column(length = 50)
+    private String greeting;                        // ברכה להזמנה
+
+    @Column(name = "delivery_type")
+    private String deliveryType;                    // "Pickup" או "Delivery"
+
+    @Embedded
+    private Address deliveryAddress;                // כתובת משלוח (עיר, רחוב, בניין)
+
+    @Column(name = "recipient_name")
+    private String recipientName;                   // שם המקבלת
+
+    @Column(name = "recipient_phone")
+    private String recipientPhone;                  // טלפון של המקבלת
+
+    @Column(name = "delivery_datetime")
+    private LocalDateTime deliveryDateTime;         // תאריך ושעת המשלוח
+
+    @Column(name = "delivery_fee")
+    private double deliveryFee;                     // מחיר קבוע למשלוח
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "total_price")
+    private double totalPrice; // סה״כ מחיר ההזמנה (כולל משלוח)
+
 
     protected Order() {
 
@@ -107,4 +136,45 @@ public class Order implements Serializable {
     public void setComplaints(Collection<Complaint> complaints) {
         this.complaints = complaints;
     }
+
+    public String getGreeting() { return greeting; }
+
+    public void setGreeting(String greeting) { this.greeting = greeting; }
+
+    public String getDeliveryType() { return deliveryType; }
+
+    public void setDeliveryType(String deliveryType) { this.deliveryType = deliveryType; }
+
+    public Address getDeliveryAddress() { return deliveryAddress; }
+
+    public void setDeliveryAddress(Address deliveryAddress) { this.deliveryAddress = deliveryAddress; }
+
+    public String getRecipientName() { return recipientName; }
+
+    public void setRecipientName(String recipientName) { this.recipientName = recipientName; }
+
+    public String getRecipientPhone() { return recipientPhone; }
+
+    public void setRecipientPhone(String recipientPhone) { this.recipientPhone = recipientPhone; }
+
+    public LocalDateTime getDeliveryDateTime() { return deliveryDateTime; }
+
+    public void setDeliveryDateTime(LocalDateTime deliveryDateTime) { this.deliveryDateTime = deliveryDateTime; }
+
+    public double getDeliveryFee() { return deliveryFee; }
+
+    public void setDeliveryFee(double deliveryFee) { this.deliveryFee = deliveryFee; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
 }

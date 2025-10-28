@@ -1,60 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="581.0" prefWidth="500" styleClass="anchor-pane root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AccountCreationController">
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AccountCreationController"
+            prefWidth="720" prefHeight="520"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
 
-   <!-- Back button top-left -->
    <children>
-      <Button fx:id="backBtn" accessibleText="Go back" layoutX="10" layoutY="10" onAction="#onBack" styleClass="button secondary back-button">
-         <graphic>
-            <HBox alignment="CENTER" spacing="4">
-               <Label text="←" />
-               <Label text="Back" />
-            </HBox>
-         </graphic>
-      </Button>
 
-      <VBox alignment="CENTER" layoutX="100.0" layoutY="80.0" prefHeight="436.0" prefWidth="300.0" spacing="12" AnchorPane.bottomAnchor="123.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="80.0">
+      <!-- תיבת התוכן -->
+      <VBox spacing="14"
+            AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60"
+            AnchorPane.topAnchor="40" AnchorPane.bottomAnchor="40"
+            style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 12;
+                     -fx-padding: 25;">
 
-         <Text styleClass="welcome" text="🌸 Create Your Account 🌸" />
-         <Text styleClass="title" text="Sign Up!" />
+         <!-- 🔹 כותרת -->
+         <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button fx:id="backBtn" onAction="#onBack"
+                    style="-fx-background-color: transparent;
+                               -fx-text-fill: #2c3e50;
+                               -fx-font-weight: bold;">
+               ← Back
+            </Button>
+            <Label text="Create New Account"
+                   style="-fx-font-size: 22;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #2c3e50;" />
+         </HBox>
 
-         <TextField fx:id="nameField" promptText="Full Name" styleClass="text-field" />
-         <TextField promptText="id Number" />
-         <TextField fx:id="emailField" promptText="Email" styleClass="text-field" />
-         <TextField fx:id="usernameField" promptText="User Name" styleClass="text-field" />
-         <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-field" />
-         <ComboBox fx:id="accountTypeCombo" promptText="Account Type" />
-         <Label text="Account Types:"
-                style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+         <Separator />
 
-         <Text wrappingWidth="280" textAlignment="CENTER"
-               style="-fx-fill: #555555; -fx-font-size: 12px;"
-               text="• Branch Account – allows purchases from one branch.
-• Network Account – allows purchases from all branches.
-• Yearly Subscription – costs 100₪/year and gives 10% off orders above 50₪." />
+         <!-- 🔹 שדות הרשמה -->
+         <VBox spacing="10">
+            <TextField fx:id="nameField" promptText="Full Name"
+                       style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;" />
 
-         <Button fx:id="addPaymentBtn" mnemonicParsing="false" onAction="#onAddPaymentClicked" text="Add Payment Method" />
+            <TextField promptText="ID Number"
+                       style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;" />
 
-         <Button fx:id="ChooseCard" text="Choose Payment Method" visible="false"
-                 onAction="#onChooseCardClicked" />
-         <Button fx:id="checkoutBtn" text="Checkout (Pay 100₪)" visible="false"
-                 onAction="#onCheckoutClicked" />
+            <TextField fx:id="emailField" promptText="Email"
+                       style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;" />
 
-         <Button fx:id="signupBtn" onAction="#onSignUpClicked" styleClass="button primary" text="Sign me Up!" />
+            <TextField fx:id="usernameField" promptText="Username"
+                       style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;" />
 
-         <Label onMouseClicked="#onLoginLinkClicked" style="-fx-font-size: 14px;" styleClass="welcome" text="Already have an account? Log In" />
+            <PasswordField fx:id="passwordField" promptText="Password"
+                           style="-fx-background-radius: 8;
+                                      -fx-border-radius: 8;
+                                      -fx-border-color: #ddd;
+                                      -fx-background-color: #fff;" />
+         </VBox>
 
-         <Label fx:id="warningLabel" maxWidth="250" style="-fx-text-fill: red;" wrapText="true" />
+         <Separator />
+
+         <!-- 🔹 סוג חשבון -->
+         <Label text="Account Type:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+         <ComboBox fx:id="accountTypeCombo" promptText="Choose Account Type"
+                   style="-fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-border-color: #ddd;
+                             -fx-background-color: #fff;" />
+
+         <Text text="• Branch Account – purchases from one branch.
+• Network Account – purchases from all branches.
+• Yearly Subscription – costs 100₪/year and gives 10% off orders above 50₪."
+               style="-fx-fill: #555; -fx-font-size: 12;"
+               wrappingWidth="360" />
+
+         <Separator />
+
+         <!-- 🔹 כפתורי תשלום -->
+         <VBox spacing="10" alignment="CENTER">
+            <Button fx:id="addPaymentBtn" onAction="#onAddPaymentClicked"
+                    text="Add Payment Method"
+                    style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 20 6 20;" />
+
+            <Button fx:id="ChooseCard" onAction="#onChooseCardClicked" text="Choose Payment Method" visible="false"
+                    style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;" />
+
+            <Button fx:id="checkoutBtn" onAction="#onCheckoutClicked" text="Checkout (Pay 100₪)" visible="false"
+                    style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;" />
+         </VBox>
+
+         <Separator />
+
+         <!-- 🔹 כפתור סיום -->
+         <HBox alignment="CENTER_RIGHT" spacing="10">
+            <Button onAction="#onBack"
+                    text="Cancel"
+                    style="-fx-background-color: #cccccc;
+                               -fx-text-fill: #333;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 18 6 18;" />
+            <Button fx:id="signupBtn" onAction="#onSignUpClicked"
+                    text="Sign me Up!"
+                    style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 20 6 20;" />
+         </HBox>
+
+         <!-- 🔹 לינק והודעות -->
+         <Label text="Already have an account? Log In"
+                onMouseClicked="#onLoginLinkClicked"
+                style="-fx-font-size: 14; -fx-text-fill: #2c3e50; -fx-underline: true;"
+                alignment="CENTER" />
+         <Label fx:id="warningLabel"
+                style="-fx-text-fill: #b00020; -fx-font-weight: bold;"
+                wrapText="true"
+                maxWidth="280" />
       </VBox>
+
    </children>
 </AnchorPane>

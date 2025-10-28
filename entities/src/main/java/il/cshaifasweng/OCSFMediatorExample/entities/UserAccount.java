@@ -316,4 +316,12 @@ public class UserAccount implements Serializable {
     public Object getUserBranchType() {
         return this.userBranchType;
     }
+
+    public Branch getBranch() {
+        return this.branch;
+    }
+
+    public void setBranch(Branch branch) {
+        this.branch = branch;
+    }
 }

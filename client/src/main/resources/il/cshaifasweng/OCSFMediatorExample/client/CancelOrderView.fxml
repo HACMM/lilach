@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CancelOrderController"
+            prefWidth="600" prefHeight="460"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
+    <children>
+
+        <!-- תיבת התוכן -->
+        <VBox spacing="18"
+              AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60"
+              AnchorPane.topAnchor="40" AnchorPane.bottomAnchor="40"
+              alignment="CENTER"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 12;
+                     -fx-padding: 30;">
+
+            <!-- 🔹 כותרת -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button text="← Back"
+                        onAction="#onBack"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #2c3e50;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 13;" />
+                <Label text="Cancel Your Order"
+                       style="-fx-font-size: 22;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #2c3e50;" />
+            </HBox>
+
+            <Separator />
+
+            <!-- 🔹 תיאור -->
+            <Label text="Please enter your order details below:"
+                   style="-fx-font-size: 15;
+                          -fx-text-fill: #555;
+                          -fx-padding: 10 0 0 0;" />
+
+            <!-- 🔹 שדות קלט -->
+            <TextField fx:id="orderIdField"
+                       promptText="Enter Order ID"
+                       prefWidth="280"
+                       style="-fx-background-radius: 8;
+                              -fx-border-radius: 8;
+                              -fx-border-color: #ddd;
+                              -fx-background-color: #fff;" />
+
+            <TextField fx:id="emailField"
+                       promptText="Enter your email"
+                       prefWidth="280"
+                       style="-fx-background-radius: 8;
+                              -fx-border-radius: 8;
+                              -fx-border-color: #ddd;
+                              -fx-background-color: #fff;" />
+
+            <Separator />
+
+            <!-- 🔹 כפתור ביטול -->
+            <HBox alignment="CENTER" spacing="10">
+                <Button fx:id="cancelBtn"
+                        text="Cancel Order"
+                        onAction="#onCancelOrder"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 8 25 8 25;
+                               -fx-cursor: hand;"
+                        prefWidth="200"/>
+            </HBox>
+
+            <!-- 🔹 תוצאה -->
+            <Label fx:id="resultLabel"
+                   visible="false"
+                   wrapText="true"
+                   alignment="CENTER"
+                   prefWidth="300"
+                   style="-fx-font-size: 14;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #b00020;" />
+
+        </VBox>
+
+    </children>
+</AnchorPane>

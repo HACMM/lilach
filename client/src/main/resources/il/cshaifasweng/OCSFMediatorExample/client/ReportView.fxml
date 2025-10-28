@@ -1,30 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 
-<AnchorPane fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ReportViewController"
-            prefWidth="500" prefHeight="360"
-            xmlns="http://javafx.com/javafx"
+<AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            styleClass="anchor-pane root"
-            style="
-              -fx-background-color: white;
-              -fx-padding: 20;
-              -fx-border-radius: 8;
-              -fx-background-radius: 8;
-            ">
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ReportsController"
+            prefWidth="850" prefHeight="600"
+            style="-fx-background-image: url('images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
     <children>
-        <!-- header with back arrow and title -->
-        <HBox spacing="10" layoutX="10" layoutY="10" alignment="CENTER_LEFT">
-            <Button text="←" onAction="#onBack" styleClass="back-button" prefWidth="40" prefHeight="30"/>
-            <Label text="Submit Report" style="-fx-font-size:18px; -fx-font-weight:bold;"/>
-        </HBox>
+        <!-- תיבה לבנה שקופה -->
+        <VBox spacing="20"
+              alignment="TOP_CENTER"
+              AnchorPane.leftAnchor="30"
+              AnchorPane.rightAnchor="30"
+              AnchorPane.topAnchor="25"
+              AnchorPane.bottomAnchor="25"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 16;
+                     -fx-padding: 20;">
 
-        <TextArea fx:id="reportText" layoutX="20" layoutY="55" prefWidth="460" prefHeight="220"
-                  promptText="Describe issue or feedback..." wrapText="true"/>
+            <!-- 🔹 כותרת עליונה -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button text="← Back" onAction="#onBack"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #a0537a;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 13;
+                               -fx-cursor: hand;"/>
+                <Label text="Management Reports"
+                       style="-fx-font-size: 22;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #93345c;"/>
+            </HBox>
 
-        <Button fx:id="submitBtn" layoutX="20" layoutY="290" text="Submit" prefWidth="100" onAction="#onSubmit"/>
+            <!-- 🔹 סינונים -->
+            <HBox spacing="12" alignment="CENTER" style="-fx-padding: 10 0 10 0;">
+                <Label text="From:" style="-fx-text-fill: #5c3a4b; -fx-font-weight: bold;"/>
+                <DatePicker fx:id="fromDate" prefWidth="130"/>
+                <Label text="To:" style="-fx-text-fill: #5c3a4b; -fx-font-weight: bold;"/>
+                <DatePicker fx:id="toDate" prefWidth="130"/>
+                <ComboBox fx:id="branchCombo" promptText="Select Branch" prefWidth="160" visible="false"
+                          style="-fx-background-radius: 8; -fx-border-color: #e1a6c2;"/>
+                <ComboBox fx:id="reportTypeCombo"
+                          promptText="Select Report Type"
+                          prefWidth="200"
+                          style="-fx-background-radius: 8;
+                                 -fx-border-color: #e1a6c2;
+                                 -fx-background-color: #fff;">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Complaints Report" />
+                            <String fx:value="Revenue Report" />
+                            <String fx:value="Orders Report" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Button fx:id="generateBtn"
+                        text="Generate"
+                        onAction="#onGenerateReport"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 18 6 18;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
+            <!-- 🔹 אזור הדו"ח -->
+            <StackPane fx:id="chartContainer" prefWidth="780" prefHeight="420"
+                       style="-fx-background-color: rgba(255,255,255,0.8);
+                              -fx-border-color: #f3b3cb;
+                              -fx-border-radius: 10;
+                              -fx-background-radius: 10;
+                              -fx-padding: 10;">
+                <BarChart fx:id="mainChart" prefWidth="740" prefHeight="400">
+                    <xAxis>
+                        <CategoryAxis label="Date" />
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis label="Count / Revenue" />
+                    </yAxis>
+                </BarChart>
+            </StackPane>
+
+            <!-- 🔹 הודעה או מידע נוסף -->
+            <Label fx:id="infoLabel"
+                   visible="false"
+                   style="-fx-text-fill: #a0537a;
+                          -fx-font-style: italic;
+                          -fx-font-size: 13;"/>
+        </VBox>
     </children>
 </AnchorPane>

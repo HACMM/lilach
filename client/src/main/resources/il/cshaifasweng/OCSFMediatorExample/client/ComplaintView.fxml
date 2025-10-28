@@ -1,46 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="500.0" prefWidth="700.0" style="-fx-background-image: url('/images/flower_background.png');" styleClass="anchor-pane root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ComplaintController">
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ComplaintController"
+            prefWidth="720" prefHeight="520"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
 
     <children>
-        <!-- Header with back button + title -->
-        <HBox alignment="CENTER_LEFT" spacing="12" AnchorPane.leftAnchor="20" AnchorPane.topAnchor="20">
-            <Button fx:id="backBtn" accessibleText="Go back" onAction="#onBack" styleClass="button secondary back-button">
-                <graphic>
-                    <HBox alignment="CENTER" spacing="4">
-                        <Label text="←" />
-                        <Label text="Back" />
-                    </HBox>
-                </graphic>
-            </Button>
-            <Label styleClass="title" text="Submit your Complaint" />
-        </HBox>
 
-        <!-- Description field -->
-        <Label layoutX="391.0" layoutY="228.0" text="we are listening..." textFill="#eb8ed2" AnchorPane.leftAnchor="391.0" AnchorPane.topAnchor="228.0">
-         <font>
-            <Font name="System Bold Italic" size="14.0" />
-         </font></Label>
-        <TextArea fx:id="descriptionArea" layoutX="391.0" layoutY="263.0" prefHeight="150" prefWidth="259.0" wrapText="true" AnchorPane.leftAnchor="391.0" AnchorPane.topAnchor="263.0" />
+        <!-- תיבת תוכן שקופה -->
+        <VBox spacing="18"
+              AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60"
+              AnchorPane.topAnchor="50" AnchorPane.bottomAnchor="40"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 12;
+                     -fx-padding: 25;">
 
-        <!-- Submit button -->
-        <Button fx:id="sendButton" layoutX="550.0" layoutY="447.0" onAction="#onSendComplaint" styleClass="button primary" text="Send Complaint" AnchorPane.bottomAnchor="27.666666666666686" AnchorPane.rightAnchor="49.33333333333337" />
-      <Label layoutX="20.0" layoutY="84.0" text="Branch:" />
-      <Label layoutX="22.0" layoutY="165.0" text="Name:" />
-      <Label layoutX="23.0" layoutY="215.0" text="Email:" />
-      <Label layoutX="15.0" layoutY="265.0" text="Order Number:" />
-      <ComboBox fx:id="BranchCombo" layoutX="145.0" layoutY="79.0" prefHeight="28.0" prefWidth="190.0" promptText="choose Branch" style="-fx-border-color: #eb8ed2;" />
-      <TextField fx:id="NameTextField" layoutX="145.0" layoutY="160.0" prefHeight="28.0" prefWidth="190.0" style="-fx-border-color: #eb8ed2;" />
-      <TextField fx:id="EmailTextField" layoutX="145.0" layoutY="210.0" prefHeight="28.0" prefWidth="190.0" style="-fx-border-color: #eb8ed2;" />
-      <TextField fx:id="OrderNumberTextField" layoutX="145.0" layoutY="260.0" prefHeight="28.0" prefWidth="190.0" style="-fx-border-color: #eb8ed2;" />
+            <!-- 🔹 כותרת -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button fx:id="backBtn" onAction="#onBack"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #2c3e50;
+                               -fx-font-weight: bold;">
+                    ← Back
+                </Button>
+                <Label text="Submit a Complaint"
+                       style="-fx-font-size: 22;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #2c3e50;"/>
+            </HBox>
+
+            <Label text="We’re here to listen 💗"
+                   style="-fx-font-size: 17;
+                          -fx-text-fill: #555;
+                          -fx-font-style: italic;"/>
+
+            <Separator/>
+
+            <!-- 🔹 פרטי המשתמש -->
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="100"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="Branch:" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                       style="-fx-text-fill: #2c3e50;"/>
+                <ComboBox fx:id="BranchCombo"
+                          promptText="Choose a branch"
+                          prefWidth="240"
+                          GridPane.rowIndex="0" GridPane.columnIndex="1"
+                          style="-fx-background-radius: 8;
+                                 -fx-border-radius: 8;
+                                 -fx-border-color: #ddd;
+                                 -fx-background-color: #fff;"/>
+
+                <Label text="Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                       style="-fx-text-fill: #2c3e50;"/>
+                <TextField fx:id="NameTextField"
+                           promptText="Enter your name"
+                           prefWidth="240"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"
+                           style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;"/>
+
+                <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                       style="-fx-text-fill: #2c3e50;"/>
+                <TextField fx:id="EmailTextField"
+                           promptText="Enter your email"
+                           prefWidth="240"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1"
+                           style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;"/>
+
+                <Label text="Order No.:" GridPane.rowIndex="3" GridPane.columnIndex="0"
+                       style="-fx-text-fill: #2c3e50;"/>
+                <TextField fx:id="OrderNumberTextField"
+                           promptText="Enter your order number (optional)"
+                           prefWidth="240"
+                           GridPane.rowIndex="3" GridPane.columnIndex="1"
+                           style="-fx-background-radius: 8;
+                                  -fx-border-radius: 8;
+                                  -fx-border-color: #ddd;
+                                  -fx-background-color: #fff;"/>
+            </GridPane>
+
+            <Separator/>
+
+            <!-- 🔹 תיאור תלונה -->
+            <VBox spacing="6">
+                <Label text="Describe the issue:"
+                       style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <TextArea fx:id="descriptionArea"
+                          promptText="Tell us what went wrong..."
+                          prefHeight="120"
+                          wrapText="true"
+                          style="-fx-background-color: #fff;
+                                 -fx-border-color: #ddd;
+                                 -fx-border-radius: 8;
+                                 -fx-background-radius: 8;"/>
+            </VBox>
+
+            <Separator/>
+
+            <!-- 🔹 כפתור שליחה -->
+            <HBox alignment="CENTER">
+                <Button fx:id="sendButton" text="Send Complaint"
+                        onAction="#onSendComplaint"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 25;
+                               -fx-padding: 8 25 8 25;
+                               -fx-font-size: 14;
+                               -fx-cursor: hand;" />
+            </HBox>
+        </VBox>
+
     </children>
 </AnchorPane>

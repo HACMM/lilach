@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ComplaintManagementController"
+            prefWidth="850" prefHeight="520"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
+    <children>
+
+        <!-- תיבת התוכן הראשית -->
+        <VBox spacing="18"
+              AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40"
+              AnchorPane.topAnchor="30" AnchorPane.bottomAnchor="30"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 12;
+                     -fx-padding: 20;">
+
+            <!-- 🔹 כותרת -->
+            <HBox alignment="CENTER" style="-fx-padding: 8;">
+                <Label text="Customer Complaints Management"
+                       style="-fx-font-size: 22;
+                              -fx-font-weight: bold;
+                              -fx-text-fill: #2c3e50;" />
+            </HBox>
+
+            <Separator/>
+
+            <!-- 🔹 תוכן המרכז: טבלה + אזור תגובה -->
+            <SplitPane dividerPositions="0.45">
+                <!-- צד שמאל: טבלת תלונות -->
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <Label text="Open Complaints:"
+                           style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                    <TableView fx:id="complaintTable"
+                               prefHeight="400"
+                               style="-fx-background-color: rgba(255,255,255,0.9);
+                                      -fx-background-radius: 8;
+                                      -fx-border-radius: 8;
+                                      -fx-border-color: #ddd;">
+                        <columns>
+                            <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="clientCol" text="Client" prefWidth="140"/>
+                            <TableColumn fx:id="emailCol" text="Email" prefWidth="180"/>
+                            <TableColumn fx:id="dateCol" text="Date" prefWidth="120"/>
+                            <TableColumn fx:id="statusCol" text="Resolved" prefWidth="90"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <!-- צד ימין: פרטי תלונה ותגובה -->
+                <VBox spacing="12" style="-fx-padding: 15;">
+                    <Label text="Complaint Details:"
+                           style="-fx-font-size: 16;
+                                  -fx-font-weight: bold;
+                                  -fx-text-fill: #2c3e50;"/>
+                    <TextArea fx:id="descriptionArea"
+                              prefHeight="120"
+                              editable="false"
+                              wrapText="true"
+                              style="-fx-background-color: #fff;
+                                     -fx-border-color: #ddd;
+                                     -fx-background-radius: 8;
+                                     -fx-border-radius: 8;" />
+
+                    <Label text="Response:"
+                           style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                    <TextArea fx:id="responseArea"
+                              prefHeight="100"
+                              promptText="Write your response to the customer..."
+                              wrapText="true"
+                              style="-fx-background-color: #fff;
+                                     -fx-border-color: #ddd;
+                                     -fx-background-radius: 8;
+                                     -fx-border-radius: 8;" />
+
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Compensation:"
+                               style="-fx-text-fill: #2c3e50;" />
+                        <TextField fx:id="compensationField"
+                                   promptText="e.g., 20.0"
+                                   style="-fx-background-radius: 8;
+                                          -fx-border-radius: 8;
+                                          -fx-border-color: #ddd;
+                                          -fx-background-color: #fff;"
+                                   prefWidth="120"/>
+                    </HBox>
+
+                    <HBox alignment="CENTER_RIGHT">
+                        <Button text="Send Response"
+                                onAction="#onSendResponse"
+                                style="-fx-background-color: #e7b3d1;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-background-radius: 20;
+                                       -fx-padding: 6 20 6 20;
+                                       -fx-cursor: hand;" />
+                    </HBox>
+
+                    <Label fx:id="messageLabel"
+                           visible="false"
+                           style="-fx-font-weight: bold;
+                                  -fx-text-fill: #b00020;"
+                           wrapText="true"
+                           alignment="CENTER"/>
+                </VBox>
+            </SplitPane>
+        </VBox>
+
+    </children>
+</AnchorPane>

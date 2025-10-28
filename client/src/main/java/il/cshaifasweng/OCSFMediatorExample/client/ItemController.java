@@ -8,9 +8,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
@@ -19,6 +22,8 @@ public class ItemController {
     @FXML
     private TextArea descriptionTextArea;
     @FXML private Label nameLabel, typeLabel, priceLabel;
+    @FXML private ImageView itemImage;
+
     private Item item;
     @FXML
     private Button addToCartBUTTON;
@@ -26,6 +31,14 @@ public class ItemController {
     private Button EditPriceBTN;
     @FXML
     private Button RemoveBTN;
+    @FXML
+    private ImageView addToCartImage;
+
+    @FXML
+    private void initialize() {
+        addToCartImage.setImage(new Image(getClass().getResourceAsStream("/images/cart_icon.jpg")));
+    }
+
 
     @FXML
     void addToCart(ActionEvent event) {
@@ -86,6 +99,12 @@ public class ItemController {
 //        double discount = item.getSales();
 //        priceLabel.setText(String.valueOf(item.getPrice())+"$");
         descriptionTextArea.setText(item.getDescription());
+        if (item.getImageData() != null && item.getImageData().length > 0) {
+            Image img = new Image(new ByteArrayInputStream(item.getImageData()));
+            itemImage.setImage(img);
+        } else {
+            itemImage.setImage(new Image(getClass().getResourceAsStream("/images/no_image.jpg")));
+        }
     }
 
     @FXML

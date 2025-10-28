@@ -3,12 +3,17 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import Request.Message;
+
+import java.io.IOException;
+
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class PersonalDetailsController {
@@ -91,5 +96,20 @@ public class PersonalDetailsController {
         currentUser.activateSubscription();
         subscriptionExpiryLbl.setText(currentUser.getSubscriptionExpirationDate().toString());
         statusLabel.setText("🔁 Subscription renewed!");
+    }
+
+    public void onViewOrders(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/MyOrdersView.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Personal Details");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

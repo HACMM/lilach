@@ -1,52 +1,157 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
+<AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CartViewController">
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CartViewController"
+            prefWidth="820" prefHeight="580"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
 
-    <!-- Header -->
-    <top>
-        <HBox spacing="12" style="-fx-padding: 14;">
-            <Button text="← Back"
-                    onAction="#onBack"
-                    styleClass="back-button"/>
+    <children>
 
-            <Text text="Your Cart" styleClass="title"/>
+        <!-- תיבת התוכן -->
+        <VBox spacing="18"
+              AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40"
+              AnchorPane.topAnchor="30" AnchorPane.bottomAnchor="30"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 12;
+                     -fx-padding: 25;">
 
-            <Region HBox.hgrow="ALWAYS"/>
-            <Button text="Clear"
-                    onAction="#onClear"
-                    styleClass="button secondary"/>
-        </HBox>
-    </top>
+            <!-- 🔹 Header -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Button text="← Back" onAction="#onBack"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #2c3e50;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 13;" />
+                <Text text="Your Cart"
+                      style="-fx-font-size: 22; -fx-font-weight: bold; -fx-fill: #2c3e50;" />
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Clear" onAction="#onClear"
+                        style="-fx-background-color: #cccccc;
+                               -fx-text-fill: #333;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 18;
+                               -fx-padding: 6 18 6 18;" />
+            </HBox>
 
-    <!-- Main content in a soft panel -->
-    <center>
-        <VBox spacing="14" style="-fx-padding: 0 14 14 14;">
-            <VBox styleClass="form-panel" spacing="12">
-                <TableView fx:id="table" prefHeight="420">
+            <Separator />
+
+            <!-- 🔹 טבלת העגלה -->
+            <VBox spacing="12"
+                  style="-fx-background-color: rgba(255,255,255,0.9);
+                         -fx-background-radius: 8;
+                         -fx-border-radius: 8;
+                         -fx-border-color: #ddd;
+                         -fx-padding: 12;">
+                <TableView fx:id="table" prefHeight="300">
                     <columns>
-                        <TableColumn fx:id="nameCol" text="Name" prefWidth="280"/>
-                        <TableColumn fx:id="qtyCol"  text="Qty"  prefWidth="90"/>
-                        <TableColumn fx:id="priceCol" text="Price" prefWidth="110"/>
-                        <TableColumn fx:id="subtotalCol" text="Subtotal" prefWidth="130"/>
-                        <TableColumn fx:id="removeCol" text="" prefWidth="120"/>
+                        <TableColumn fx:id="nameCol" text="Name" prefWidth="250"/>
+                        <TableColumn fx:id="qtyCol" text="Qty" prefWidth="70"/>
+                        <TableColumn fx:id="priceCol" text="Price" prefWidth="100"/>
+                        <TableColumn fx:id="subtotalCol" text="Subtotal" prefWidth="100"/>
+                        <TableColumn fx:id="removeCol" text="" prefWidth="80"/>
                     </columns>
                 </TableView>
             </VBox>
 
-            <!-- Footer total + checkout -->
-            <HBox spacing="12" alignment="CENTER_RIGHT">
-                <Label text="Total:" style="-fx-font-weight: bold; -fx-font-size: 16px;"/>
-                <Label fx:id="totalLbl" style="-fx-font-size: 16px;"/>
-                <Button fx:id="checkoutBtn"
-                        text="Checkout"
-                        onAction="#onCheckout"
-                        styleClass="button primary"/>
+            <Separator />
+
+            <!-- 🔹 פרטי הזמנה -->
+            <VBox spacing="10"
+                  style="-fx-background-color: rgba(255,255,255,0.85);
+                         -fx-border-color: #d1b4d6;
+                         -fx-border-radius: 8;
+                         -fx-background-radius: 8;
+                         -fx-padding: 14;">
+
+                <Label text="Order Details:"
+                       style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+
+                <HBox spacing="10">
+                    <Label text="Delivery Date:" style="-fx-text-fill: #333;"/>
+                    <DatePicker fx:id="deliveryDate" />
+                    <Label text="Time:" style="-fx-text-fill: #333;"/>
+                    <ComboBox fx:id="deliveryTime" prefWidth="100" />
+                </HBox>
+
+                <HBox spacing="15">
+                    <Label text="Receive by:" style="-fx-text-fill: #333;"/>
+                    <RadioButton fx:id="pickupRadio" text="Pickup from store" toggleGroup="$receiveGroup"/>
+                    <RadioButton fx:id="deliveryRadio" text="Home delivery" toggleGroup="$receiveGroup"/>
+                </HBox>
+
+                <VBox fx:id="deliveryFields" spacing="6">
+                    <Label text="Delivery Details:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+                    <TextField fx:id="recipientName" promptText="Recipient name"
+                               style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                      -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+                    <TextField fx:id="recipientPhone" promptText="Recipient phone number"
+                               style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                      -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+
+                    <HBox spacing="8">
+                        <TextField fx:id="cityField" promptText="City" prefWidth="120"
+                                   style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                          -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+                        <TextField fx:id="streetField" promptText="Street" prefWidth="150"
+                                   style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                          -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+                        <TextField fx:id="buildingField" promptText="Building" prefWidth="80"
+                                   style="-fx-background-radius: 8; -fx-border-radius: 8;
+                                          -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+                    </HBox>
+                </VBox>
+
+                <Label text="Greeting Card:" style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+                <TextArea fx:id="greetingField"
+                          prefRowCount="3"
+                          promptText="Write your personal message here..."
+                          wrapText="true"
+                          style="-fx-background-radius: 8;
+                                 -fx-border-radius: 8;
+                                 -fx-border-color: #ddd;
+                                 -fx-background-color: #fff;" />
+            </VBox>
+
+            <Separator />
+
+            <!-- 🔹 סיכום ותשלום -->
+            <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+                <Label text="Total:"
+                       style="-fx-font-weight: bold; -fx-font-size: 16; -fx-text-fill: #2c3e50;"/>
+                <Label fx:id="totalLbl" style="-fx-font-size: 16; -fx-text-fill: #2c3e50;"/>
+                <Label fx:id="discountedTotalLbl" style="-fx-text-fill: #7b3e57;"/>
+                <Label fx:id="discountLbl" style="-fx-text-fill: #7b3e57;"/>
+                <Button fx:id="selectPaymentBtn" text="Select Payment" onAction="#onSelectPayment"
+                        style="-fx-background-color: #cccccc;
+                               -fx-text-fill: #333;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 16 6 16;"/>
+                <Button fx:id="checkoutBtn" text="Checkout" onAction="#onCheckout"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 20 6 20;"/>
             </HBox>
+
+            <!-- 🔹 הודעה למשתמש -->
+            <Label fx:id="messageLabel"
+                   style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #b00020;"
+                   visible="false"
+                   alignment="CENTER"
+                   maxWidth="400"/>
         </VBox>
-    </center>
-</BorderPane>
+
+    </children>
+</AnchorPane>

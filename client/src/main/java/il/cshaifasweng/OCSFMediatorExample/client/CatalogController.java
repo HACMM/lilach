@@ -2,6 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Filter;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import il.cshaifasweng.OCSFMediatorExample.entities.Role;
+import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,10 +19,12 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -39,6 +43,7 @@ public class CatalogController implements Initializable {
 	@FXML private ComboBox<String> colorFilter;
 	@FXML private ComboBox<String> priceFilter;
 	@FXML private TextField filterField;
+	@FXML private Button addItemBtn;
 	//@FXML private Button searchBtn;
 	private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
 	private final ObservableList<Item> filteredData = FXCollections.observableArrayList(); // הנתונים שמוצגים בטבלה
@@ -54,20 +59,40 @@ public class CatalogController implements Initializable {
 		nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
+//		imageCol.setCellValueFactory(d -> {
+//			String path = "/images/" + d.getValue().getImageLink();
+//			Image img;
+//			try {
+//				img = new Image(getClass().getResourceAsStream(path));
+//			} catch (Exception ex) {
+//				img = null;
+//			}
+//			ImageView iv = new ImageView(img);
+//			iv.setFitWidth(100);
+//			iv.setFitHeight(100);
+//			iv.setPreserveRatio(true);
+//			return new SimpleObjectProperty<>(iv);
+
 		imageCol.setCellValueFactory(d -> {
-			String path = "/images/" + d.getValue().getImageLink();
-			Image img;
-			try {
-				img = new Image(getClass().getResourceAsStream(path));
-			} catch (Exception ex) {
-				img = null;
+			byte[] imgData = d.getValue().getImageData();
+			ImageView imageView;
+
+			if (imgData != null && imgData.length > 0) {
+				Image img = new Image(new ByteArrayInputStream(imgData));
+				imageView = new ImageView(img);
+				imageView.setFitWidth(100);
+				imageView.setFitHeight(100);
+				imageView.setPreserveRatio(true);
+			} else {
+				imageView = new ImageView(new Image(getClass().getResourceAsStream("/images/no_image.jpg")));
+				imageView.setFitWidth(100);
+				imageView.setFitHeight(100);
+				imageView.setPreserveRatio(true);
 			}
-			ImageView iv = new ImageView(img);
-			iv.setFitWidth(100);
-			iv.setFitHeight(100);
-			iv.setPreserveRatio(true);
-			return new SimpleObjectProperty<>(iv);
-		});
+
+			return new SimpleObjectProperty<>(imageView);
+
+	});
 
 		categoryFilter.setItems(FXCollections.observableArrayList("All", "Bouquet", "Single Flower", "Plant", "Accessory"));
 		categoryFilter.setValue("All");
@@ -78,6 +103,10 @@ public class CatalogController implements Initializable {
 
 		table.setItems(filteredData);
 
+		UserAccount currentUser = AppSession.getCurrentUser();
+		if (currentUser == null || (currentUser.getRole() != Role.EMPLOYEE && currentUser.getRole() != Role.MANAGER)) {
+			addItemBtn.setVisible(false);
+		}
 		requestCatalog();
 	}
 
@@ -150,7 +179,7 @@ public class CatalogController implements Initializable {
 		try {
 			FXMLLoader loader = new FXMLLoader(
 					getClass().getResource(
-							"/il/cshaifasweng/OCSFMediatorExample/client/LoginView.fxml"
+							"/il/cshaifasweng/OCSFMediatorExample/client/Login.fxml"
 					)
 			);
 			Parent root = loader.load();
@@ -192,14 +221,46 @@ public class CatalogController implements Initializable {
 		}
 	}
 
+	@FXML
+	public void onAddItemClicked(ActionEvent actionEvent) {
+		try {
+			FXMLLoader loader = new FXMLLoader(
+					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/AddNewItemView.fxml"));
+			Parent root = loader.load();
 
-private void applyFilters() {
+			// אם יש לך AddItemController, אפשר להוסיף Callback אחרי שמוסיפים פריט
+			AddItemController ctrl = loader.getController();
+			ctrl.setOnItemAddedCallback(newItem -> {
+				Platform.runLater(() -> {
+					masterData.add(newItem);
+					applyFilters(); // מרענן את הטבלה עם הפריט החדש
+				});
+			});
+
+			Stage popup = new Stage();
+			popup.initModality(Modality.APPLICATION_MODAL);
+			popup.setTitle("Add New Item");
+			popup.setScene(new Scene(root));
+			popup.show();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			Alert alert = new Alert(Alert.AlertType.ERROR,
+					"Failed to load Add Item view.",
+					ButtonType.OK);
+			alert.showAndWait();
+		}
+	}
+
+
+
+	private void applyFilters() {
 	Filter f = new Filter();
 	f.setSearchText(filterField.getText().trim());
-	f.setCategory(categoryFilter.getValue());
+	//f.setCategory(categoryFilter.getValue());
 
 	// f.setFlowerType(flowerTypeCombo.getValue());
-	f.setColor(colorFilter.getValue());
+	//f.setColor(colorFilter.getValue());
 	//f.setMinPrice(minPriceField.getValue());
 	//f.setMaxPrice(maxPriceField.getValue());
 
@@ -211,7 +272,7 @@ private void applyFilters() {
 
 
 
-//	String search = filterField.getText().toLowerCase().trim();
+	//String search = filterField.getText().toLowerCase().trim();
 //	String category = categoryFilter.getValue();
 //
 //	List<Item> filtered = masterData.stream()
@@ -236,7 +297,38 @@ private void applyFilters() {
 		}
 	}
 
+
 	@FXML
-	public void onAddItemClicked(ActionEvent actionEvent) {
+	public void onSearchByClicked(ActionEvent actionEvent) {
+		try {
+			FXMLLoader loader = new FXMLLoader(
+					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/SearchByView.fxml"));
+			Parent root = loader.load();
+			Stage popup = new Stage();
+			popup.initModality(Modality.APPLICATION_MODAL);
+			popup.setTitle("Advanced Search");
+			popup.setScene(new Scene(root));
+			popup.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+
+	@FXML
+	private void onCustomOrderClicked(ActionEvent event) {
+		try {
+			FXMLLoader loader = new FXMLLoader(
+					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/CustomOrderView.fxml"));
+			Parent root = loader.load();
+
+			Stage popup = new Stage();
+			popup.initModality(Modality.APPLICATION_MODAL);
+			popup.setTitle("Custom Design Request");
+			popup.setScene(new Scene(root));
+			popup.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

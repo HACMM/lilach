@@ -1,36 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="400" prefWidth="420" style="-fx-background-color: #f9f9f9; -fx-padding: 20;" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PaymentMethodController">
-    <VBox alignment="CENTER" layoutX="60.0" layoutY="41.0" spacing="14">
-        <Label style="-fx-font-size: 18; -fx-font-weight: bold;" text="💳 Select Payment Method" />
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.PaymentMethodController"
+            prefWidth="500" prefHeight="460"
+            style="-fx-background-image: url('images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
 
-        <!-- בחירה בכרטיס שמור -->
-        <ComboBox fx:id="savedCardsCombo" prefWidth="260" promptText="Select Saved Card" />
+    <children>
+        <!-- תיבה לבנה שקופה -->
+        <VBox alignment="CENTER"
+              spacing="14"
+              AnchorPane.leftAnchor="40"
+              AnchorPane.rightAnchor="40"
+              AnchorPane.topAnchor="30"
+              AnchorPane.bottomAnchor="30"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 14;
+                     -fx-padding: 25;">
 
-        <Separator prefWidth="300" />
+            <!-- 🔹 כותרת -->
+            <Label text="💳 Select Payment Method"
+                   style="-fx-font-size: 20;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #93345c;"/>
 
-        <Label style="-fx-font-size: 14; -fx-text-fill: #555;" text="Or Add New Card" />
+            <!-- 🔹 בחירה בכרטיס שמור -->
+            <ComboBox fx:id="savedCardsCombo"
+                      prefWidth="260"
+                      promptText="Select Saved Card"
+                      style="-fx-background-color: #ffffff;
+                             -fx-border-color: #e1a6c2;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;"/>
 
-        <TextField fx:id="cardNumberField" promptText="Card Number (16 digits)" />
-        <TextField fx:id="cardHolderField" promptText="Card Holder Name" />
-        <TextField fx:id="expiryDateField" promptText="Expiry Date (MM/YY)" />
-        <PasswordField fx:id="cvvField" promptText="CVV (3 digits)" />
+            <Separator prefWidth="300"/>
 
-        <Label fx:id="errorLabel" textFill="red" />
+            <Label text="Or Add New Card"
+                   style="-fx-font-size: 14;
+                          -fx-text-fill: #5c3a4b;
+                          -fx-font-style: italic;"/>
 
-        <HBox alignment="CENTER" spacing="10">
-            <Button onAction="#onSave" text="Save" />
-            <Button onAction="#onCancel" text="Cancel" />
-        </HBox>
-    </VBox>
+            <!-- 🔹 שדות הקלט -->
+            <TextField fx:id="cardNumberField"
+                       promptText="Card Number (16 digits)"
+                       prefWidth="260"
+                       style="-fx-background-color: #fff;
+                              -fx-border-color: #e1a6c2;
+                              -fx-border-radius: 8;
+                              -fx-background-radius: 8;"/>
+
+            <TextField fx:id="cardHolderField"
+                       promptText="Card Holder Name"
+                       prefWidth="260"
+                       style="-fx-background-color: #fff;
+                              -fx-border-color: #e1a6c2;
+                              -fx-border-radius: 8;
+                              -fx-background-radius: 8;"/>
+
+            <TextField fx:id="expiryDateField"
+                       promptText="Expiry Date (MM/YY)"
+                       prefWidth="260"
+                       style="-fx-background-color: #fff;
+                              -fx-border-color: #e1a6c2;
+                              -fx-border-radius: 8;
+                              -fx-background-radius: 8;"/>
+
+            <PasswordField fx:id="cvvField"
+                           promptText="CVV (3 digits)"
+                           prefWidth="260"
+                           style="-fx-background-color: #fff;
+                                  -fx-border-color: #e1a6c2;
+                                  -fx-border-radius: 8;
+                                  -fx-background-radius: 8;"/>
+
+            <!-- 🔹 הודעת שגיאה -->
+            <Label fx:id="errorLabel"
+                   style="-fx-text-fill: #c0392b;
+                          -fx-font-weight: bold;"/>
+
+            <!-- 🔹 כפתורים -->
+            <HBox alignment="CENTER" spacing="12">
+                <Button text="Save"
+                        onAction="#onSave"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 20 6 20;
+                               -fx-cursor: hand;"/>
+
+                <Button text="Cancel"
+                        onAction="#onCancel"
+                        style="-fx-background-color: #cccccc;
+                               -fx-text-fill: #333;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 20 6 20;
+                               -fx-cursor: hand;"/>
+            </HBox>
+        </VBox>
+    </children>
 </AnchorPane>

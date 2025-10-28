@@ -14,6 +14,12 @@ public class Address {
     @Column(name = "building")
     private String building;
 
+    public Address(String city, String street, String building) {
+        this.city = city;
+        this.street = street;
+        this.building = building;
+    }
+
     public String getCity() {
         return city;
     }
@@ -36,5 +42,10 @@ public class Address {
 
     public void setBuilding(String building) {
         this.building = building;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s, %s %s", city, street, building);
     }
 }

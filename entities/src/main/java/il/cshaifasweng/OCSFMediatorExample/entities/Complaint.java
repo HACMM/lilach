@@ -14,7 +14,7 @@ public class Complaint implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "complaint_id", nullable = false, unique = true)
-    private int compalint_id;
+    private int complaint_id;
 
     @ManyToOne(optional = false)
     private UserAccount userAccount;
@@ -27,7 +27,7 @@ public class Complaint implements Serializable {
     private Order order;
 
     // Branch
-    @Column(name = "Branch", nullable = true, length = 2000)
+    @ManyToOne
     private Branch branch;
 
     // Full description of what went wrong
@@ -53,13 +53,26 @@ public class Complaint implements Serializable {
     @OneToMany(mappedBy = "complaint", orphanRemoval = true)
     private Set<ComplaintEvent> complaintHistory = new HashSet<ComplaintEvent>();
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private UserAccount managerAccount;
 
-    // Default constructor for JPA and serialization
-    protected Complaint() {}
+    @Column(name = "response", length = 2000)
+    private String response;
 
-    public Complaint(Branch branch, String orderNumber,String  clientName, String clientEmail, String description){
+    @Column(name = "compensation")
+    private Double compensation;
+
+    @Column(name = "resolved", nullable = false)
+    private boolean resolved = false;
+
+    @Column(name = "responded_at")
+    private LocalDateTime respondedAt;
+
+    // Default constructor for JPA and serialization
+    protected Complaint() {
+    }
+
+    public Complaint(Branch branch, String orderNumber, String clientName, String clientEmail, String description) {
         this.branch = branch;
         this.orderNumber = orderNumber;
         this.clientName = clientName;
@@ -68,8 +81,8 @@ public class Complaint implements Serializable {
         this.createdAt = LocalDateTime.now();
     }
 
-    public int getCompalint_id() {
-        return compalint_id;
+    public int getComplaintId() {
+        return complaint_id;
     }
 
     public UserAccount getManagerAccount() {
@@ -118,6 +131,7 @@ public class Complaint implements Serializable {
     public void setComplaintHistory(Set<ComplaintEvent> complaintHistory) {
         this.complaintHistory = complaintHistory;
     }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -133,4 +147,66 @@ public class Complaint implements Serializable {
     public void setBranch(Branch branch) {
         this.branch = branch;
     }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getClientEmail() {
+        return clientEmail;
+    }
+
+    public void setClientEmail(String clientEmail) {
+        this.clientEmail = clientEmail;
+    }
+
+    public String getResponse() {
+        return response;
+    }
+
+    public void setResponse(String response) {
+        this.response = response;
+    }
+
+    public Double getCompensation() {
+        return compensation;
+    }
+
+    public void setCompensation(Double compensation) {
+        this.compensation = compensation;
+    }
+
+    public boolean isResolved() {
+        return resolved;
+    }
+
+    public void setResolved(boolean resolved) {
+        this.resolved = resolved;
+    }
+
+    public LocalDateTime getRespondedAt() {
+        return respondedAt;
+    }
+
+    public void setRespondedAt(LocalDateTime respondedAt) {
+        this.respondedAt = respondedAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Complaint #" + complaint_id + " - " + clientName;
+    }
+
 }

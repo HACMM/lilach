@@ -1,18 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="120" prefWidth="300" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ItemEditController">
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ItemEditController"
+            prefWidth="360" prefHeight="180"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 15;">
+
     <children>
-        <VBox spacing="10" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="10" AnchorPane.topAnchor="10">
-            <TextField fx:id="priceField" promptText="New price" />
-            <HBox spacing="8">
-                <Button onAction="#onSave" text="Save" />
-                <Button onAction="#onCancel" text="Cancel" />
+        <VBox spacing="14"
+              alignment="CENTER"
+              AnchorPane.leftAnchor="20"
+              AnchorPane.rightAnchor="20"
+              AnchorPane.topAnchor="20"
+              AnchorPane.bottomAnchor="20"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 12;
+                     -fx-padding: 20;">
+
+            <!-- 🔹 כותרת -->
+            <Label text="Edit Item Price"
+                   style="-fx-font-size: 18;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #2c3e50;" />
+
+            <!-- 🔹 שדה מחיר -->
+            <TextField fx:id="priceField"
+                       promptText="Enter new price"
+                       prefWidth="180"
+                       style="-fx-background-radius: 8;
+                              -fx-border-radius: 8;
+                              -fx-border-color: #ddd;
+                              -fx-background-color: #fff;
+                              -fx-font-size: 13;" />
+
+            <!-- 🔹 כפתורים -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button onAction="#onSave" text="Save"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 16 6 16;
+                               -fx-cursor: hand;" />
+                <Button onAction="#onCancel" text="Cancel"
+                        style="-fx-background-color: #cccccc;
+                               -fx-text-fill: #333;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;
+                               -fx-padding: 6 16 6 16;
+                               -fx-cursor: hand;" />
             </HBox>
         </VBox>
     </children>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.SearchByController"
+            prefWidth="420" prefHeight="360"
+            style="-fx-background-image: url('images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
+    <children>
+        <!-- תיבה לבנה שקופה -->
+        <VBox alignment="CENTER"
+              spacing="14"
+              AnchorPane.leftAnchor="25"
+              AnchorPane.rightAnchor="25"
+              AnchorPane.topAnchor="25"
+              AnchorPane.bottomAnchor="25"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                     -fx-background-radius: 16;
+                     -fx-padding: 20;">
+
+            <!-- 🔹 כותרת -->
+            <Label text="🌸 Search Flowers 🌸"
+                   style="-fx-font-size: 20;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #93345c;"/>
+
+            <!-- 🔹 תיבות בחירה -->
+            <ComboBox fx:id="typeCombo"
+                      promptText="Flower Type"
+                      prefWidth="240"
+                      style="-fx-background-color: #fff;
+                             -fx-border-color: #e1a6c2;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;"/>
+            <ComboBox fx:id="colorCombo"
+                      promptText="Color"
+                      prefWidth="240"
+                      style="-fx-background-color: #fff;
+                             -fx-border-color: #e1a6c2;
+                             -fx-border-radius: 8;
+                             -fx-background-radius: 8;"/>
+
+            <!-- 🔹 טווח מחירים -->
+            <VBox alignment="CENTER" spacing="6">
+                <Label text="Price Range:"
+                       style="-fx-font-weight: bold;
+                              -fx-text-fill: #5c3a4b;"/>
+
+                <HBox alignment="CENTER" spacing="8">
+                    <Label text="Min:" style="-fx-text-fill: #5c3a4b;"/>
+                    <Label fx:id="minValueLbl"
+                           text="0₪"
+                           style="-fx-text-fill: #93345c; -fx-font-weight: bold;"/>
+                </HBox>
+                <Slider fx:id="minPriceSlider"
+                        min="0" max="500"
+                        value="0"
+                        majorTickUnit="50"
+                        minorTickCount="5"
+                        showTickMarks="true"
+                        showTickLabels="true"
+                        prefWidth="250"/>
+
+                <HBox alignment="CENTER" spacing="8">
+                    <Label text="Max:" style="-fx-text-fill: #5c3a4b;"/>
+                    <Label fx:id="maxValueLbl"
+                           text="500₪"
+                           style="-fx-text-fill: #93345c; -fx-font-weight: bold;"/>
+                </HBox>
+                <Slider fx:id="maxPriceSlider"
+                        min="0" max="500"
+                        value="500"
+                        majorTickUnit="50"
+                        minorTickCount="5"
+                        showTickMarks="true"
+                        showTickLabels="true"
+                        prefWidth="250"/>
+            </VBox>
+
+            <!-- 🔹 כפתור הפעלה -->
+            <Button text="Apply Filter"
+                    onAction="#onApplyFilterClicked"
+                    style="-fx-background-color: #e7b3d1;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 6 20 6 20;
+                           -fx-cursor: hand;
+                           -fx-font-size: 13;"/>
+        </VBox>
+    </children>
+</AnchorPane>
