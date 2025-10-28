@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import Request.SignupRequest;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
@@ -131,7 +132,7 @@ public class AccountCreationController {
         UserAccount newUser = new UserAccount(username, password, name, email, selectedPaymentMethod, branchType);
 
         try {
-            client.sendToServer(new Message("sign up", newUser));
+            client.sendToServer(new SignupRequest(username,password,name,email,selectedPaymentMethod, branchType));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -116,7 +116,6 @@ public class SimpleServer extends AbstractServer {
             try (Session s = sessionFactory.openSession()) {
                 Transaction tx = null;
                 try {
-                    // בדיקת כפילות שם משתמש (נעים ל-UX; בפועל להסתמך גם על UNIQUE ב-DB)
                     Long cnt = s.createQuery(
                             "select count(u) from UserAccount u where u.login = :login",
                             Long.class
@@ -185,7 +184,7 @@ public class SimpleServer extends AbstractServer {
 
                 client.sendToClient(new Message("branch list", branches));
             } catch (Exception e) {
-                try { client.sendToClient(new Request.Message("branch list error", e.getMessage())); }
+                try { client.sendToClient(new Message("branch list error", e.getMessage())); }
                 catch (Exception ignore) {}
             }
 
