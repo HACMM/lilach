@@ -1,6 +1,12 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.Message;
 import Request.SignupResult;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.LoginResponseEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
+import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import Request.LoginResult;
 import org.greenrobot.eventbus.EventBus;
@@ -33,10 +39,20 @@ public class SimpleClient extends AbstractClient {
             } else if (msg instanceof LoginResult) {
                 LoginResult loginResult = (LoginResult) msg;
                 EventBus.getDefault().post(new LoginResponseEvent(loginResult.isSuccess(), null));
-            }
-            else if (msg instanceof SignupResult) {
+            } else if (msg instanceof SignupResult) {
                 EventBus.getDefault().post((SignupResult) msg);
-            } else if (msg instanceof List<?>) {
+
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("item added successfully")) {
+                Item item = (Item) ((Message) msg).getData();
+                long itemId = item.getId();
+                EventBus.getDefault().post(new AddItemEvent(itemId, item));
+
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("branch list")) {
+                @SuppressWarnings("unchecked")
+                List<Branch> branches = (List<Branch>) ((Message) msg).getData();
+                EventBus.getDefault().post(new BranchListEvent(branches));
+            }
+            else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
                 if (!list.isEmpty() && list.get(0) instanceof Item) {
                     List<Item> items = (List<Item>) list;

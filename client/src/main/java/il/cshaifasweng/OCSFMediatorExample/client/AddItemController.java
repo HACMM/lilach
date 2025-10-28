@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
@@ -50,7 +51,7 @@ public class AddItemController {
     public void initialize() {
         EventBus.getDefault().register(this);
         try {
-            client.sendToServer("#getAllBranches");
+            client.sendToServer(new Message("show branches",null));
         } catch (Exception e) {
             errorLabel.setText("Failed to load branches.");
         }
@@ -103,8 +104,7 @@ public class AddItemController {
 
 
     private Consumer<Item> onSaved;
-    public void setOnSaved(Consumer<Item> cb) { this.onSaved = cb; }
-
+    public void setOnSaved(Consumer<Item> onSaved) {this.onSaved = onSaved;}
 
     @FXML
     private void handleSave(ActionEvent e) {
@@ -160,6 +160,21 @@ public class AddItemController {
                 branchComboBox.getItems().setAll(event.getBranches());
             });
     }
+
+    @Subscribe
+    public void onAddItemReceived(AddItemEvent event) {
+        Platform.runLater(() -> {
+            if (event == null || event.getItem() == null || event.getItemId() <= 0) {
+                errorLabel.setText("Failed to add item.");
+                return;
+            }
+            if (onSaved != null) {
+                onSaved.accept(event.getItem());
+            }
+            close();
+        });
+    }
+
 
 //        branches = event.getBranches();
 //        Platform.runLater(() -> {

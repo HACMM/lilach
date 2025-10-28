@@ -2,6 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.LoginRequest;
 import Request.Warning;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.LoginResponseEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

@@ -2,7 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
-import il.cshaifasweng.OCSFMediatorExample.entities.Role;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import Request.Warning;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;

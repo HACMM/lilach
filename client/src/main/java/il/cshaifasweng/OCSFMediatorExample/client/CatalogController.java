@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Filter;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
@@ -21,6 +22,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.control.TableView;
+
+import java.io.IOException;
+import java.util.Objects;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -28,25 +34,34 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class CatalogController implements Initializable {
-	@FXML private TableView<Item> table;
-	@FXML private TableColumn<Item, String> nameCol;
-	@FXML private TableColumn<Item, String> typeCol;
-	@FXML private TableColumn<Item, Double> priceCol;
-	@FXML private TableColumn<Item, ImageView> imageCol;
-	@FXML private ComboBox<String> categoryFilter;
-	@FXML private ComboBox<String> colorFilter;
-	@FXML private ComboBox<String> priceFilter;
-	@FXML private TextField filterField;
-	@FXML private Button addItemBtn;
-	//@FXML private Button searchBtn;
-	private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
-	private final ObservableList<Item> filteredData = FXCollections.observableArrayList(); // הנתונים שמוצגים בטבלה
+    @FXML
+    private TableView<Item> table;
+    @FXML
+    private TableColumn<Item, String> nameCol;
+    @FXML
+    private TableColumn<Item, String> typeCol;
+    @FXML
+    private TableColumn<Item, Double> priceCol;
+    @FXML
+    private TableColumn<Item, ImageView> imageCol;
+    @FXML
+    private ComboBox<String> categoryFilter;
+    @FXML
+    private ComboBox<String> colorFilter;
+    @FXML
+    private ComboBox<String> priceFilter;
+    @FXML
+    private TextField filterField;
+    //@FXML private Button searchBtn;
+    private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
+    private final ObservableList<Item> filteredData = FXCollections.observableArrayList(); // הנתונים שמוצגים בטבלה
 
 	// ← Back button
 	@FXML private Button backBtn;
@@ -179,7 +194,7 @@ public class CatalogController implements Initializable {
 		try {
 			FXMLLoader loader = new FXMLLoader(
 					getClass().getResource(
-							"/il/cshaifasweng/OCSFMediatorExample/client/Login.fxml"
+							"/il/cshaifasweng/OCSFMediatorExample/client/LoginView.fxml"
 					)
 			);
 			Parent root = loader.load();
@@ -272,7 +287,7 @@ public class CatalogController implements Initializable {
 
 
 
-	//String search = filterField.getText().toLowerCase().trim();
+//	String search = filterField.getText().toLowerCase().trim();
 //	String category = categoryFilter.getValue();
 //
 //	List<Item> filtered = masterData.stream()
@@ -297,6 +312,31 @@ public class CatalogController implements Initializable {
 		}
 	}
 
+    @FXML
+    public void onAddItemClicked(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxml = new FXMLLoader(getClass().getResource("AddNewItemView.fxml")); // ודאי שהנתיב נכון
+        Parent root = fxml.load();
+        AddItemController ctrl = fxml.getController();
+
+        // נגדיר מה קורה כשיש אישור מהשרת:
+        ctrl.setOnSaved(item -> {
+            if (item == null) return;
+            // אם getId מחזיר int → אין בדיקת null:
+            if (item.getId() <= 0) return;
+
+            boolean exists = masterData.stream()
+                    .anyMatch(i -> Objects.equals(i.getId(), item.getId()));
+            if (!exists) {
+                masterData.add(item);
+                if (table != null) table.refresh();
+            }
+        });
+
+        Stage s = new Stage();
+        s.setTitle("add item");
+        s.setScene(new Scene(root));
+        s.show();
+    }
 
 	@FXML
 	public void onSearchByClicked(ActionEvent actionEvent) {
