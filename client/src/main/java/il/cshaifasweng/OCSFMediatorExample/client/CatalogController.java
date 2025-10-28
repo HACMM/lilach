@@ -59,6 +59,11 @@ public class CatalogController implements Initializable {
     private ComboBox<String> priceFilter;
     @FXML
     private TextField filterField;
+	@FXML
+	private Button addItemBtn;
+
+	@FXML
+
     //@FXML private Button searchBtn;
     private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
     private final ObservableList<Item> filteredData = FXCollections.observableArrayList(); // הנתונים שמוצגים בטבלה
@@ -236,38 +241,6 @@ public class CatalogController implements Initializable {
 		}
 	}
 
-	@FXML
-	public void onAddItemClicked(ActionEvent actionEvent) {
-		try {
-			FXMLLoader loader = new FXMLLoader(
-					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/AddNewItemView.fxml"));
-			Parent root = loader.load();
-
-			// אם יש לך AddItemController, אפשר להוסיף Callback אחרי שמוסיפים פריט
-			AddItemController ctrl = loader.getController();
-			ctrl.setOnItemAddedCallback(newItem -> {
-				Platform.runLater(() -> {
-					masterData.add(newItem);
-					applyFilters(); // מרענן את הטבלה עם הפריט החדש
-				});
-			});
-
-			Stage popup = new Stage();
-			popup.initModality(Modality.APPLICATION_MODAL);
-			popup.setTitle("Add New Item");
-			popup.setScene(new Scene(root));
-			popup.show();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			Alert alert = new Alert(Alert.AlertType.ERROR,
-					"Failed to load Add Item view.",
-					ButtonType.OK);
-			alert.showAndWait();
-		}
-	}
-
-
 
 	private void applyFilters() {
 	Filter f = new Filter();
@@ -314,9 +287,11 @@ public class CatalogController implements Initializable {
 
     @FXML
     public void onAddItemClicked(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxml = new FXMLLoader(getClass().getResource("AddNewItemView.fxml")); // ודאי שהנתיב נכון
-        Parent root = fxml.load();
-        AddItemController ctrl = fxml.getController();
+		FXMLLoader loader = new FXMLLoader(
+				getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/AddNewItemView.fxml")
+		);
+		Parent root = loader.load();
+		AddItemController ctrl = loader.getController();
 
         // נגדיר מה קורה כשיש אישור מהשרת:
         ctrl.setOnSaved(item -> {
@@ -337,38 +312,4 @@ public class CatalogController implements Initializable {
         s.setScene(new Scene(root));
         s.show();
     }
-
-	@FXML
-	public void onSearchByClicked(ActionEvent actionEvent) {
-		try {
-			FXMLLoader loader = new FXMLLoader(
-					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/SearchByView.fxml"));
-			Parent root = loader.load();
-			Stage popup = new Stage();
-			popup.initModality(Modality.APPLICATION_MODAL);
-			popup.setTitle("Advanced Search");
-			popup.setScene(new Scene(root));
-			popup.show();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@FXML
-	private void onCustomOrderClicked(ActionEvent event) {
-		try {
-			FXMLLoader loader = new FXMLLoader(
-					getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/CustomOrderView.fxml"));
-			Parent root = loader.load();
-
-			Stage popup = new Stage();
-			popup.initModality(Modality.APPLICATION_MODAL);
-			popup.setTitle("Custom Design Request");
-			popup.setScene(new Scene(root));
-			popup.show();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 }
