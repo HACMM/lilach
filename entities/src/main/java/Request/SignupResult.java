@@ -3,19 +3,29 @@ package Request;
 import java.io.Serializable;
 
 public class SignupResult implements Serializable {
-    public enum Status { OK, USERNAME_TAKEN, ERROR }
+    public enum Code { OK, USERNAME_TAKEN, ERROR }
 
-    private Status status;
+    private final Code code;
+    private final String message;   // אופציונלי
+    private final Integer userId;   // אופציונלי: מזהה משתמש שנוצר
 
-    public SignupResult() {}           // לסריאליזציה
-    private SignupResult(Status status) { this.status = status; }
+    private SignupResult(Code code, String message, Integer userId) {
+        this.code = code;
+        this.message = message;
+        this.userId = userId;
+    }
 
-    public Status getStatus() { return status; }
-    public boolean isSuccess() { return status == Status.OK; }
+    // מפעלונים נוחים לשימוש בשרת
+    public static SignupResult ok(Integer userId) { return new SignupResult(Code.OK, null, userId); }
+    public static SignupResult ok()               { return new SignupResult(Code.OK, null, null); }
+    public static SignupResult usernameTaken()    { return new SignupResult(Code.USERNAME_TAKEN, null, null); }
+    public static SignupResult error(String msg)  { return new SignupResult(Code.ERROR, msg, null); }
+    public static SignupResult error()            { return new SignupResult(Code.ERROR, null, null); }
 
-    public static SignupResult ok()            { return new SignupResult(Status.OK); }
-    public static SignupResult usernameTaken() { return new SignupResult(Status.USERNAME_TAKEN); }
-    public static SignupResult error()         { return new SignupResult(Status.ERROR); }
-
-    @Override public String toString() { return "SignupResult{status=" + status + "}"; }
+    // גטרים
+    public boolean isOk()             { return code == Code.OK; }
+    public boolean isUsernameTaken()  { return code == Code.USERNAME_TAKEN; }
+    public String  getMessage()       { return message; }
+    public Integer getUserId()        { return userId; }
+    public Code    getCode()          { return code; }
 }

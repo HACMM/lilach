@@ -129,7 +129,6 @@ public class SimpleServer extends AbstractServer {
                         return;
                     }
 
-                    // יצירה ושמירה
                     tx = s.beginTransaction();
                     UserAccount ua = new UserAccount(req.getUsername(), req.getPassword(), req.getName(), req.getEmail()); // הבנאי יוצר salt+hash
                     s.save(ua);
@@ -161,7 +160,7 @@ public class SimpleServer extends AbstractServer {
 
             Item in = (Item) message.getData();
 
-            var item = new Item(in.getName(), in.getType(), in.getDescription(), in.getPrice(), in.getImageLink(), in.getColor());
+            var item = new Item(in.getName(), in.getType(), in.getDescription(), in.getPrice(), in.getImageData(), in.getColor());
 
             var sf = DbConnector.getInstance().getSessionFactory();
             org.hibernate.Transaction tx = null;

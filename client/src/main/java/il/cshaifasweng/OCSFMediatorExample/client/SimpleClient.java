@@ -2,10 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
 import Request.SignupResult;
-import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
-import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
-import il.cshaifasweng.OCSFMediatorExample.client.Events.LoginResponseEvent;
-import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import Request.LoginResult;
@@ -40,7 +37,8 @@ public class SimpleClient extends AbstractClient {
                 LoginResult loginResult = (LoginResult) msg;
                 EventBus.getDefault().post(new LoginResponseEvent(loginResult.isSuccess(), null));
             } else if (msg instanceof SignupResult) {
-                EventBus.getDefault().post((SignupResult) msg);
+                SignupResult signupResult = (SignupResult) msg;
+               EventBus.getDefault().post(SignupResponseEvent.from(signupResult));
 
             } else if (msg instanceof Message && ((Message) msg).getType().equals("item added successfully")) {
                 Item item = (Item) ((Message) msg).getData();

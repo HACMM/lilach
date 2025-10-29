@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
 import Request.SignupRequest;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.SignupResponseEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
@@ -16,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 
@@ -129,7 +131,7 @@ public class AccountCreationController {
 
 
         // send data off to server
-        UserAccount newUser = new UserAccount(username, password, name, email, selectedPaymentMethod, branchType);
+        // UserAccount newUser = new UserAccount(username, password, name, email, selectedPaymentMethod, branchType);
 
         try {
             client.sendToServer(new SignupRequest(username,password,name,email,selectedPaymentMethod, branchType));
@@ -181,11 +183,30 @@ public class AccountCreationController {
             return;
         }
 
-        // תשלום (מדומה) של 100 ₪
         Alert paymentAlert = new Alert(Alert.AlertType.INFORMATION);
         paymentAlert.setTitle("Payment Successful");
         paymentAlert.setHeaderText("Yearly Subscription Activated");
         paymentAlert.setContentText("Your yearly subscription has been paid successfully (100₪).");
         paymentAlert.showAndWait();
     }
+
+    @Subscribe
+    public void onSignupResponseEvent(SignupResponseEvent ev) {
+        javafx.application.Platform.runLater(() -> {
+            if (ev.isOk()) {
+                warningLabel.setText("Signup successful!");
+                try { App.setRoot("LoginView"); } catch (Exception ignored) {}
+                return;
+            }
+            if (ev.isUsernameTaken()) {
+                warningLabel.setText("Username is already taken.");
+                return;
+            }
+            String msg = (ev.getErrorMessage() != null && !ev.getErrorMessage().isBlank())
+                    ? ev.getErrorMessage()
+                    : "Signup failed. Please try again.";
+            warningLabel.setText(msg);
+        });
+    }
+
 }
