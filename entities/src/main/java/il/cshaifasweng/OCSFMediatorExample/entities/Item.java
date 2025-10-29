@@ -22,7 +22,7 @@ public class Item implements Serializable {
     @Lob
     @Column(name = "image", columnDefinition = "MEDIUMBLOB") private byte[] imageData;
     @Column(name = "color") private String color;
-    //@Column(name = "flower_type") private String flowerType;
+    @Column(name = "flower_type") private String flowerType;
 
     @OneToMany(mappedBy = "primaryKey.item",
             cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -57,8 +57,8 @@ public class Item implements Serializable {
     public void setPrice(double p) { this.price = p; }
     public String getColor() { return color; }
     public void setColor(String color) { this.color = color; }
-//    public String getFlowerType() { return flowerType; }
-//    public void setFlowerType(String flowerType) { this.flowerType = flowerType; }
+    public String getFlowerType() { return flowerType; }
+    public void setFlowerType(String flowerType) { this.flowerType = flowerType; }
 
     public byte[] getImageData() {
         return imageData;
