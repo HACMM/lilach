@@ -1,7 +1,18 @@
 package il.cshaifasweng.OCSFMediatorExample.server.EntityManagers;
 
-public class ComplaintManager {
+import il.cshaifasweng.OCSFMediatorExample.entities.Complaint;
+import org.hibernate.SessionFactory;
 
-    // TODO: implement
+import java.util.List;
 
+public class ComplaintManager extends BaseManager {
+    public ComplaintManager(SessionFactory sessionFactory) { super(sessionFactory); }
+
+    public Complaint submit(Complaint c) {
+        return write(s -> { s.persist(c); s.flush(); return c; });
+    }
+
+    public List<Complaint> listAll() {
+        return read(s -> s.createQuery("from Complaint", Complaint.class).getResultList());
+    }
 }
