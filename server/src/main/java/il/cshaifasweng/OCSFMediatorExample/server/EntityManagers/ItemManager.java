@@ -2,176 +2,207 @@ package il.cshaifasweng.OCSFMediatorExample.server.EntityManagers;
 
 import Request.Filter;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
+import org.hibernate.Transaction;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class ItemManager extends BaseManager {
+public class ItemManager {
+
+    private final SessionFactory sessionFactory;
 
     public ItemManager(SessionFactory sessionFactory) {
-        super(sessionFactory);
+        this.sessionFactory = sessionFactory;
     }
 
     public boolean AddTestItems() {
         List<Item> catalog = GetItemList(new ArrayList<>());
-        if (catalog.size() >= 5) return true;
+        if (catalog.size() >= 5)
+            return true;
 
         ArrayList<Item> toAdd = new ArrayList<>();
-        Item flower;
 
-        flower = new Item();
-        flower.setName("Magnolia grandiflora");
-        flower.setDescription("Magnolia grandiflora...");
-        flower.setType("Flower");
-        flower.setPrice(12.50);
-        flower.setImageLink("magnolia.jpg");
-        toAdd.add(flower);
+        toAdd.add(createItem(
+                "Magnolia grandiflora",
+                "Flower",
+                "Magnolia grandiflora, commonly known as the southern magnolia or bull bay, is a tree native to the Southeastern United States.",
+                12.50,
+                "/images/magnolia.jpg",
+                "White",
+                "Tree Flower"
+        ));
 
-        flower = new Item();
-        flower.setName("Common sunflower");
-        flower.setDescription("The common sunflower...");
-        flower.setType("Flower");
-        flower.setPrice(7.50);
-        flower.setImageLink("sunflower.jpg");
-        toAdd.add(flower);
+        toAdd.add(createItem(
+                "Common Sunflower",
+                "Flower",
+                "The common sunflower (Helianthus annuus) is a species of large annual forb of the daisy family Asteraceae.",
+                7.50,
+                "/images/sunflower.jpg",
+                "Yellow",
+                "Annual"
+        ));
 
-        flower = new Item();
-        flower.setName("Rose");
-        flower.setDescription("A rose is either...");
-        flower.setType("Flower");
-        flower.setPrice(20.00);
-        flower.setImageLink("rose.jpg");
-        toAdd.add(flower);
+        toAdd.add(createItem(
+                "Rose",
+                "Flower",
+                "A rose is a woody perennial flowering plant of the genus Rosa in the family Rosaceae.",
+                20.00,
+                "/images/rose.jpg",
+                "Red",
+                "Shrub"
+        ));
 
-        flower = new Item();
-        flower.setName("Daisy");
-        flower.setDescription("Bellis perennis...");
-        flower.setType("Flower");
-        flower.setPrice(5.80);
-        flower.setImageLink("daisy.jpg");
-        toAdd.add(flower);
+        toAdd.add(createItem(
+                "Daisy",
+                "Flower",
+                "Bellis perennis, the daisy, is a European species of the family Asteraceae, often considered the archetypal species of the name daisy.",
+                5.80,
+                "/images/daisy.jpg",
+                "White",
+                "Perennial"
+        ));
 
-        flower = new Item();
-        flower.setName("Poppy");
-        flower.setDescription("A poppy is a flowering plant...");
-        flower.setType("Flower");
-        flower.setPrice(10.50);
-        flower.setImageLink("poppy.jpg");
-        toAdd.add(flower);
+        toAdd.add(createItem(
+                "Poppy",
+                "Flower",
+                "A poppy is a flowering plant in the subfamily Papaveroideae of the family Papaveraceae.",
+                10.50,
+                "/images/poppy.jpg",
+                "Red",
+                "Wildflower"
+        ));
 
         return AddItem(toAdd);
     }
 
+    /** טוען תמונה מקובץ resources לתוך byte[] */
+    private byte[] loadImage(String path) {
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is == null) return null;
+            return is.readAllBytes();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /** יוצר אובייקט Item חדש עם נתונים ותמונה */
+    private Item createItem(String name, String type, String description,
+                            double price, String imagePath, String color, String flowerType) {
+        byte[] imageData = loadImage(imagePath);
+        return new Item(name, type, description, price, imageData, color);
+    }
+
     public boolean AddItem(Item item) {
-        Objects.requireNonNull(item, "item is null");
-        write(s -> { s.persist(item); return null; });
-        return true;
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            session.persist(item);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean AddItem(ArrayList<Item> items) {
-        Objects.requireNonNull(items, "items is null");
-        write(s -> { for (Item it : items) s.persist(it); return null; });
-        return true;
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            for (Item i : items) {
+                session.persist(i);
+            }
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean EditItem(Item editedItem) {
-        Objects.requireNonNull(editedItem, "editedItem is null");
-        write(s -> {
-            Item i = s.get(Item.class, editedItem.getId());
-            if (i == null) throw new IllegalArgumentException("Item id=" + editedItem.getId() + " not found");
-            i.setPrice(editedItem.getPrice());
-            i.setImageLink(editedItem.getImageLink());
-            i.setDescription(editedItem.getDescription());
-            i.setName(editedItem.getName());
-            i.setType(editedItem.getType());
-            i.setColor(editedItem.getColor());
-            // s.update(i); // not needed: managed entity
-            return null;
-        });
-        return true;
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            Item i = session.get(Item.class, editedItem.getId());
+            if (i != null) {
+                i.setName(editedItem.getName());
+                i.setDescription(editedItem.getDescription());
+                i.setType(editedItem.getType());
+                i.setPrice(editedItem.getPrice());
+                i.setColor(editedItem.getColor());
+                i.setFlowerType(editedItem.getFlowerType());
+                i.setImageData(editedItem.getImageData());
+                session.update(i);
+            }
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean RemoveItem(Item itemToRemove) {
-        Objects.requireNonNull(itemToRemove, "itemToRemove is null");
-        write(s -> {
-            Item managed = s.get(Item.class, itemToRemove.getId());
-            if (managed != null) s.remove(managed);
-            return null;
-        });
-        return true;
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            Item persistentItem = session.get(Item.class, itemToRemove.getId());
+            if (persistentItem != null) {
+                session.delete(persistentItem);
+            }
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean RemoveItem(ArrayList<Item> itemListToRemove) {
-        Objects.requireNonNull(itemListToRemove, "itemListToRemove is null");
-        write(s -> {
-            for (Item toRemove : itemListToRemove) {
-                Item managed = s.get(Item.class, toRemove.getId());
-                if (managed != null) s.remove(managed);
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            for (Item item : itemListToRemove) {
+                Item persistentItem = session.get(Item.class, item.getId());
+                if (persistentItem != null) {
+                    session.delete(persistentItem);
+                }
             }
-            return null;
-        });
-        return true;
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public Item GetItem(int id) {
-        return read(s -> s.get(Item.class, id));
+        try (Session session = sessionFactory.openSession()) {
+            return session.get(Item.class, id);
+        }
     }
 
     public ArrayList<Item> GetItem(ArrayList<Integer> idList) {
-        return read(s -> {
-            ArrayList<Item> result = new ArrayList<>();
+        ArrayList<Item> result = new ArrayList<>();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
             for (int id : idList) {
-                Item it = s.get(Item.class, id);
-                if (it != null) result.add(it);
+                Item item = session.get(Item.class, id);
+                if (item != null) result.add(item);
             }
-            return result;
-        });
+            tx.commit();
+        }
+        return result;
     }
 
-    /** filterList not currently used: return all for now (kept your behavior). */
     public List<Item> GetItemList(List<Filter> filterList) {
-        return read(s -> s.createQuery("from Item", Item.class).getResultList());
+        List<Item> result = new ArrayList<>();
+        try (Session session = sessionFactory.openSession()) {
+            result = session.createQuery("FROM Item", Item.class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
-
-    /** Optional: typed filtering using Request.Filter (one filter). */
-    public List<Item> GetItemList(Filter f) {
-        return read(s -> {
-            StringBuilder hql = new StringBuilder("select i from Item i");
-            List<Object> params = new ArrayList<>();
-            List<String> where = new ArrayList<>();
-
-            if (f != null) {
-                if (nz(f.getSearchText())) {
-                    where.add("(lower(i.name) like ?1 or lower(i.description) like ?1)");
-                    params.add("%" + f.getSearchText().toLowerCase() + "%");
-                }
-                if (nz(f.getCategory()) && !"all".equalsIgnoreCase(f.getCategory())) {
-                    where.add("lower(i.type) = ?" + (params.size() + 1));
-                    params.add(f.getCategory().toLowerCase());
-                }
-                if (nz(f.getColor())) {
-                    where.add("lower(i.color) = ?" + (params.size() + 1));
-                    params.add(f.getColor().toLowerCase());
-                }
-                if (f.getMinPrice() != null) {
-                    where.add("i.price >= ?" + (params.size() + 1));
-                    params.add(f.getMinPrice());
-                }
-                if (f.getMaxPrice() != null) {
-                    where.add("i.price <= ?" + (params.size() + 1));
-                    params.add(f.getMaxPrice());
-                }
-            }
-            if (!where.isEmpty()) hql.append(" where ").append(String.join(" and ", where));
-
-            Query<Item> q = s.createQuery(hql.toString(), Item.class);
-            for (int i = 0; i < params.size(); i++) q.setParameter(i + 1, params.get(i));
-            return q.getResultList();
-        });
-    }
-
-    private static boolean nz(String s) { return s != null && !s.isBlank(); }
 }
