@@ -3,12 +3,12 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "items_sales")
+@Table(name = "items_categories")
 @AssociationOverrides({
         @AssociationOverride(name = "primaryKey.item",
                 joinColumns = @JoinColumn(name = "item_id")),
-        @AssociationOverride(name = "primaryKey.sale",
-                joinColumns = @JoinColumn(name = "sale_id"))
+        @AssociationOverride(name = "primaryKey.category",
+                joinColumns = @JoinColumn(name = "category_id"))
 })
 public class ItemCategory {
     @EmbeddedId

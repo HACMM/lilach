@@ -1,8 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,50 +10,46 @@ import java.util.Set;
 @Table(name = "complaints")
 public class Complaint implements Serializable {
 
-    // Unique ID for each complaint
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "complaint_id", nullable = false, unique = true)
     private int complaint_id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserAccount userAccount;
 
-//    // Category of the complaint (e.g., Service, Product Quality, Delivery Delay)
-//    @Column(nullable = false)
-//    private String type;
-
-    @ManyToOne(optional = false)
+    /** Explicit FK column so it’s "order_id" (not a generated name). */
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    // Branch
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
     private Branch branch;
 
-    // Full description of what went wrong
-    @Column(name = "Order Number", nullable = true, length = 2000)
+    /** Avoid spaces in column names. Keep the label on the UI layer. */
+    @Column(name = "order_number", length = 2000)
     private String orderNumber;
 
-    // Full description of what went wrong
-    @Column(name = "Client Name", nullable = false, length = 2000)
+    @Column(name = "client_name", nullable = false, length = 2000)
     private String clientName;
 
-    // Full description of what went wrong
-    @Column(name = "Client Email", nullable = false, length = 2000)
+    @Column(name = "client_email", nullable = false, length = 2000)
     private String clientEmail;
 
-    // Full description of what went wrong
     @Column(name = "description", nullable = false, length = 2000)
     private String description;
 
-    // Timestamp when the complaint was submitted
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    /** If you want cascade on history deletes when complaint is removed, add cascade = CascadeType.ALL */
     @OneToMany(mappedBy = "complaint", orphanRemoval = true)
-    private Set<ComplaintEvent> complaintHistory = new HashSet<ComplaintEvent>();
+    private Set<ComplaintEvent> complaintHistory = new HashSet<>();
 
-    @ManyToOne(optional = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_user_id")
     private UserAccount managerAccount;
 
     @Column(name = "response", length = 2000)
@@ -68,9 +64,7 @@ public class Complaint implements Serializable {
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;
 
-    // Default constructor for JPA and serialization
-    protected Complaint() {
-    }
+    protected Complaint() {}
 
     public Complaint(Branch branch, String orderNumber, String clientName, String clientEmail, String description) {
         this.branch = branch;
@@ -78,135 +72,61 @@ public class Complaint implements Serializable {
         this.clientName = clientName;
         this.clientEmail = clientEmail;
         this.description = description;
-        this.createdAt = LocalDateTime.now();
     }
 
-    public int getComplaintId() {
-        return complaint_id;
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) createdAt = LocalDateTime.now();
     }
 
-    public UserAccount getManagerAccount() {
-        return managerAccount;
-    }
+    // --- getters/setters ---
 
-    public void setManagerAccount(UserAccount managerAccount) {
-        this.managerAccount = managerAccount;
-    }
+    public int getComplaintId() { return complaint_id; }
 
-    public UserAccount getUserAccount() {
-        return userAccount;
-    }
+    public UserAccount getManagerAccount() { return managerAccount; }
+    public void setManagerAccount(UserAccount managerAccount) { this.managerAccount = managerAccount; }
 
-    public void setUserAccount(UserAccount userAccount) {
-        this.userAccount = userAccount;
-    }
-//    public String getType() {
-//        return type;
-//    }
-//
-//    public void setType(String type) {
-//        this.type = type;
-//    }
+    public UserAccount getUserAccount() { return userAccount; }
+    public void setUserAccount(UserAccount userAccount) { this.userAccount = userAccount; }
 
-    public Order getOrder() {
-        return order;
-    }
+    public Order getOrder() { return order; }
+    public void setOrder(Order order) { this.order = order; }
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getDescription() {
-        return description;
-    }
+    public Set<ComplaintEvent> getComplaintHistory() { return complaintHistory; }
+    public void setComplaintHistory(Set<ComplaintEvent> complaintHistory) { this.complaintHistory = complaintHistory; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public Set<ComplaintEvent> getComplaintHistory() {
-        return complaintHistory;
-    }
+    public Branch getBranch() { return branch; }
+    public void setBranch(Branch branch) { this.branch = branch; }
 
-    public void setComplaintHistory(Set<ComplaintEvent> complaintHistory) {
-        this.complaintHistory = complaintHistory;
-    }
+    public String getOrderNumber() { return orderNumber; }
+    public void setOrderNumber(String orderNumber) { this.orderNumber = orderNumber; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public String getClientName() { return clientName; }
+    public void setClientName(String clientName) { this.clientName = clientName; }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    public String getClientEmail() { return clientEmail; }
+    public void setClientEmail(String clientEmail) { this.clientEmail = clientEmail; }
 
-    public Branch getBranch() {
-        return branch;
-    }
+    public String getResponse() { return response; }
+    public void setResponse(String response) { this.response = response; }
 
-    public void setBranch(Branch branch) {
-        this.branch = branch;
-    }
+    public Double getCompensation() { return compensation; }
+    public void setCompensation(Double compensation) { this.compensation = compensation; }
 
-    public String getOrderNumber() {
-        return orderNumber;
-    }
+    public boolean isResolved() { return resolved; }
+    public void setResolved(boolean resolved) { this.resolved = resolved; }
 
-    public void setOrderNumber(String orderNumber) {
-        this.orderNumber = orderNumber;
-    }
-
-    public String getClientName() {
-        return clientName;
-    }
-
-    public void setClientName(String clientName) {
-        this.clientName = clientName;
-    }
-
-    public String getClientEmail() {
-        return clientEmail;
-    }
-
-    public void setClientEmail(String clientEmail) {
-        this.clientEmail = clientEmail;
-    }
-
-    public String getResponse() {
-        return response;
-    }
-
-    public void setResponse(String response) {
-        this.response = response;
-    }
-
-    public Double getCompensation() {
-        return compensation;
-    }
-
-    public void setCompensation(Double compensation) {
-        this.compensation = compensation;
-    }
-
-    public boolean isResolved() {
-        return resolved;
-    }
-
-    public void setResolved(boolean resolved) {
-        this.resolved = resolved;
-    }
-
-    public LocalDateTime getRespondedAt() {
-        return respondedAt;
-    }
-
-    public void setRespondedAt(LocalDateTime respondedAt) {
-        this.respondedAt = respondedAt;
-    }
+    public LocalDateTime getRespondedAt() { return respondedAt; }
+    public void setRespondedAt(LocalDateTime respondedAt) { this.respondedAt = respondedAt; }
 
     @Override
     public String toString() {
         return "Complaint #" + complaint_id + " - " + clientName;
     }
-
 }

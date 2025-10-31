@@ -1,35 +1,39 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
-
-import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
-
-// ItemSaleId acts like a composite key to ItemSale table
-// It ensures the user would not add an item to the certain sale
-// twice
+import java.util.Objects;
 
 @Embeddable
 public class ItemSaleId implements Serializable {
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     private Item item;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     private Sale sale;
 
-    public Item getItem() {
-        return item;
-    }
-    public void setItem(Item item) {
-        this.item = item;
+    public ItemSaleId() {}
+
+    public Item getItem() { return item; }
+    public void setItem(Item item) { this.item = item; }
+
+    public Sale getSale() { return sale; }
+    public void setSale(Sale sale) { this.sale = sale; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemSaleId)) return false;
+        ItemSaleId that = (ItemSaleId) o;
+        // compare by identifiers if available; otherwise by entity equality is fine
+        return Objects.equals(item, that.item) &&
+                Objects.equals(sale, that.sale);
     }
 
-    public Sale getSale() {
-        return sale;
-    }
-    public void setSale(Sale sale) {
-        this.sale = sale;
+    @Override
+    public int hashCode() {
+        return Objects.hash(item, sale);
     }
 }

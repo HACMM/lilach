@@ -23,7 +23,7 @@ public class Branch {
             cascade = CascadeType.ALL)
     private Set<Order> orders = new HashSet<Order>();
 
-    @OneToMany(mappedBy = "primaryKry.branch",
+    @OneToMany(mappedBy = "primaryKey.branch",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private Set<BranchInventory> branchInventory = new HashSet<BranchInventory>();

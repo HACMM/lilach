@@ -157,18 +157,18 @@ public class CatalogController implements Initializable {
 
 
 	/** Filter by name/type when Search clicked */
-//	@FXML
-//	private void onSearchClicked() {
-////		String term = filterField.getText().toLowerCase();
-////		List<Item> filtered = table.getItems().stream()
-////				.filter(i ->
-////						i.getName().toLowerCase().contains(term) ||
-////								i.getType().toLowerCase().contains(term)
-////				)
-////				.collect(Collectors.toList());
-////		table.getItems().setAll(filtered);
-//		applyFilters();
-//	}
+	@FXML
+	private void onSearchClicked() {
+		String term = filterField.getText().toLowerCase();
+		List<Item> filtered = table.getItems().stream()
+				.filter(i ->
+						i.getName().toLowerCase().contains(term) ||
+								i.getType().toLowerCase().contains(term)
+				)
+				.collect(Collectors.toList());
+		table.getItems().setAll(filtered);
+		applyFilters();
+	}
 
 	/** Open detail view on double‐click */
 	@FXML

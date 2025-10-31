@@ -121,7 +121,7 @@ public class UserAccount implements Serializable {
     @Column(name = "is_active") private boolean is_active;
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private Role role;   // CUSTOMER / EMPLOYEE / MANAGER
+    private Role role = Role.CUSTOMER;   // CUSTOMER / EMPLOYEE / MANAGER
     @Column(name = "Name") private String Name;
     @Column(name = "email") private String email;
     @Column(name = "id_number") private String idNumber;  // ת"ז
@@ -139,7 +139,7 @@ public class UserAccount implements Serializable {
     private UserBranchType userBranchType;   // BRANCH / ALL_BRANCHES / SUBSCRIPTION
 
     // If a user created an accout for a specific branch - this field should be filled
-    @OneToOne(cascade = CascadeType.ALL,
+    @ManyToOne(cascade = CascadeType.ALL,
         optional = true)
     @JoinColumn(name = "branch_id", referencedColumnName = "branch_id")
     private Branch branch;

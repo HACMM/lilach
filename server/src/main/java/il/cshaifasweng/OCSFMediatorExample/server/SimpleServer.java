@@ -20,20 +20,19 @@ public class SimpleServer extends AbstractServer {
     private static ArrayList<SubscribedClient> SubscribersList = new ArrayList<>();
     private final SessionFactory sessionFactory;
 
-
-    // TODO: 1) declare instance of the manager you need for a request handling
+    // managers
     private ItemManager itemManager = null;
 
     public SimpleServer(int port) {
         super(port);
         this.sessionFactory = DbConnector.getInstance().getSessionFactory();
-        // TODO: 2) create an instance of the manager you need
         this.itemManager = new ItemManager(sessionFactory);
     }
 
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
         String msgString = msg.toString();
+
         if (msgString.startsWith("#warning")) {
             Warning warning = new Warning("Warning from server!");
             try {
@@ -42,6 +41,7 @@ public class SimpleServer extends AbstractServer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
         } else if (msgString.startsWith("add client")) {
             SubscribedClient connection = new SubscribedClient(client);
             SubscribersList.add(connection);
@@ -50,16 +50,8 @@ public class SimpleServer extends AbstractServer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
         } else if (msgString.startsWith("getCatalog")) {
-            // try {
-            //List<Item> catalog = dbConnector.GetItemList(new ArrayList<>());
-            //TODO : send catalog to client
-            // client.sendToClient("showCatalog");
-            //  } catch (IOException e) {
-            // throw new RuntimeException(e);
-            // }
-
-
             List<Item> items = itemManager.GetItemList(new ArrayList<>());
             System.out.println("Catalog received");
             System.out.println(items);
@@ -68,17 +60,17 @@ public class SimpleServer extends AbstractServer {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
         } else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
-            //TODO : send a reply to user?
             boolean success = itemManager.EditItem(updatedItem);
             if (success) {
                 System.out.println("Item edited successfully");
                 List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
                 try {
-                    //TODO: send the updated catalog to ALL CLIENTS
-                    client.sendToClient(updatedCatalog); // Updating the view
+                    // TODO: broadcast to all clients if needed
+                    client.sendToClient(updatedCatalog);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -87,6 +79,7 @@ public class SimpleServer extends AbstractServer {
             }
 
         } else if (msg instanceof UserAccount) {
+            // (no-op / future handling)
 
         } else if (msg instanceof LoginRequest) {
             LoginRequest req = (LoginRequest) msg;
@@ -107,9 +100,9 @@ public class SimpleServer extends AbstractServer {
                 e.printStackTrace();
                 try {
                     client.sendToClient(new LoginResult(LoginResult.Status.ERROR, "Server error"));
-                } catch (IOException ignored) {
-                }
+                } catch (IOException ignored) {}
             }
+
         } else if (msg instanceof SignupRequest) {
             SignupRequest req = (SignupRequest) msg;
 
@@ -122,45 +115,54 @@ public class SimpleServer extends AbstractServer {
                     ).setParameter("login", req.getUsername()).uniqueResult();
 
                     if (cnt != null && cnt > 0) {
-                        try {
-                            client.sendToClient(SignupResult.usernameTaken());
-                        } catch (IOException ignored) {
-                        }
+                        try { client.sendToClient(SignupResult.usernameTaken()); }
+                        catch (IOException ignored) {}
                         return;
                     }
 
+                    // create & save
                     tx = s.beginTransaction();
-                    UserAccount ua = new UserAccount(req.getUsername(), req.getPassword(), req.getName(), req.getEmail()); // הבנאי יוצר salt+hash
+                    UserAccount ua = new UserAccount(req.getUsername(), req.getPassword(), req.getName(), req.getEmail());
                     s.save(ua);
                     tx.commit();
 
-                    try {
-                        client.sendToClient(SignupResult.ok());
-                    } catch (IOException ignored) {
-                    }
+                    try { client.sendToClient(SignupResult.ok()); }
+                    catch (IOException ignored) {}
                 }
-                // אם יש UNIQUE על login והתרחש מרוץ – ניפול לכאן
                 catch (ConstraintViolationException ex) {
                     if (tx != null) tx.rollback();
-                    try {
-                        client.sendToClient(SignupResult.usernameTaken());
-                    } catch (IOException ignored) {
-                    }
-                } catch (Exception ex) {
+                    try { client.sendToClient(SignupResult.usernameTaken()); }
+                    catch (IOException ignored) {}
+                }
+                catch (Exception ex) {
                     if (tx != null) tx.rollback();
                     ex.printStackTrace();
-                    try {
-                        client.sendToClient(SignupResult.error());
-                    } catch (IOException ignored) {
-                    }
+                    try { client.sendToClient(SignupResult.error()); }
+                    catch (IOException ignored) {}
                 }
             }
-        } else if (msg instanceof Message && ((Message) msg).getType().equals("AddItem")) {
-            Message message = (Message) msg;
 
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("AddItem")) {
+            // use imageData (byte[]) instead of imageLink; carry over flowerType if present
+            Message message = (Message) msg;
             Item in = (Item) message.getData();
 
-            var item = new Item(in.getName(), in.getType(), in.getDescription(), in.getPrice(), in.getImageData(), in.getColor());
+            // Prefer setters to avoid constructor signature mismatches
+            Item item = new Item();
+            item.setName(in.getName());
+            item.setType(in.getType());
+            item.setDescription(in.getDescription());
+            item.setPrice(in.getPrice());
+            item.setColor(in.getColor());
+            // new binary image field
+            item.setImageData(in.getImageData());
+            // optional flowerType if your entity has it
+            try {
+                // reflect to avoid compile error if method doesn’t exist
+                Item.class.getMethod("setFlowerType", String.class).invoke(item, in.getFlowerType());
+            } catch (Exception ignore) {
+                // ignore if flowerType doesn't exist
+            }
 
             var sf = DbConnector.getInstance().getSessionFactory();
             org.hibernate.Transaction tx = null;
@@ -170,9 +172,12 @@ public class SimpleServer extends AbstractServer {
                 tx.commit();
 
                 client.sendToClient(new Message("item added successfully", item));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                if (tx != null) tx.rollback();
+                try { client.sendToClient(new Message("item add error", e.getMessage())); }
+                catch (IOException ignored) {}
             }
+
         } else if (msg instanceof Message && ((Message) msg).getType().equals("show branches")) {
             var sessionf = DbConnector.getInstance().getSessionFactory();
 

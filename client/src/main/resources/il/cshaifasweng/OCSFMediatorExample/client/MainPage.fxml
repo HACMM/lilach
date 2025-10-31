@@ -29,7 +29,7 @@
                      -fx-border-radius: 16;">
 
             <!-- 🔹 כפתור PROFILE (האיש הקטן – נשמר השם המקורי שלך) -->
-            <HBox alignment="TOP_RIGHT" prefWidth="100%" spacing="8">
+            <HBox alignment="TOP_RIGHT" prefWidth="32" spacing="8">
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="profileBtn"
                         onAction="#onProfileClicked"
@@ -39,7 +39,7 @@
                     <graphic>
                         <ImageView fitHeight="32" fitWidth="32" preserveRatio="true">
                             <image>
-                                <Image url="@/images/personal_details_icon.png" />
+                                <Image url="@/images/user_icon.png" />
                             </image>
                         </ImageView>
                     </graphic>
