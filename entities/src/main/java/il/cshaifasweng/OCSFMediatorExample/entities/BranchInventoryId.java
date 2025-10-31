@@ -18,6 +18,8 @@ public class BranchInventoryId implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     private Branch branch;
 
+    public BranchInventoryId() {}
+
     public Item getItem() {
         return item;
     }

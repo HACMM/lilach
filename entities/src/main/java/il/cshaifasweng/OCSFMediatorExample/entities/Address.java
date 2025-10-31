@@ -14,6 +14,8 @@ public class Address {
     @Column(name = "building")
     private String building;
 
+    protected Address() {}
+
     public Address(String city, String street, String building) {
         this.city = city;
         this.street = street;

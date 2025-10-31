@@ -153,8 +153,14 @@ public class ReportsController {
         Platform.runLater(() -> {
             setupChart("Orders Report", "Product Type", "Number of Orders", "#a64f73");
 
+            // Group by item type using OrderLines
             Map<String, Long> grouped = event.getOrders().stream()
-                    .flatMap(o -> o.getItemSet().stream().map(i -> i.getType()))
+                    .flatMap(o -> o.getOrderLines().stream()
+                            .map(ol -> {
+                                Item it = ol.getItem();
+                                String t = (it != null && it.getType() != null) ? it.getType() : "UNKNOWN";
+                                return t;
+                            }))
                     .collect(Collectors.groupingBy(t -> t, Collectors.counting()));
 
             XYChart.Series<String, Number> series = new XYChart.Series<>();
@@ -167,6 +173,7 @@ public class ReportsController {
             infoLabel.setVisible(true);
         });
     }
+
 
     // ========================== ⚙️ עזרות ==========================
 

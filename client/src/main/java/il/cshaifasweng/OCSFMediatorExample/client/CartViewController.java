@@ -197,15 +197,19 @@ public class CartViewController {
             showMessage("Please select a payment method first.", false);
             return;
         }
+
         String greeting = greetingField.getText().trim();
         String deliveryType = pickupRadio.isSelected() ? "Pickup" : "Delivery";
         String recipient = recipientName.getText().trim();
         String phone = recipientPhone.getText().trim();
         LocalDate date = deliveryDate.getValue();
         String time = deliveryTime.getValue();
-        if (deliveryType.equals("Delivery")) {
-            if (recipient.isEmpty() || phone.isEmpty() ||
-                    cityField.getText().isEmpty() || streetField.getText().isEmpty() || buildingField.getText().isEmpty()) {
+
+        if ("Delivery".equals(deliveryType)) {
+            if (recipient.isEmpty() || phone.isEmpty()
+                    || cityField.getText().isEmpty()
+                    || streetField.getText().isEmpty()
+                    || buildingField.getText().isEmpty()) {
                 showMessage("Please fill in all delivery details.", false);
                 return;
             }
@@ -217,18 +221,26 @@ public class CartViewController {
         }
 
         try {
-            Set<Item> items = new HashSet<>(CartService.get().items()
-                    .stream()
-                    .map(CartItem::getItem)
-                    .collect(Collectors.toList()));
-
-            Order newOrder = new Order(currentUser, items);
-            newOrder.setPaymentMethod(selectedPaymentMethod);
+            Order newOrder = new Order(currentUser); // uses default payment later if you want
+            newOrder.setPaymentMethod(selectedPaymentMethod); // explicit payment method
             newOrder.setGreeting(greeting);
             newOrder.setDeliveryType(deliveryType);
-            newOrder.setDeliveryDateTime(LocalDateTime.of(date, LocalTime.parse("12:00"))); // או לפי time אם תשתמשי בשעות אמיתיות
+            newOrder.setDeliveryDateTime(LocalDateTime.of(date, LocalTime.parse("12:00"))); // TODO: map real hours from 'time'
 
-            if (deliveryType.equals("Delivery")) {
+            // Set branch if required by your schema (@ManyToOne(optional=false))
+            if (currentUser.getBranch() != null) {
+                newOrder.setBranch(currentUser.getBranch());
+            }
+
+            // Add order lines from cart (snapshot unit price now)
+            for (CartItem ci : CartService.get().items()) {
+                Item item = ci.getItem();
+                int qty = Math.max(1, ci.getQty());
+                newOrder.addLine(item, qty, item.getPrice());
+            }
+
+            // Delivery fee (this will also trigger recomputeTotal via setter)
+            if ("Delivery".equals(deliveryType)) {
                 Address addr = new Address(
                         cityField.getText().trim(),
                         streetField.getText().trim(),
@@ -238,28 +250,32 @@ public class CartViewController {
                 newOrder.setRecipientName(recipient);
                 newOrder.setRecipientPhone(phone);
                 newOrder.setDeliveryFee(20.0);
-                newOrder.setTotalPrice(CartService.get().total());
-
+            } else {
+                newOrder.setDeliveryFee(0.0);
             }
+
+            // If you want to force a recompute after all fields set (usually not needed because setDeliveryFee calls it)
+            newOrder.recomputeTotal();
+
             client.sendToServer(new Message("newOrder", newOrder));
 
-            // 🌸 שליחת מייל ללקוחה על אישור הזמנה
+            // 🌸 Confirmation email (client-side)
             String subject = "FlowerShop 🌷 - Order Confirmation";
             String body = String.format("""
-                Hello %s,
+            Hello %s,
 
-                Thank you for your order! 🌸
-                Your order number is: #%d
+            Thank you for your order! 🌸
+            Your order number is: #%d
 
-                Delivery type: %s
-                Scheduled for: %s
-                Total amount: %.2f₪
+            Delivery type: %s
+            Scheduled for: %s
+            Total amount: %.2f₪
 
-                We’ll notify you once your order is out for delivery.
-                
-                Love,
-                The FlowerShop Team 💐
-                """,
+            We’ll notify you once your order is out for delivery.
+            
+            Love,
+            The FlowerShop Team 💐
+            """,
                     currentUser.getName(),
                     newOrder.getId(),
                     newOrder.getDeliveryType(),
@@ -267,7 +283,6 @@ public class CartViewController {
                     newOrder.getTotalPrice()
             );
 
-            // שולח את המייל
             EmailSender.sendEmail(subject, body, currentUser.getEmail());
 
             showMessage("Your order has been placed successfully!", true);
@@ -275,7 +290,7 @@ public class CartViewController {
             clearFields();
             refreshTotals();
 
-            // נניח מעבירים למסך ההזמנות אחרי כמה שניות
+            // Navigate to "My Orders" shortly after
             new Thread(() -> {
                 try {
                     Thread.sleep(2000);
@@ -286,8 +301,7 @@ public class CartViewController {
                             e.printStackTrace();
                         }
                     });
-                } catch (InterruptedException ignored) {
-                }
+                } catch (InterruptedException ignored) {}
             }).start();
 
         } catch (IOException e) {

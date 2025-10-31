@@ -18,6 +18,8 @@ public class ComplaintEvent{
     @ManyToOne(optional = false)
     private Complaint complaint;
 
+    protected ComplaintEvent() {}
+
     public Complaint getComplaint() {
         return complaint;
     }
