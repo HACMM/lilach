@@ -56,6 +56,12 @@ public class ComplaintsReportController {
 
     @FXML
     private void onGenerateReport() {
+        if (AppSession.getCurrentUser() == null) {
+            showAlert("Please log in first.", Alert.AlertType.WARNING);
+            try { App.setRoot("Login"); } catch (IOException ignored) {}
+            return;
+        }
+
         LocalDate from = fromDate.getValue();
         LocalDate to = toDate.getValue();
 

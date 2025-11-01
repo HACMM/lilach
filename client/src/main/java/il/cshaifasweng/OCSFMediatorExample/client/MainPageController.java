@@ -14,7 +14,7 @@ public class MainPageController {
 
     @FXML
     private void onLoginClicked(ActionEvent event) {
-        switchTo("LoginView");
+        switchTo("Login");
     }
 
     @FXML

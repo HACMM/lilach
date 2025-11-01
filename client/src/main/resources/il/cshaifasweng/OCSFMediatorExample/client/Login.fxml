@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -32,11 +33,14 @@
                     onAction="#onBackClicked"
                     alignment="CENTER_LEFT"
                     style="-fx-background-color: transparent;
-                           -fx-text-fill: #a0537a;
-                           -fx-font-weight: bold;
-                           -fx-font-size: 13;
-                           -fx-cursor: hand;"
-                    VBox.margin="0 0 5 0"/>
+               -fx-text-fill: #a0537a;
+               -fx-font-weight: bold;
+               -fx-font-size: 13;
+               -fx-cursor: hand;">
+                <VBox.margin>
+                    <Insets top="0" right="0" bottom="5" left="0"/>
+                </VBox.margin>
+            </Button>
 
             <!-- 🔹 כותרת -->
             <Text text="Welcome to Lilach 🌸"

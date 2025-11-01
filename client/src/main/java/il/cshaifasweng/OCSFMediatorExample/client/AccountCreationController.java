@@ -64,7 +64,7 @@ public class AccountCreationController {
     private void onBack(ActionEvent event) {
         try {
             // go back to login view
-            App.setRoot("LoginView"); // adjust name if your FXML basename differs
+            App.setRoot("Login"); // adjust name if your FXML basename differs
         } catch (IOException e) {
             e.printStackTrace();
             // optionally show user feedback
@@ -144,7 +144,7 @@ public class AccountCreationController {
     @FXML
     private void onLoginLinkClicked(MouseEvent event) {
         try {
-            App.setRoot("LoginView");
+            App.setRoot("Login");
         } catch (IOException ex) {
             ex.printStackTrace();
             warningLabel.setText("⚠ Couldn’t open login page.");
@@ -195,7 +195,7 @@ public class AccountCreationController {
         javafx.application.Platform.runLater(() -> {
             if (ev.isOk()) {
                 warningLabel.setText("Signup successful!");
-                try { App.setRoot("LoginView"); } catch (Exception ignored) {}
+                try { App.setRoot("Login"); } catch (Exception ignored) {}
                 return;
             }
             if (ev.isUsernameTaken()) {

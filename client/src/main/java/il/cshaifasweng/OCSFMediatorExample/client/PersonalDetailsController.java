@@ -36,22 +36,33 @@ public class PersonalDetailsController {
             nameField.setText(currentUser.getName());
             emailField.setText(currentUser.getEmail());
             idField.setText(currentUser.getIdNumber());
-            accountTypeLbl.setText(currentUser.getUserBranchType().toString());
-
-            if (currentUser.getSubscriptionExpirationDate() != null)
-                subscriptionExpiryLbl.setText(currentUser.getSubscriptionExpirationDate().toString());
-            else
-                subscriptionExpiryLbl.setText("—");
-
-            if (currentUser.isSubscriptionUser())
-                renewSubBtn.setVisible(true);
-            else
-                purchaseSubBtn.setVisible(true);
+            accountTypeLbl.setText(String.valueOf(currentUser.getUserBranchType()));
+            subscriptionExpiryLbl.setText(
+                    currentUser.getSubscriptionExpirationDate() != null
+                            ? currentUser.getSubscriptionExpirationDate().toString()
+                            : "—"
+            );
+            renewSubBtn.setVisible(currentUser.isSubscriptionUser());
+            purchaseSubBtn.setVisible(!currentUser.isSubscriptionUser());
+        } else {
+            // No user logged in → lock the form and show a hint
+            nameField.setDisable(true);
+            emailField.setDisable(true);
+            idField.setDisable(true);
+            renewSubBtn.setDisable(true);
+            purchaseSubBtn.setDisable(true);
+            statusLabel.setText("Please log in to view and edit personal details.");
         }
     }
 
+
     @FXML
     private void onSaveChanges() {
+        if (currentUser == null) {
+            statusLabel.setText("You must log in before saving changes.");
+            return;
+        }
+
         currentUser.setName(nameField.getText());
         currentUser.setEmail(emailField.getText());
         currentUser.setIdNumber(idField.getText());
@@ -64,8 +75,13 @@ public class PersonalDetailsController {
         }
     }
 
+
     @FXML
     private void onChangePayment() {
+        if (currentUser == null) {
+            statusLabel.setText("Log in to change your payment method.");
+            return;
+        }
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
             Stage st = new Stage();
@@ -88,11 +104,19 @@ public class PersonalDetailsController {
 
     @FXML
     private void onPurchaseSubscription() {
+        if (currentUser == null) {
+            statusLabel.setText("Log in to purchase a subscription.");
+            return;
+        }
         statusLabel.setText("✅ Subscription purchased successfully!");
     }
 
     @FXML
     private void onRenewSubscription() {
+        if (currentUser == null) {
+            statusLabel.setText("Log in to renew a subscription.");
+            return;
+        }
         currentUser.activateSubscription();
         subscriptionExpiryLbl.setText(currentUser.getSubscriptionExpirationDate().toString());
         statusLabel.setText("🔁 Subscription renewed!");

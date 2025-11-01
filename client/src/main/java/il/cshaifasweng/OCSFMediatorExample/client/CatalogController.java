@@ -51,12 +51,12 @@ public class CatalogController implements Initializable {
     private TableColumn<Item, Double> priceCol;
     @FXML
     private TableColumn<Item, ImageView> imageCol;
-    @FXML
-    private ComboBox<String> categoryFilter;
-    @FXML
-    private ComboBox<String> colorFilter;
-    @FXML
-    private ComboBox<String> priceFilter;
+//    @FXML
+//    private ComboBox<String> categoryFilter;
+//    @FXML
+//    private ComboBox<String> colorFilter;
+//    @FXML
+//    private ComboBox<String> priceFilter;
     @FXML
     private TextField filterField;
 	@FXML
@@ -114,9 +114,9 @@ public class CatalogController implements Initializable {
 
 	});
 
-		categoryFilter.setItems(FXCollections.observableArrayList("All", "Bouquet", "Single Flower", "Plant", "Accessory"));
-		categoryFilter.setValue("All");
-		categoryFilter.setOnAction(e -> applyFilters());
+//		categoryFilter.setItems(FXCollections.observableArrayList("All", "Bouquet", "Single Flower", "Plant", "Accessory"));
+//		categoryFilter.setValue("All");
+//		categoryFilter.setOnAction(e -> applyFilters());
 
 
 		filterField.textProperty().addListener((obs, oldV, newV) -> applyFilters());
@@ -156,19 +156,16 @@ public class CatalogController implements Initializable {
 	}
 
 
-	/** Filter by name/type when Search clicked */
-	@FXML
-	private void onSearchClicked() {
-		String term = filterField.getText().toLowerCase();
-		List<Item> filtered = table.getItems().stream()
-				.filter(i ->
-						i.getName().toLowerCase().contains(term) ||
-								i.getType().toLowerCase().contains(term)
-				)
-				.collect(Collectors.toList());
-		table.getItems().setAll(filtered);
-		applyFilters();
-	}
+    @FXML
+    private void onSearchByClicked() throws IOException {
+        App.setRoot("SearchByView");
+    }
+
+    @FXML
+    private void onCustomOrderClicked() throws IOException {
+        App.setRoot("CustomOrderView");
+    }
+
 
 	/** Open detail view on double‐click */
 	@FXML
@@ -199,7 +196,7 @@ public class CatalogController implements Initializable {
 		try {
 			FXMLLoader loader = new FXMLLoader(
 					getClass().getResource(
-							"/il/cshaifasweng/OCSFMediatorExample/client/LoginView.fxml"
+							"/il/cshaifasweng/OCSFMediatorExample/client/Login.fxml"
 					)
 			);
 			Parent root = loader.load();
@@ -271,20 +268,29 @@ public class CatalogController implements Initializable {
 //	filteredData.setAll(filtered);
 }
 
-	@FXML
-	private void onProfileClicked(ActionEvent event) {
-		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(
-					"/il/cshaifasweng/OCSFMediatorExample/client/PersonalDetailsView.fxml"));
-			Stage stage = new Stage();
-			stage.setScene(new Scene(loader.load()));
-			stage.setTitle("Personal Details");
-			stage.show();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    @FXML
+    private void onProfileClicked(ActionEvent event) {
+        if (AppSession.getCurrentUser() == null) {
+            // route to login screen in the same window
+            try {
+                App.setRoot("Login");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
 
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/PersonalDetailsView.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(loader.load()));
+            stage.setTitle("Personal Details");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @FXML
     public void onAddItemClicked(ActionEvent actionEvent) throws IOException {
 		FXMLLoader loader = new FXMLLoader(

@@ -29,7 +29,7 @@ public class ReportsController {
     @FXML private Label infoLabel;
     @FXML private Button generateBtn;
 
-    private BarChart<String, Number> mainChart;
+    @FXML private BarChart<String, Number> mainChart;
 
     private boolean isNetworkManager = false;
 
@@ -68,6 +68,12 @@ public class ReportsController {
 
     @FXML
     private void onGenerateReport() {
+        if (AppSession.getCurrentUser() == null) {
+            showAlert("Please log in first.", Alert.AlertType.WARNING);
+            try { App.setRoot("Login"); } catch (IOException ignored) {}
+            return;
+        }
+
         String type = reportTypeCombo.getValue();
         LocalDate from = fromDate.getValue();
         LocalDate to = toDate.getValue();

@@ -18,6 +18,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
+import javafx.event.ActionEvent;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
@@ -119,6 +121,8 @@ public class CartViewController {
         refreshTotals();
     }
 
+
+
     private TableCell<CartItem, Double> moneyCell() {
         return new TableCell<>() {
             @Override protected void updateItem(Double val, boolean empty) {
@@ -183,6 +187,21 @@ public class CartViewController {
             showMessage("Error loading payment window.", false);
             e.printStackTrace();
         }
+    }
+
+
+    @FXML
+    private void onBack(ActionEvent e) throws IOException {
+        // Pick the view you want to return to:
+        App.setRoot("MainPage");    // or App.setRoot("CatalogView");
+    }
+
+    @FXML
+    private void onClear(ActionEvent e) {
+
+        CartService.get().clear();
+        refreshTotals();
+        showMessage("Cart cleared", true);
     }
 
     @FXML
