@@ -9,6 +9,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +30,30 @@ public class SimpleServer extends AbstractServer {
         this.sessionFactory = DbConnector.getInstance().getSessionFactory();
         this.itemManager = new ItemManager(sessionFactory);
     }
+
+    private PublicUser toPublicUser(UserAccount u) {
+        LocalDate exp = null;
+        Object raw = u.getSubscriptionExpirationDate();
+        if (raw instanceof LocalDate) exp = (LocalDate) raw;
+
+        Integer branchId = (u.getBranch() != null) ? u.getBranch().getId() : null;
+
+        return new PublicUser(
+                u.getUserId(),
+                u.getLogin(),
+                u.getName(),
+                u.getEmail(),
+                u.getIdNumber(),
+                u.getRole(),
+                u.getUserBranchType(),
+                branchId,
+                u.isSubscriptionUser(),
+                exp,
+                u.getDefaultPaymentMethod()
+        );
+    }
+
+
 
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
@@ -81,6 +107,140 @@ public class SimpleServer extends AbstractServer {
         } else if (msg instanceof UserAccount) {
             // (no-op / future handling)
 
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("resolveComplaint")) {
+            Message m = (Message) msg;
+            @SuppressWarnings("unchecked")
+            java.util.List<?> data = (java.util.List<?>) m.getData();
+
+            Integer complaintId = (Integer) data.get(0);
+            String responseText = (String) data.get(1);
+            Double compensation = (Double) data.get(2);
+            Boolean resolved = (Boolean) data.get(3);
+            Integer managerUserId = (Integer) data.get(4);
+
+            try (org.hibernate.Session s = sessionFactory.openSession()) {
+                org.hibernate.Transaction tx = s.beginTransaction();
+
+                Complaint c = s.get(Complaint.class, complaintId);
+                if (c == null) {
+                    tx.rollback();
+                    client.sendToClient(new Message("resolveComplaintError", "Complaint not found"));
+                    return;
+                }
+
+                c.setResponse(responseText);
+                c.setCompensation(compensation != null ? compensation : 0.0);
+                c.setResolved(Boolean.TRUE.equals(resolved));
+                c.setRespondedAt(java.time.LocalDateTime.now());
+
+                if (managerUserId != null) {
+                    UserAccount manager = s.get(UserAccount.class, managerUserId);
+                    if (manager != null) {
+                        c.setManagerAccount(manager); //  set entity server-side
+                    }
+                }
+
+                s.update(c);
+                tx.commit();
+
+                // server-side email to the customer
+                try {
+                    EmailSender.sendEmail(
+                            "Your complaint has been resolved 💐",
+                            "Hello " + c.getClientName() + ",\n\n" +
+                                    "We responded to your complaint:\n\"" + c.getDescription() + "\"\n\n" +
+                                    "Response: " + c.getResponse() + "\n" +
+                                    ((c.getCompensation() != null && c.getCompensation() > 0)
+                                            ? "Compensation: " + String.format("%.2f₪", c.getCompensation()) + "\n\n"
+                                            : "\n") +
+                                    "Thank you for your patience.\nFlowerShop Team",
+                            c.getClientEmail()
+                    );
+                } catch (Exception mailEx) {
+                    // log only; don't fail the request because of email issues
+                    mailEx.printStackTrace();
+                }
+
+                // send updated complaint back to refresh client UI
+                client.sendToClient(new Message("complaintResolved", c));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try { client.sendToClient(new Message("resolveComplaintError", "Server error")); }
+                catch (IOException ignored) {}
+            }
+
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("newOrder")) {
+            Message m = (Message) msg;
+            NewOrderRequest req = (NewOrderRequest) m.getData();
+
+            org.hibernate.Transaction tx = null;
+            try (org.hibernate.Session s = sessionFactory.openSession()) {
+                tx = s.beginTransaction();
+
+                // 1) Load the user (entity) by id coming from the PublicUser
+                UserAccount user = s.get(UserAccount.class, req.userId);
+                if (user == null) {
+                    tx.rollback();
+                    client.sendToClient(new Message("newOrderError", "User not found"));
+                    return;
+                }
+
+                // 2) Create the Order entity and populate core fields
+                Order order = new Order(user);
+                order.setGreeting(req.greeting);
+                order.setDeliveryType(req.deliveryType);
+                order.setDeliveryDateTime(req.deliveryDateTime != null ? req.deliveryDateTime : LocalDateTime.now());
+
+                // Optional: store the chosen payment method snapshot
+                // order.setPaymentMethod(req.paymentMethod);
+
+                // 3) Branch (if provided)
+                if (req.branchId != null) {
+                    Branch br = s.get(Branch.class, req.branchId);
+                    if (br != null) {
+                        order.setBranch(br);
+                    }
+                }
+
+                // 4) Delivery details
+                if ("Delivery".equalsIgnoreCase(req.deliveryType)) {
+                    Address addr = new Address(req.city, req.street, req.building);
+                    order.setDeliveryAddress(addr);
+                    order.setRecipientName(req.recipientName);
+                    order.setRecipientPhone(req.recipientPhone);
+                    order.setDeliveryFee(req.deliveryFee != null ? req.deliveryFee : 20.0);
+                } else {
+                    order.setDeliveryFee(0.0);
+                }
+
+                // 5) Lines
+                for (NewOrderRequest.Line line : req.lines) {
+                    Item item = s.get(Item.class, line.itemId);
+                    if (item == null) continue; // or collect and fail
+                    int qty = Math.max(1, line.qty);
+                    double unitPrice = line.unitPrice; // snapshot from client
+                    order.addLine(item, qty, unitPrice);
+                }
+
+                // 6) Recompute total if needed
+                order.recomputeTotal();
+
+                // 7) Persist
+                s.persist(order);
+                tx.commit();
+
+                // 8) Reply with the official order id so client can send the second email
+                client.sendToClient(new Message("newOrderOk", order.getId()));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    if (tx != null) tx.rollback();
+                    client.sendToClient(new Message("newOrderError", "Failed creating order"));
+                } catch (IOException ignored) {}
+            }
+
         } else if (msg instanceof LoginRequest) {
             LoginRequest req = (LoginRequest) msg;
             try (Session s = sessionFactory.openSession()) {
@@ -91,11 +251,11 @@ public class SimpleServer extends AbstractServer {
 
                 boolean ok = (user != null) && user.verifyPassword(req.getPassword());
 
-                client.sendToClient(
-                        ok
-                                ? new LoginResult(LoginResult.Status.USER_FOUND, "OK")
-                                : new LoginResult(LoginResult.Status.USER_NOT_FOUND, "Invalid username or password")
-                );
+                if(ok){
+                    client.sendToClient(LoginResult.ok(toPublicUser(user)));
+                } else {
+                    client.sendToClient(LoginResult.notFound("Invalid username or password"));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 try {

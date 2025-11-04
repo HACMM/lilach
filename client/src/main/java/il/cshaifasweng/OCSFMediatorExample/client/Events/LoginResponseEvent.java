@@ -1,21 +1,24 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Events;
 
+import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 
 public class LoginResponseEvent {
     private final boolean success;
-    private final UserAccount user; // המשתמש המחובר, אם הצליח
+    private final String message;
+    private final PublicUser user;
 
-    public LoginResponseEvent(boolean success, UserAccount user) {
+    public LoginResponseEvent(boolean success, String message, PublicUser user) {
         this.success = success;
+        this.message = message;
         this.user = user;
     }
 
     public boolean isSuccess() {
         return success;
     }
-
-    public UserAccount getUser() {
+    public String getMessage() { return message;}
+    public PublicUser getUser() {
         return user;
     }
 }

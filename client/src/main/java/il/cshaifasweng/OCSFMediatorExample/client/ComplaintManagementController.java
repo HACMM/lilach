@@ -77,7 +77,6 @@ public class ComplaintManagementController {
         });
     }
 
-    /** כפתור שליחה */
     @FXML
     private void onSendResponse() {
         if (selectedComplaint == null) {
@@ -101,14 +100,29 @@ public class ComplaintManagementController {
             }
         }
 
-        selectedComplaint.setResponse(responseText);
-        selectedComplaint.setCompensation(compensation);
-        selectedComplaint.setResolved(true);
-        selectedComplaint.setRespondedAt(java.time.LocalDateTime.now());
-        selectedComplaint.setManagerAccount(AppSession.getCurrentUser());
+        // 🔹 Only IDs / primitives from client
+        Integer managerId = (AppSession.getCurrentUser() != null)
+                ? AppSession.getCurrentUser().getUserId()
+                : null;
+
+        if (managerId == null) {
+            showMessage("You must be logged in to resolve complaints.", false);
+            return;
+        }
+
+        // Payload = [complaintId, responseText, compensation, resolved, managerUserId]
+        var payload = java.util.List.of(
+                selectedComplaint.getComplaintId(),
+                responseText,
+                compensation,
+                Boolean.TRUE,
+                managerId
+        );
 
         try {
-            client.sendToServer(new Message("resolveComplaint", selectedComplaint));
+            client.sendToServer(new Message("resolveComplaint", payload));
+
+            //send a local email to the customer for UX
             EmailSender.sendEmail(
                     "Response to your complaint 💐",
                     "Dear " + selectedComplaint.getClientName() + ",\n\n" +
@@ -120,12 +134,13 @@ public class ComplaintManagementController {
             );
 
             showMessage("Response sent successfully!", true);
-            requestComplaints(); // לרענן את הרשימה
+            requestComplaints(); // refresh list
         } catch (IOException e) {
             e.printStackTrace();
             showMessage("Failed to send response.", false);
         }
     }
+
 
     private void showMessage(String text, boolean success) {
         messageLabel.setText(text);

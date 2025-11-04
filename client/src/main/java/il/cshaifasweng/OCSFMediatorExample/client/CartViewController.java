@@ -1,6 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import Request.PublicUser;
+import Request.NewOrderRequest;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -19,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.event.ActionEvent;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -134,7 +137,7 @@ public class CartViewController {
 
     private void refreshTotals() {
         double total = CartService.get().total();
-        UserAccount currentUser = AppSession.getCurrentUser();
+        PublicUser currentUser = AppSession.getCurrentUser();
 
         if (currentUser != null && currentUser.isSubscriptionUser()) {
             double discount = total * 0.1;
@@ -206,7 +209,7 @@ public class CartViewController {
 
     @FXML
     private void onCheckout() {
-        UserAccount currentUser = AppSession.getCurrentUser();
+        PublicUser currentUser = AppSession.getCurrentUser();
         if (currentUser == null) {
             showMessage("Please log in before checking out.", false);
             return;
@@ -217,12 +220,12 @@ public class CartViewController {
             return;
         }
 
-        String greeting = greetingField.getText().trim();
+        String greeting     = greetingField.getText().trim();
         String deliveryType = pickupRadio.isSelected() ? "Pickup" : "Delivery";
-        String recipient = recipientName.getText().trim();
-        String phone = recipientPhone.getText().trim();
-        LocalDate date = deliveryDate.getValue();
-        String time = deliveryTime.getValue();
+        String recipient    = recipientName.getText().trim();
+        String phone        = recipientPhone.getText().trim();
+        LocalDate date      = deliveryDate.getValue();
+        String timeSlot     = deliveryTime.getValue(); // "Morning" / "Afternoon" / "Evening"
 
         if ("Delivery".equals(deliveryType)) {
             if (recipient.isEmpty() || phone.isEmpty()
@@ -234,91 +237,103 @@ public class CartViewController {
             }
         }
 
-        if (date == null || time == null) {
+        if (date == null || timeSlot == null) {
             showMessage("Please select a delivery date and time.", false);
             return;
         }
 
         try {
-            Order newOrder = new Order(currentUser); // uses default payment later if you want
-            newOrder.setPaymentMethod(selectedPaymentMethod); // explicit payment method
-            newOrder.setGreeting(greeting);
-            newOrder.setDeliveryType(deliveryType);
-            newOrder.setDeliveryDateTime(LocalDateTime.of(date, LocalTime.parse("12:00"))); // TODO: map real hours from 'time'
+            // ---- Build the DTO we send to the server ----
+            NewOrderRequest req = new NewOrderRequest();
+            req.userId           = currentUser.getUserId();
+            // Branch is optional for network/subscription users; keep null if you don't have it
+            try { req.branchId = currentUser.getBranchId(); } catch (Throwable ignored) { req.branchId = null; }
 
-            // Set branch if required by your schema (@ManyToOne(optional=false))
-            if (currentUser.getBranch() != null) {
-                newOrder.setBranch(currentUser.getBranch());
+            req.deliveryType     = deliveryType;
+            LocalTime slotTime   = mapSlotToTime(timeSlot);
+            req.deliveryDateTime = LocalDateTime.of(date, slotTime);
+            req.greeting         = greeting;
+            req.paymentMethod    = selectedPaymentMethod;
+            req.deliveryFee      = "Delivery".equals(deliveryType) ? 20.0 : 0.0;
+
+            if ("Delivery".equals(deliveryType)) {
+                req.recipientName  = recipient;
+                req.recipientPhone = phone;
+                req.city           = cityField.getText().trim();
+                req.street         = streetField.getText().trim();
+                req.building       = buildingField.getText().trim();
             }
 
-            // Add order lines from cart (snapshot unit price now)
+            // Order lines from cart (snapshot unit price now)
             for (CartItem ci : CartService.get().items()) {
                 Item item = ci.getItem();
-                int qty = Math.max(1, ci.getQty());
-                newOrder.addLine(item, qty, item.getPrice());
+                int qty   = Math.max(1, ci.getQty());
+                req.lines.add(new NewOrderRequest.Line(item.getId(), qty, item.getPrice()));
             }
 
-            // Delivery fee (this will also trigger recomputeTotal via setter)
-            if ("Delivery".equals(deliveryType)) {
-                Address addr = new Address(
-                        cityField.getText().trim(),
-                        streetField.getText().trim(),
-                        buildingField.getText().trim()
-                );
-                newOrder.setDeliveryAddress(addr);
-                newOrder.setRecipientName(recipient);
-                newOrder.setRecipientPhone(phone);
-                newOrder.setDeliveryFee(20.0);
-            } else {
-                newOrder.setDeliveryFee(0.0);
-            }
+            // ---- Send to server ----
+            client.sendToServer(new Message("newOrder", req));
 
-            // If you want to force a recompute after all fields set (usually not needed because setDeliveryFee calls it)
-            newOrder.recomputeTotal();
+            // ---- Immediate confirmation email (client-side) ----
+            // We don’t have the server order-id yet; this is a “request received” email.
+            NumberFormat currency = NumberFormat.getCurrencyInstance(new Locale("he", "IL"));
+            double itemsTotal = CartService.get().items().stream()
+                    .mapToDouble(ci -> ci.getItem().getPrice() * Math.max(1, ci.getQty()))
+                    .sum();
 
-            client.sendToServer(new Message("newOrder", newOrder));
+            // Subscriber discount preview (same logic as your UI)
+            double discount = (currentUser.isSubscriptionUser() ? itemsTotal * 0.10 : 0.0);
+            double afterDiscount = itemsTotal - discount;
+            double estimatedTotal = afterDiscount + req.deliveryFee;
 
-            // 🌸 Confirmation email (client-side)
-            String subject = "FlowerShop 🌷 - Order Confirmation";
+            String subject = "FlowerShop 🌷 – Order request received";
             String body = String.format("""
             Hello %s,
 
-            Thank you for your order! 🌸
-            Your order number is: #%d
+            We’ve received your order request. Here is a summary:
 
             Delivery type: %s
-            Scheduled for: %s
-            Total amount: %.2f₪
+            Scheduled for: %s at %s
+            Greeting: %s
 
-            We’ll notify you once your order is out for delivery.
-            
-            Love,
-            The FlowerShop Team 💐
+            Items total: %s
+            %sDelivery fee: %s
+            -------------------------
+            Estimated total: %s
+
+            %s
+
+            You’ll receive a second email with your official order number once it’s confirmed. 
+            Thank you for shopping with us! 💐
             """,
                     currentUser.getName(),
-                    newOrder.getId(),
-                    newOrder.getDeliveryType(),
-                    newOrder.getDeliveryDateTime().toLocalDate(),
-                    newOrder.getTotalPrice()
+                    deliveryType,
+                    date.toString(), slotTime.toString(),
+                    (greeting.isBlank() ? "(none)" : greeting),
+                    currency.format(itemsTotal),
+                    (discount > 0 ? "Subscriber discount (10%): -" + currency.format(discount) + "\n" : ""),
+                    currency.format(req.deliveryFee),
+                    currency.format(estimatedTotal),
+                    "Delivery details: " + ("Delivery".equals(deliveryType)
+                            ? String.format("%s, %s %s | Recipient: %s (%s)",
+                            req.city, req.street, req.building, recipient, phone)
+                            : "Pickup")
             );
 
             EmailSender.sendEmail(subject, body, currentUser.getEmail());
 
+            // ---- UI & flow feedback (same as you had) ----
             showMessage("Your order has been placed successfully!", true);
             CartService.get().clear();
             clearFields();
             refreshTotals();
 
-            // Navigate to "My Orders" shortly after
             new Thread(() -> {
                 try {
                     Thread.sleep(2000);
                     Platform.runLater(() -> {
-                        try {
-                            App.setRoot("MyOrdersView");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        try { App.setRoot("MyOrdersView"); }
+                        catch (IOException e) { e.printStackTrace(); }
                     });
                 } catch (InterruptedException ignored) {}
             }).start();
@@ -326,6 +341,17 @@ public class CartViewController {
         } catch (IOException e) {
             showMessage("Failed to send order to server.", false);
             e.printStackTrace();
+        }
+    }
+
+    // helper (keep from previous message)
+    private LocalTime mapSlotToTime(String slot) {
+        if (slot == null) return LocalTime.of(12, 0);
+        switch (slot) {
+            case "Morning":   return LocalTime.of(9, 0);
+            case "Afternoon": return LocalTime.of(13, 0);
+            case "Evening":   return LocalTime.of(18, 0);
+            default:          return LocalTime.of(12, 0);
         }
     }
 
@@ -355,4 +381,18 @@ public class CartViewController {
             } catch (InterruptedException ignored) {}
         }).start();
     }
+
+
+    @Subscribe
+    public void onOrderCreated(Message m) {
+        if (!"newOrderOk".equals(m.getType())) return;
+        Integer orderId = (Integer) m.getData();
+        PublicUser user = AppSession.getCurrentUser();
+        if (user == null) return;
+
+        String subject = "FlowerShop 🌷 – Order confirmed #" + orderId;
+        String body = "Hi " + user.getName() + ",\n\nYour order has been confirmed.\nOrder #: " + orderId + "\n\nThanks! 💐";
+        EmailSender.sendEmail(subject, body, user.getEmail());
+    }
 }
+
