@@ -179,7 +179,7 @@ public class UserAccount implements Serializable {
         this(login, password,Name, email, null, UserBranchType.ALL_BRANCHES);
     }
 
-    protected UserAccount() {}
+    public UserAccount() {}
 
     public UserAccount(String login, String password) {
         this(login, password,null , null, null, UserBranchType.ALL_BRANCHES);
@@ -309,11 +309,11 @@ public class UserAccount implements Serializable {
     }
 
 
-    public Object getSubscriptionExpirationDate() {
+    public LocalDate getSubscriptionExpirationDate() {
         return this.subscriptionExpirationDate;
     }
 
-    public Object getUserBranchType() {
+    public UserBranchType getUserBranchType() {
         return this.userBranchType;
     }
 

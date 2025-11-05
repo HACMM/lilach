@@ -6,6 +6,7 @@ import il.cshaifasweng.OCSFMediatorExample.client.Events.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import Request.LoginResult;
+import jdk.jfr.Event;
 import org.greenrobot.eventbus.EventBus;
 import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import Request.Warning;
@@ -33,9 +34,13 @@ public class SimpleClient extends AbstractClient {
 
             if (message.startsWith("showCatalog")) {
                 EventBus.getDefault().post("showCatalog");
-            } else if (msg instanceof LoginResult) {
+            }
+            else if (msg instanceof LoginResult) {
                 LoginResult loginResult = (LoginResult) msg;
-                EventBus.getDefault().post(new LoginResponseEvent(loginResult.isSuccess(), null));
+
+                EventBus.getDefault().post(new LoginResponseEvent(loginResult.isSuccess(),
+                        loginResult.getMessage(), loginResult.getUser()));
+
             } else if (msg instanceof SignupResult) {
                 SignupResult signupResult = (SignupResult) msg;
                EventBus.getDefault().post(SignupResponseEvent.from(signupResult));
@@ -49,6 +54,9 @@ public class SimpleClient extends AbstractClient {
                 @SuppressWarnings("unchecked")
                 List<Branch> branches = (List<Branch>) ((Message) msg).getData();
                 EventBus.getDefault().post(new BranchListEvent(branches));
+
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("newOrderOk")) {
+                EventBus.getDefault().post(msg);
             }
             else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;

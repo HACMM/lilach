@@ -87,17 +87,19 @@ public class ReportsController {
             return;
         }
 
-        Branch branch = branchCombo.isVisible() ? branchCombo.getValue() : AppSession.getCurrentUser().getBranch();
-        if (branch == null) {
+        Integer branchId = branchCombo.isVisible()
+                ? (branchCombo.getValue() != null ? branchCombo.getValue().getId() : null)
+                : AppSession.getCurrentUser().getBranchId();
+        if (branchId == null) {
             showAlert("Please select a branch.", Alert.AlertType.WARNING);
             return;
         }
 
         try {
             switch (type) {
-                case "Complaints Report" -> client.sendToServer(new Message("getComplaintsReport", List.of(branch, from, to)));
-                case "Revenue Report" -> client.sendToServer(new Message("getRevenueReport", List.of(branch, from, to)));
-                case "Orders Report" -> client.sendToServer(new Message("getOrdersReport", List.of(branch, from, to)));
+                case "Complaints Report" -> client.sendToServer(new Message("getComplaintsReport", List.of(branchId, from, to)));
+                case "Revenue Report" -> client.sendToServer(new Message("getRevenueReport", List.of(branchId, from, to)));
+                case "Orders Report" -> client.sendToServer(new Message("getOrdersReport", List.of(branchId, from, to)));
                 default -> showAlert("Unknown report type.", Alert.AlertType.ERROR);
             }
         } catch (IOException e) {

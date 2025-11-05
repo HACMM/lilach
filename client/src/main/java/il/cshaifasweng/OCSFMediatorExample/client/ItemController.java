@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -57,7 +58,7 @@ public class ItemController {
     }
 
     public void init(Item item) {
-        UserAccount currentUser = AppSession.getCurrentUser();
+        PublicUser currentUser = AppSession.getCurrentUser();
 
         if (currentUser != null) {
             Role role = currentUser.getRole();

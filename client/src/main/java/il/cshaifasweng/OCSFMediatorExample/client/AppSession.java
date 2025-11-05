@@ -1,16 +1,16 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
+import Request.PublicUser;
 
 public class AppSession {
     private static UserAccount currentUser;
     private static SearchCriteria lastSearchCriteria;
 
-    public static void setCurrentUser(UserAccount user) {
+    public static void setCurrentUser(PublicUser user) {
         currentUser = user;
     }
 
-    public static UserAccount getCurrentUser() {
+    public static PublicUser getCurrentUser() {
         return currentUser;
     }
 

@@ -70,16 +70,17 @@ public class ComplaintsReportController {
             return;
         }
 
-        Branch selectedBranch =
-                branchCombo.isVisible() ? branchCombo.getValue() : AppSession.getCurrentUser().getBranch();
+        Integer branchId = branchCombo.isVisible()
+                ? (branchCombo.getValue() != null ? branchCombo.getValue().getId() : null)
+                : AppSession.getCurrentUser().getBranchId();
 
-        if (selectedBranch == null) {
+        if (branchId == null) {
             showAlert("Please select a branch.", Alert.AlertType.WARNING);
             return;
         }
 
         try {
-            Message msg = new Message("getComplaintsReport", List.of(selectedBranch, from, to));
+            Message msg = new Message("getComplaintsReport", List.of(branchId, from, to));
             client.sendToServer(msg);
         } catch (IOException e) {
             showAlert("Failed to fetch report from server.", Alert.AlertType.ERROR);

@@ -44,31 +44,30 @@ public class AccountCreationController {
 
     @FXML
     public void initialize() {
-        accountTypeCombo.getItems().addAll(
-                "Branch Account",
-                "Network Account",
-                "Yearly Subscription"
-        );
-        accountTypeCombo.setValue("Branch Account");
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
 
+        accountTypeCombo.getItems().addAll("Branch Account","Network Account","Yearly Subscription");
+        accountTypeCombo.setValue("Branch Account");
         accountTypeCombo.setOnAction(e -> {
             String selected = accountTypeCombo.getValue();
-            //subscriptionNote.setVisible("Yearly Subscription".equals(selected));
             ChooseCard.setVisible("Yearly Subscription".equals(selected));
             checkoutBtn.setVisible("Yearly Subscription".equals(selected));
         });
     }
 
+    // Call this when leaving the view (e.g., onBack or when you navigate away)
+    private void unregisterBus() {
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
 
     @FXML
     private void onBack(ActionEvent event) {
-        try {
-            // go back to login view
-            App.setRoot("Login"); // adjust name if your FXML basename differs
-        } catch (IOException e) {
-            e.printStackTrace();
-            // optionally show user feedback
-        }
+        unregisterBus();
+        try { App.setRoot("Login"); } catch (IOException e) { e.printStackTrace(); }
     }
 
     @FXML
@@ -189,6 +188,7 @@ public class AccountCreationController {
         paymentAlert.setContentText("Your yearly subscription has been paid successfully (100₪).");
         paymentAlert.showAndWait();
     }
+
 
     @Subscribe
     public void onSignupResponseEvent(SignupResponseEvent ev) {

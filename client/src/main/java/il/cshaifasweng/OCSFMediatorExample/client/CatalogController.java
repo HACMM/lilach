@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Filter;
+import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
@@ -123,7 +124,7 @@ public class CatalogController implements Initializable {
 
 		table.setItems(filteredData);
 
-		UserAccount currentUser = AppSession.getCurrentUser();
+		PublicUser currentUser = AppSession.getCurrentUser();
 		if (currentUser == null || (currentUser.getRole() != Role.EMPLOYEE && currentUser.getRole() != Role.MANAGER)) {
 			addItemBtn.setVisible(false);
 		}

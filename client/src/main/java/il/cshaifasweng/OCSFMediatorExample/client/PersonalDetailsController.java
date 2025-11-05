@@ -1,5 +1,9 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.PublicUser;
+import Request.RenewSubscriptionRequest;
+import Request.UpdatePaymentMethodRequest;
+import Request.UpdateUserDetailsRequest;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
@@ -28,7 +32,7 @@ public class PersonalDetailsController {
     @FXML private Button purchaseSubBtn;
     @FXML private Button loginReminderBtn;
 
-    private UserAccount currentUser;
+    private PublicUser currentUser;
 
     @FXML
     public void initialize() {
@@ -37,7 +41,7 @@ public class PersonalDetailsController {
             nameField.setText(currentUser.getName());
             emailField.setText(currentUser.getEmail());
             idField.setText(currentUser.getIdNumber());
-            accountTypeLbl.setText(String.valueOf(currentUser.getUserBranchType()));
+            accountTypeLbl.setText(String.valueOf(currentUser.getBranchType()));
             subscriptionExpiryLbl.setText(
                     currentUser.getSubscriptionExpirationDate() != null
                             ? currentUser.getSubscriptionExpirationDate().toString()
@@ -63,14 +67,14 @@ public class PersonalDetailsController {
             statusLabel.setText("You must log in before saving changes.");
             return;
         }
-
-        currentUser.setName(nameField.getText());
-        currentUser.setEmail(emailField.getText());
-        currentUser.setIdNumber(idField.getText());
-
         try {
-            client.sendToServer(new Message("update user details", currentUser));
-            statusLabel.setText("Details updated successfully!");
+            client.sendToServer(new UpdateUserDetailsRequest(
+                    currentUser.getUserId(),
+                    nameField.getText().trim(),
+                    emailField.getText().trim(),
+                    idField.getText().trim()
+            ));
+            statusLabel.setText("Details update requested…");
         } catch (Exception e) {
             statusLabel.setText("Failed to update details.");
         }
@@ -84,7 +88,8 @@ public class PersonalDetailsController {
             return;
         }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
             Stage st = new Stage();
             st.setScene(new Scene(loader.load()));
             st.setTitle("Change Payment Method");
@@ -94,14 +99,16 @@ public class PersonalDetailsController {
             PaymentMethod newPayment = controller.getPaymentMethod();
 
             if (newPayment != null) {
-                currentUser.setDefaultPaymentMethod(newPayment);
-                client.sendToServer(new Message("update payment method", currentUser));
-                statusLabel.setText("💳 Payment method updated!");
+                client.sendToServer(new UpdatePaymentMethodRequest(
+                        currentUser.getUserId(), newPayment
+                ));
+                statusLabel.setText("💳 Payment method update requested.");
             }
         } catch (Exception e) {
             statusLabel.setText("❌ Error opening payment window.");
         }
     }
+
 
     @FXML
     private void onPurchaseSubscription() {
@@ -118,9 +125,12 @@ public class PersonalDetailsController {
             statusLabel.setText("Log in to renew a subscription.");
             return;
         }
-        currentUser.activateSubscription();
-        subscriptionExpiryLbl.setText(currentUser.getSubscriptionExpirationDate().toString());
-        statusLabel.setText("🔁 Subscription renewed!");
+        try {
+            client.sendToServer(new RenewSubscriptionRequest(currentUser.getUserId()));
+            statusLabel.setText("🔁 Subscription renewal requested.");
+        } catch (Exception e) {
+            statusLabel.setText("Failed to renew subscription.");
+        }
     }
 
     public void onViewOrders(ActionEvent actionEvent) {
