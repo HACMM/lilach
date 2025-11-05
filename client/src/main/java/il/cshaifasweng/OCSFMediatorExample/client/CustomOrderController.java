@@ -1,9 +1,12 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.CustomOrder;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
@@ -45,13 +48,13 @@ public class CustomOrderController {
             showMessage("Your custom design request has been submitted!", true);
 
             // סוגרים אחרי כמה שניות (רק אם רוצים)
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000);
-                    javafx.application.Platform.runLater(() ->
-                            ((Stage) itemTypeCombo.getScene().getWindow()).close());
-                } catch (InterruptedException ignored) {}
-            }).start();
+//            new Thread(() -> {
+//                try {
+//                    Thread.sleep(2000);
+//                    javafx.application.Platform.runLater(() ->
+//                            ((Stage) itemTypeCombo.getScene().getWindow()).close());
+//                } catch (InterruptedException ignored) {}
+//            }).start();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -71,5 +74,13 @@ public class CustomOrderController {
                 ? "-fx-text-fill: green; -fx-font-weight: bold;"
                 : "-fx-text-fill: red; -fx-font-weight: bold;");
         messageLabel.setVisible(true);
+    }
+
+    public void onBackClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("CatalogView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

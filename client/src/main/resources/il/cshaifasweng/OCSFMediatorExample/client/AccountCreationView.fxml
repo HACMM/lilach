@@ -17,6 +17,11 @@
 
    <children>
 
+      <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                  AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                  style="-fx-background-color: transparent;">
+
       <!-- תיבת התוכן -->
       <VBox spacing="14"
             AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60"
@@ -145,6 +150,6 @@
                 wrapText="true"
                 maxWidth="280" />
       </VBox>
-
+      </ScrollPane>
    </children>
 </AnchorPane>

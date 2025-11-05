@@ -1,5 +1,9 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import il.cshaifasweng.OCSFMediatorExample.entities.Order;
+import il.cshaifasweng.OCSFMediatorExample.entities.OrderLine;
+import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,11 +18,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.fxml.FXMLLoader;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class MyOrdersController {
 
@@ -38,43 +47,59 @@ public class MyOrdersController {
 
     @FXML
     private void initialize() {
-        // Defensive null-checks (in case injection failed)
-        if (idCol == null || ordersTable == null || statusFilter == null) {
-            System.err.println("FXML injection failed: one of required controls is null.");
-        }
+        EventBus.getDefault().register(this);
 
-        // Column bindings
         idCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().orderId));
         dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().date));
         itemsCol.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().itemsCount).asObject());
         totalCol.setCellValueFactory(d -> new SimpleDoubleProperty(d.getValue().total).asObject());
         statusCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().status));
-
-        // Details button column
         detailsCol.setCellFactory(createDetailsButtonFactory());
 
-        // Status filter setup
         statusFilter.setItems(FXCollections.observableArrayList("All", "Pending", "Shipped", "Delivered", "Cancelled"));
         statusFilter.setValue("All");
 
-        loadDummyData();
         ordersTable.setItems(masterData);
-
         ordersTable.setOnMouseClicked(this::onRowDoubleClick);
+
+        // שלח בקשה לשרת לקבל את ההזמנות של המשתמש המחובר
+        requestOrdersFromServer();
     }
 
-    private void loadDummyData() {
-        masterData.addAll(
-                new OrderRow("ORD123", "2025-08-01", 3, 49.99, "Pending"),
-                new OrderRow("ORD124", "2025-07-28", 1, 12.50, "Delivered"),
-                new OrderRow("ORD125", "2025-07-20", 5, 99.00, "Shipped")
-        );
+    /** שולח בקשה לשרת עבור ההזמנות של המשתמש המחובר */
+    private void requestOrdersFromServer() {
+        try {
+            UserAccount user = AppSession.getCurrentUser();
+            if (user != null && client != null && client.isConnected()) {
+                client.sendToServer("getOrdersForUser:" + user.getUserId());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** מאזין לאירוע שמחזיר את רשימת ההזמנות מהשרת */
+    @Subscribe
+    public void onOrdersReceived(List<Order> orders) {
+        Platform.runLater(() -> {
+            masterData.clear();
+            for (Order o : orders) {
+                int itemCount = o.getOrderLines() != null ? o.getOrderLines().size() : 0;
+                double total = o.getTotalPrice();
+                String status = o.getStatus() != null ? o.getStatus() : "Pending";
+                String date = o.getCreatedAt() != null ? o.getCreatedAt().toString() : "Unknown";
+
+                masterData.add(new OrderRow(
+                        String.valueOf(o.getId()), date, itemCount, total, status, o.getOrderLines()
+                ));
+            }
+            ordersTable.refresh();
+        });
     }
 
     private Callback<TableColumn<OrderRow, Void>, TableCell<OrderRow, Void>> createDetailsButtonFactory() {
         return col -> new TableCell<>() {
             private final Button btn = new Button("View");
-
             {
                 btn.getStyleClass().addAll("button", "secondary");
                 btn.setOnAction(e -> {
@@ -114,14 +139,9 @@ public class MyOrdersController {
 
     private void openOrderDetail(OrderRow order) {
         try {
-            URL resource = getClass().getResource("/il/cshaifasweng/OCSFMediatorExample/client/OrderDetailView.fxml");
-            if (resource == null) {
-                String msg = "OrderDetailView.fxml not found at expected location";
-                System.err.println(msg);
-                new Alert(Alert.AlertType.ERROR, msg).showAndWait();
-                return;
-            }
-            FXMLLoader loader = new FXMLLoader(resource);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/OrderDetailView.fxml"
+            ));
             Parent root = loader.load();
             OrderDetailController ctrl = loader.getController();
             ctrl.init(order);
@@ -144,36 +164,22 @@ public class MyOrdersController {
         }
     }
 
+    /** מודל שורה בטבלה */
     public static class OrderRow {
         public final String orderId;
         public final String date;
         public final int itemsCount;
         public final double total;
         public final String status;
-        public final List<OrderItem> items;
+        public final List<OrderLine> items;
 
-        public OrderRow(String orderId, String date, int itemsCount, double total, String status) {
+        public OrderRow(String orderId, String date, int itemsCount, double total, String status, List<OrderLine> items) {
             this.orderId = orderId;
             this.date = date;
             this.itemsCount = itemsCount;
             this.total = total;
             this.status = status;
-            this.items = List.of(
-                    new OrderItem("Rose Bouquet", 1, 20.0),
-                    new OrderItem("Sunflower", 2, 14.99)
-            );
-        }
-    }
-
-    public static class OrderItem {
-        public final String name;
-        public final int qty;
-        public final double price;
-
-        public OrderItem(String name, int qty, double price) {
-            this.name = name;
-            this.qty = qty;
-            this.price = price;
+            this.items = items;
         }
     }
 }

@@ -1,137 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.collections.FXCollections?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
 <?import java.lang.String?>
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CustomOrderController"
-            prefHeight="600" prefWidth="800"
-            style="-fx-background-image: url('/images/flower_background.png');
-                   -fx-background-repeat: no-repeat;
-                   -fx-background-size: cover;
-                   -fx-background-position: center;
-                   -fx-padding: 20;">
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-    <VBox spacing="18" alignment="CENTER"
-          AnchorPane.topAnchor="40" AnchorPane.leftAnchor="100"
-          AnchorPane.rightAnchor="100" AnchorPane.bottomAnchor="40"
-          style="-fx-background-color: rgba(255,255,255,0.85);
-                 -fx-background-radius: 12;
-                 -fx-padding: 30;">
+<AnchorPane prefHeight="600" prefWidth="800" style="-fx-background-image: url('/images/flower_background.png');                    -fx-background-repeat: no-repeat;                    -fx-background-size: cover;                    -fx-background-position: center;                    -fx-padding: 20;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CustomOrderController">
+
+    <VBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: rgba(255,255,255,0.85);                  -fx-background-radius: 12;                  -fx-padding: 30;" AnchorPane.bottomAnchor="40" AnchorPane.leftAnchor="100" AnchorPane.rightAnchor="100" AnchorPane.topAnchor="40">
+
+        <Button fx:id="backBtn"
+                text="← Back"
+                onAction="#onBackClicked"
+                style="-fx-background-color: transparent;
+                           -fx-text-fill: #a64f73;
+                           -fx-font-size: 15px;
+                           -fx-font-weight: bold;
+                           -fx-cursor: hand;
+                           -fx-padding: 5 10 5 10;" />
 
         <!-- 🔹 כותרת -->
-        <Label text="Custom Flower Design Request"
-               style="-fx-font-size: 22;
-                      -fx-font-weight: bold;
-                      -fx-text-fill: #2c3e50;" />
+        <Label style="-fx-font-size: 22;                       -fx-font-weight: bold;                       -fx-text-fill: #2c3e50;" text="Custom Flower Design Request" />
 
         <Separator />
 
         <!-- 🔹 סוג פריט -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Item Type:"
-                   style="-fx-font-size: 14;
-                          -fx-font-weight: bold;
-                          -fx-text-fill: #2c3e50;" />
-            <ComboBox fx:id="itemTypeCombo" prefWidth="250"
-                      style="-fx-background-radius: 8;
-                             -fx-border-radius: 8;
-                             -fx-border-color: #ddd;
-                             -fx-background-color: #fff;">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label style="-fx-font-size: 14;                           -fx-font-weight: bold;                           -fx-text-fill: #2c3e50;" text="Item Type:" />
+            <ComboBox fx:id="itemTypeCombo" prefWidth="250" style="-fx-background-radius: 8;                              -fx-border-radius: 8;                              -fx-border-color: #ddd;                              -fx-background-color: #fff;">
                 <items>
                     <FXCollections fx:factory="observableArrayList">
                         <String fx:value="Flower Arrangement" />
                         <String fx:value="Blooming Plant" />
                         <String fx:value="Bridal Bouquet" />
                         <String fx:value="Mixed Flowers" />
+                        <String fx:value="Accessories" />
                     </FXCollections>
                 </items>
             </ComboBox>
         </HBox>
 
         <!-- 🔹 טווח מחיר -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Price Range:"
-                   style="-fx-font-size: 14;
-                          -fx-font-weight: bold;
-                          -fx-text-fill: #2c3e50;" />
-            <TextField fx:id="minPriceField" promptText="Min" prefWidth="80"
-                       style="-fx-background-radius: 8;
-                              -fx-border-radius: 8;
-                              -fx-border-color: #ddd;
-                              -fx-background-color: #fff;" />
-            <Label text="-" style="-fx-text-fill: #2c3e50;" />
-            <TextField fx:id="maxPriceField" promptText="Max" prefWidth="80"
-                       style="-fx-background-radius: 8;
-                              -fx-border-radius: 8;
-                              -fx-border-color: #ddd;
-                              -fx-background-color: #fff;" />
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label style="-fx-font-size: 14;                           -fx-font-weight: bold;                           -fx-text-fill: #2c3e50;" text="Price Range:" />
+            <TextField fx:id="minPriceField" prefWidth="80" promptText="Min" style="-fx-background-radius: 8;                               -fx-border-radius: 8;                               -fx-border-color: #ddd;                               -fx-background-color: #fff;" />
+            <Label style="-fx-text-fill: #2c3e50;" text="-" />
+            <TextField fx:id="maxPriceField" prefWidth="80" promptText="Max" style="-fx-background-radius: 8;                               -fx-border-radius: 8;                               -fx-border-color: #ddd;                               -fx-background-color: #fff;" />
         </HBox>
 
         <!-- 🔹 צבע עיקרי -->
-        <HBox spacing="10" alignment="CENTER_LEFT">
-            <Label text="Main Color (optional):"
-                   style="-fx-font-size: 14;
-                          -fx-font-weight: bold;
-                          -fx-text-fill: #2c3e50;" />
-            <TextField fx:id="colorField" promptText="e.g. Red / White / Pink" prefWidth="220"
-                       style="-fx-background-radius: 8;
-                              -fx-border-radius: 8;
-                              -fx-border-color: #ddd;
-                              -fx-background-color: #fff;" />
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label style="-fx-font-size: 14;                           -fx-font-weight: bold;                           -fx-text-fill: #2c3e50;" text="Main Color (optional):" />
+            <TextField fx:id="colorField" prefWidth="220" promptText="e.g. Red / White / Pink" style="-fx-background-radius: 8;                               -fx-border-radius: 8;                               -fx-border-color: #ddd;                               -fx-background-color: #fff;" />
         </HBox>
 
         <Separator />
 
         <!-- 🔹 הערות נוספות -->
-        <Label text="Additional Notes (optional):"
-               style="-fx-font-size: 14;
-                      -fx-font-weight: bold;
-                      -fx-text-fill: #2c3e50;" />
+        <Label style="-fx-font-size: 14;                       -fx-font-weight: bold;                       -fx-text-fill: #2c3e50;" text="Additional Notes (optional):" />
 
-        <TextArea fx:id="notesArea"
-                  prefRowCount="4"
-                  wrapText="true"
-                  prefWidth="420"
-                  promptText="Write any special instructions or preferences here..."
-                  style="-fx-background-radius: 8;
-                         -fx-border-radius: 8;
-                         -fx-border-color: #ddd;
-                         -fx-background-color: #fff;" />
+        <TextArea fx:id="notesArea" prefRowCount="4" prefWidth="420" promptText="Write any special instructions or preferences here..." style="-fx-background-radius: 8;                          -fx-border-radius: 8;                          -fx-border-color: #ddd;                          -fx-background-color: #fff;" wrapText="true" />
 
         <Separator />
 
         <!-- 🔹 כפתורים -->
-        <HBox spacing="16" alignment="CENTER">
-            <Button text="Submit Request"
-                    onAction="#onSubmitClicked"
-                    style="-fx-background-color: #e7b3d1;
-                           -fx-text-fill: white;
-                           -fx-font-weight: bold;
-                           -fx-background-radius: 20;
-                           -fx-padding: 8 25 8 25;
-                           -fx-cursor: hand;" />
-            <Button text="Cancel"
-                    onAction="#onCancelClicked"
-                    style="-fx-background-color: #cccccc;
-                           -fx-text-fill: #333;
-                           -fx-font-weight: bold;
-                           -fx-background-radius: 20;
-                           -fx-padding: 8 25 8 25;
-                           -fx-cursor: hand;" />
+        <HBox alignment="CENTER" spacing="16">
+            <Button onAction="#onSubmitClicked" style="-fx-background-color: #e7b3d1;                            -fx-text-fill: white;                            -fx-font-weight: bold;                            -fx-background-radius: 20;                            -fx-padding: 8 25 8 25;                            -fx-cursor: hand;" text="Submit Request" />
+            <Button onAction="#onCancelClicked" style="-fx-background-color: #cccccc;                            -fx-text-fill: #333;                            -fx-font-weight: bold;                            -fx-background-radius: 20;                            -fx-padding: 8 25 8 25;                            -fx-cursor: hand;" text="Cancel" />
         </HBox>
 
         <!-- 🔹 הודעת מערכת -->
-        <Label fx:id="messageLabel"
-               visible="false"
-               style="-fx-text-fill: #b00020;
-                      -fx-font-weight: bold;
-                      -fx-font-size: 14;"
-               alignment="CENTER"
-               maxWidth="300"/>
+        <Label fx:id="messageLabel" alignment="CENTER" maxWidth="497.0" prefHeight="20.0" prefWidth="497.0" style="-fx-text-fill: #b00020;                       -fx-font-weight: bold;                       -fx-font-size: 14;" visible="false" />
     </VBox>
 
 </AnchorPane>

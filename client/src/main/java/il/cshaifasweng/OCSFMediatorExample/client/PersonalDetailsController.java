@@ -26,6 +26,7 @@ public class PersonalDetailsController {
     @FXML private Label statusLabel;
     @FXML private Button renewSubBtn;
     @FXML private Button purchaseSubBtn;
+    @FXML private Button loginReminderBtn;
 
     private UserAccount currentUser;
 
@@ -51,7 +52,7 @@ public class PersonalDetailsController {
             idField.setDisable(true);
             renewSubBtn.setDisable(true);
             purchaseSubBtn.setDisable(true);
-            statusLabel.setText("Please log in to view and edit personal details.");
+            statusLabel.setText("");
         }
     }
 
@@ -124,16 +125,26 @@ public class PersonalDetailsController {
 
     public void onViewOrders(ActionEvent actionEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/il/cshaifasweng/OCSFMediatorExample/client/MyOrdersView.fxml"));
-            Parent root = loader.load();
+            App.setRoot("MyOrdersView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            Stage stage = new Stage();
-            stage.setTitle("Personal Details");
-            stage.setScene(new Scene(root));
-            stage.show();
+    public void onLoginRedirect(ActionEvent actionEvent) {
+        try {
+            App.setRoot("Login");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onBackClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("MainPage");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
+

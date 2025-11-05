@@ -36,7 +36,6 @@ public class LoginController {
 
     @FXML
     private void onBackClicked(ActionEvent event) {
-        // go back to the main dashboard
         try {
             App.setRoot("MainPage");
         } catch (IOException e) {

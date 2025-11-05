@@ -54,18 +54,12 @@ public class MainPageController {
     @FXML
     private void onProfileClicked(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/il/cshaifasweng/OCSFMediatorExample/client/PersonalDetailsView.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Personal Details");
-            stage.setScene(new Scene(root));
-            stage.show();
+            App.setRoot("PersonalDetailsView");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
 }
 

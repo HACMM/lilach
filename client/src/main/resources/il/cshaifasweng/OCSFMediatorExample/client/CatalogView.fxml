@@ -16,7 +16,10 @@
                    -fx-padding: 20;">
 
     <children>
-
+        <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                    AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                    style="-fx-background-color: transparent;">
         <!-- תיבת התוכן -->
         <VBox spacing="18"
               AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40"
@@ -49,6 +52,11 @@
                                -fx-font-weight: bold;
                                -fx-background-radius: 20;
                                -fx-padding: 4 16 4 16;" />
+                <Button text="Clear Filters"
+                        fx:id="clearFiltersBtn"
+                        onAction="#onClearFiltersClicked"
+                        style="-fx-background-color: #f5d6e0; -fx-text-fill: #a64f73; -fx-font-weight: bold; -fx-background-radius: 10;" />
+
 
                 <Region HBox.hgrow="ALWAYS"/>
 
@@ -61,6 +69,19 @@
                         <ImageView fitHeight="28" fitWidth="28" preserveRatio="true">
                             <image>
                                 <Image url="@/images/user_icon.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="cartBtn"
+                        onAction="#onCartClicked"
+                        style="-fx-background-color: transparent;
+                   -fx-cursor: hand;">
+                    <graphic>
+                        <ImageView fitHeight="28" fitWidth="28" preserveRatio="true">
+                            <image>
+                                <Image url="@/images/cart_icon.jpg" />
                             </image>
                         </ImageView>
                     </graphic>
@@ -119,6 +140,6 @@
             </HBox>
 
         </VBox>
-
+        </ScrollPane>
     </children>
 </AnchorPane>

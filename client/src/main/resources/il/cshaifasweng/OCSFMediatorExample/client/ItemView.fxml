@@ -26,6 +26,19 @@
                      -fx-background-radius: 12;
                      -fx-padding: 25;">
 
+            <StackPane alignment="TOP_LEFT">
+                <Button fx:id="backBtn"
+                        text="← Back"
+                        onAction="#onBackClicked"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #a64f73;
+                               -fx-font-size: 15px;
+                               -fx-font-weight: bold;
+                               -fx-cursor: hand;
+                               -fx-border-color: transparent;
+                               -fx-padding: 5 10 5 10;" />
+            </StackPane>
+
             <!-- 🔹 תמונת המוצר -->
             <ImageView fx:id="itemImage"
                        fitHeight="160" fitWidth="160"

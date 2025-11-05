@@ -128,6 +128,36 @@ public class CatalogController implements Initializable {
 			addItemBtn.setVisible(false);
 		}
 		requestCatalog();
+
+		SearchCriteria last = AppSession.getLastSearchCriteria();
+		if (last != null) {
+			applySearchCriteria(last);
+		}
+	}
+
+	private void applySearchCriteria(SearchCriteria criteria) {
+		List<Item> filtered = masterData.stream()
+				.filter(item -> {
+					boolean matchType = (criteria.getType() == null || criteria.getType().isEmpty()
+							|| item.getType().equalsIgnoreCase(criteria.getType()));
+
+					boolean matchColor = (criteria.getColor() == null || criteria.getColor().isEmpty()
+							|| item.getColor().equalsIgnoreCase(criteria.getColor()));
+
+					boolean matchPrice = true;
+					double min = criteria.getMinPrice();
+					double max = criteria.getMaxPrice() == 0 ? Double.MAX_VALUE : criteria.getMaxPrice();
+					double price = item.getPrice();
+					if (price < min || price > max) {
+						matchPrice = false;
+					}
+
+					return matchType && matchColor && matchPrice;
+				})
+				.collect(Collectors.toList());
+
+		filteredData.setAll(filtered);
+		table.refresh();
 	}
 
 	/** Ask server for the full catalog */
@@ -151,7 +181,13 @@ public class CatalogController implements Initializable {
 	public void onCatalogReceived(List<Item> items) {
 		Platform.runLater(() -> {
 			masterData.setAll(items);
-			applyFilters();
+
+			SearchCriteria last = AppSession.getLastSearchCriteria();
+			if (last != null) {
+				applySearchCriteria(last);
+			} else {
+				applyFilters();
+			}
 		});
 	}
 
@@ -164,6 +200,7 @@ public class CatalogController implements Initializable {
     @FXML
     private void onCustomOrderClicked() throws IOException {
         App.setRoot("CustomOrderView");
+
     }
 
 
@@ -212,17 +249,26 @@ public class CatalogController implements Initializable {
 	/** Show complaint window */
 	@FXML
 	private void openComplaint() {
+		UserAccount currentUser = AppSession.getCurrentUser();
+
 		try {
-			FXMLLoader loader = new FXMLLoader(
-					getClass().getResource(
-							"/il/cshaifasweng/OCSFMediatorExample/client/ComplaintView.fxml"
-					)
-			);
-			Parent root = loader.load();
-			Stage popup = new Stage();
-			popup.setTitle("Submit Complaint");
-			popup.setScene(new Scene(root));
-			popup.show();
+			if (currentUser != null &&
+					(currentUser.getRole() == Role.EMPLOYEE || currentUser.getRole() == Role.MANAGER || currentUser.getRole() == Role.NETWORK_MANAGER)) {
+				// 🔹 עבור עובד או מנהל – לעמוד ניהול תלונות
+				App.setRoot("ComplaintManagementView");
+			} else {
+				// 🔹 עבור לקוח – חלון הגשת תלונה רגיל
+				FXMLLoader loader = new FXMLLoader(
+						getClass().getResource(
+								"/il/cshaifasweng/OCSFMediatorExample/client/ComplaintView.fxml"
+						)
+				);
+				Parent root = loader.load();
+				Stage popup = new Stage();
+				popup.setTitle("Submit Complaint");
+				popup.setScene(new Scene(root));
+				popup.show();
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
@@ -280,17 +326,13 @@ public class CatalogController implements Initializable {
             return;
         }
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(
-                    "/il/cshaifasweng/OCSFMediatorExample/client/PersonalDetailsView.fxml"));
-            Stage stage = new Stage();
-            stage.setScene(new Scene(loader.load()));
-            stage.setTitle("Personal Details");
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		try {
+			App.setRoot("PersonalDetailsView");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
+
     @FXML
     public void onAddItemClicked(ActionEvent actionEvent) throws IOException {
 		FXMLLoader loader = new FXMLLoader(
@@ -318,4 +360,24 @@ public class CatalogController implements Initializable {
         s.setScene(new Scene(root));
         s.show();
     }
+
+	public void onCartClicked(ActionEvent actionEvent) {
+		try {
+			App.setRoot("CartView");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void onClearFiltersClicked(ActionEvent actionEvent) {
+		// ננקה את הקריטריונים האחרונים
+		AppSession.setLastSearchCriteria(null);
+
+		// ננקה את שדה החיפוש
+		filterField.clear();
+
+		// נציג את כל הנתונים מחדש
+		filteredData.setAll(masterData);
+		table.refresh();
+	}
 }

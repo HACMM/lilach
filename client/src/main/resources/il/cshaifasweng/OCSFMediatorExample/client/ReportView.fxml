@@ -17,6 +17,10 @@
                    -fx-padding: 20;">
 
     <children>
+        <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                    AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                    style="-fx-background-color: transparent;">
         <!-- תיבה לבנה שקופה -->
         <VBox spacing="20"
               alignment="TOP_CENTER"
@@ -99,5 +103,6 @@
                           -fx-font-style: italic;
                           -fx-font-size: 13;"/>
         </VBox>
+        </ScrollPane>
     </children>
 </AnchorPane>

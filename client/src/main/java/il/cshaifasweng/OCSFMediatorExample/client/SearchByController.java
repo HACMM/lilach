@@ -1,10 +1,13 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.util.function.Consumer;
 
 public class SearchByController {
@@ -51,11 +54,25 @@ public class SearchByController {
         SearchCriteria criteria = new SearchCriteria(
                 typeCombo.getValue(),
                 colorCombo.getValue(),
-                String.valueOf(min),
-                String.valueOf(max)
+                min,
+                max
         );
 
-        if (onFilterApplied != null) onFilterApplied.accept(criteria);
-        ((Stage) typeCombo.getScene().getWindow()).close();
+        AppSession.setLastSearchCriteria(criteria);
+
+        try {
+            App.setRoot("CatalogView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void onBackClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("CatalogView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

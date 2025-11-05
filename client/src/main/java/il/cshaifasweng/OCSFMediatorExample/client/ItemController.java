@@ -148,4 +148,11 @@ public class ItemController {
         }
     }
 
+    public void onBackClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("CatalogView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -193,7 +193,7 @@ public class CartViewController {
     @FXML
     private void onBack(ActionEvent e) throws IOException {
         // Pick the view you want to return to:
-        App.setRoot("MainPage");    // or App.setRoot("CatalogView");
+        App.setRoot("CatalogView");    // or App.setRoot("CatalogView");
     }
 
     @FXML

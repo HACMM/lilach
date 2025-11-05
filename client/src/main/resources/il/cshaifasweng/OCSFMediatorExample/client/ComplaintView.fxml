@@ -14,7 +14,10 @@
                    -fx-padding: 20;">
 
     <children>
-
+        <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                    AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                    style="-fx-background-color: transparent;">
         <!-- תיבת תוכן שקופה -->
         <VBox spacing="18"
               AnchorPane.leftAnchor="60" AnchorPane.rightAnchor="60"
@@ -127,6 +130,6 @@
                                -fx-cursor: hand;" />
             </HBox>
         </VBox>
-
+        </ScrollPane>
     </children>
 </AnchorPane>
