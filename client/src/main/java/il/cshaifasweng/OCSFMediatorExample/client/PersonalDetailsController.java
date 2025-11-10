@@ -4,6 +4,7 @@ import Request.PublicUser;
 import Request.RenewSubscriptionRequest;
 import Request.UpdatePaymentMethodRequest;
 import Request.UpdateUserDetailsRequest;
+import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
@@ -33,30 +34,21 @@ public class PersonalDetailsController {
     @FXML private Button loginReminderBtn;
 
     private PublicUser currentUser;
+    private UserAccount editingUser;
+
 
     @FXML
     public void initialize() {
+        if (editingUser != null) {
+            populateUserData(editingUser);
+            return;
+        }
+
         currentUser = AppSession.getCurrentUser();
         if (currentUser != null) {
-            nameField.setText(currentUser.getName());
-            emailField.setText(currentUser.getEmail());
-            idField.setText(currentUser.getIdNumber());
-            accountTypeLbl.setText(String.valueOf(currentUser.getBranchType()));
-            subscriptionExpiryLbl.setText(
-                    currentUser.getSubscriptionExpirationDate() != null
-                            ? currentUser.getSubscriptionExpirationDate().toString()
-                            : "—"
-            );
-            renewSubBtn.setVisible(currentUser.isSubscriptionUser());
-            purchaseSubBtn.setVisible(!currentUser.isSubscriptionUser());
+            populateUserData(currentUser);
         } else {
-            // No user logged in → lock the form and show a hint
-            nameField.setDisable(true);
-            emailField.setDisable(true);
-            idField.setDisable(true);
-            renewSubBtn.setDisable(true);
-            purchaseSubBtn.setDisable(true);
-            statusLabel.setText("");
+            disableAllFields();
         }
     }
 
@@ -141,6 +133,52 @@ public class PersonalDetailsController {
         }
     }
 
+    private void populateUserData(PublicUser user) {
+        if (user == null) return;
+
+        nameField.setText(user.getName());
+        emailField.setText(user.getEmail());
+        idField.setText(user.getIdNumber());
+        accountTypeLbl.setText(String.valueOf(user.getBranchType()));
+
+        subscriptionExpiryLbl.setText(
+                user.getSubscriptionExpirationDate() != null
+                        ? user.getSubscriptionExpirationDate().toString()
+                        : "—"
+        );
+
+        renewSubBtn.setVisible(user.isSubscriptionUser());
+        purchaseSubBtn.setVisible(!user.isSubscriptionUser());
+    }
+
+    // טעינת נתונים ללקוח מסוג UserAccount (עבור מנהלת)
+    private void populateUserData(UserAccount user) {
+        if (user == null) return;
+
+        nameField.setText(user.getName());
+        emailField.setText(user.getEmail());
+        idField.setText(user.getIdNumber());
+        accountTypeLbl.setText(String.valueOf(user.getUserBranchType()));
+
+        subscriptionExpiryLbl.setText(
+                user.getSubscriptionExpirationDate() != null
+                        ? user.getSubscriptionExpirationDate().toString()
+                        : "—"
+        );
+
+        // מצב ניהול → לא מציגים כפתורי רכישה/חידוש
+        renewSubBtn.setVisible(false);
+        purchaseSubBtn.setVisible(false);
+        loginReminderBtn.setVisible(false);
+    }
+
+    public void setEditableUser(UserAccount user) {
+        this.editingUser = user;
+        this.currentUser = null; // כדי שהמערכת לא תטען את המשתמש המחובר
+        populateUserData(user);
+    }
+
+
     public void onLoginRedirect(ActionEvent actionEvent) {
         try {
             App.setRoot("Login");
@@ -155,6 +193,15 @@ public class PersonalDetailsController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void disableAllFields() {
+        nameField.setDisable(true);
+        emailField.setDisable(true);
+        idField.setDisable(true);
+        renewSubBtn.setDisable(true);
+        purchaseSubBtn.setDisable(true);
+        statusLabel.setText("");
     }
 }
 

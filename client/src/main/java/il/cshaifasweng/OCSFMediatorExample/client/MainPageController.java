@@ -9,11 +9,28 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class MainPageController {
+
+    @FXML private Button reportsBtn;
+    @FXML private Button manageEmployeesBtn;
+    @FXML private Button newsletterBtn;
+    @FXML private Button manageCustomersBtn;
+
+    @FXML
+    private void initialize() {
+        PublicUser user = AppSession.getCurrentUser();
+        if (user == null || user.getRole() != Role.MANAGER || user.getRole() != Role.NETWORK_MANAGER) {
+            manageEmployeesBtn.setVisible(false);
+            newsletterBtn.setVisible(false);
+            manageCustomersBtn.setVisible(false);
+            reportsBtn.setVisible(false);
+        }
+    }
 
     @FXML
     private void onLoginClicked(ActionEvent event) {
@@ -92,5 +109,28 @@ public class MainPageController {
     }
 
 
+    public void onManageEmployeesClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("EmployeeManagementView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onNewsletterClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("NewsletterView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onManageCustomersClicked(ActionEvent actionEvent) {
+        try {
+            App.setRoot("CustomerManagementView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 

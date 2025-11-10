@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.AddEmployeeController"
+            prefHeight="600" prefWidth="800"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
+    <VBox alignment="TOP_CENTER" spacing="15"
+          style="-fx-background-color: rgba(255,255,255,0.85);
+                 -fx-background-radius: 12;
+                 -fx-padding: 30;"
+          AnchorPane.topAnchor="40"
+          AnchorPane.bottomAnchor="40"
+          AnchorPane.leftAnchor="100"
+          AnchorPane.rightAnchor="100">
+
+        <!-- 🔹 כפתור Back -->
+        <Button fx:id="backBtn"
+                text="← Back"
+                onAction="#onBackClicked"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #a64f73;
+                       -fx-font-size: 15px;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;
+                       -fx-padding: 5 10 5 10;"
+                alignment="CENTER_LEFT"
+                maxWidth="Infinity"/>
+
+        <!-- 🔹 כותרת -->
+        <Label text="Add New Employee"
+               style="-fx-font-size: 22;
+                      -fx-font-weight: bold;
+                      -fx-text-fill: #2c3e50;"/>
+
+        <Separator/>
+
+        <!-- 🔹 טופס הוספת עובד -->
+        <GridPane hgap="15" vgap="15" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT"/>
+                <ColumnConstraints halignment="LEFT" prefWidth="300"/>
+            </columnConstraints>
+
+            <children>
+                <Label text="Full Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                           promptText="Employee full name"
+                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+
+                <Label text="Email:" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <TextField fx:id="emailField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                           promptText="employee@email.com"
+                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+
+                <Label text="Username:" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <TextField fx:id="usernameField" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                           promptText="Unique username"
+                           style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+
+                <Label text="Password:" GridPane.rowIndex="3" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <PasswordField fx:id="passwordField" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                               promptText="Set password"
+                               style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+
+                <Label text="Role:" GridPane.rowIndex="4" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <ComboBox fx:id="roleCombo" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                          style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+
+                <Label text="Branch:" GridPane.rowIndex="5" GridPane.columnIndex="0"
+                       style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+                <ComboBox fx:id="branchCombo" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                          style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #ddd; -fx-background-color: #fff;"/>
+            </children>
+        </GridPane>
+
+        <Separator/>
+
+        <!-- 🔹 כפתור שמירה -->
+        <HBox alignment="CENTER" spacing="16">
+            <Button fx:id="saveBtn"
+                    text="Save"
+                    onAction="#onSaveClicked"
+                    style="-fx-background-color: #e7b3d1;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 8 25 8 25;
+                           -fx-cursor: hand;"/>
+        </HBox>
+
+        <!-- 🔹 הודעה למערכת -->
+        <Label fx:id="messageLabel"
+               alignment="CENTER"
+               maxWidth="600"
+               style="-fx-text-fill: #b00020;
+                      -fx-font-weight: bold;
+                      -fx-font-size: 14;"
+               visible="false"/>
+
+    </VBox>
+</AnchorPane>

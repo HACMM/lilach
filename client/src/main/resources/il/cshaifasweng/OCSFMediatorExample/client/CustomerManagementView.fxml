@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CustomerManagementController"
+            prefHeight="600" prefWidth="800"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+
+    <VBox alignment="TOP_CENTER" spacing="15"
+          style="-fx-background-color: rgba(255,255,255,0.85);
+                 -fx-background-radius: 12;
+                 -fx-padding: 30;"
+          AnchorPane.topAnchor="40"
+          AnchorPane.bottomAnchor="40"
+          AnchorPane.leftAnchor="100"
+          AnchorPane.rightAnchor="100">
+
+        <!-- 🔹 כפתור Back -->
+        <Button text="← Back"
+                onAction="#onBackClicked"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #a64f73;
+                       -fx-font-size: 15px;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;
+                       -fx-padding: 5 10 5 10;"
+                alignment="CENTER_LEFT"
+                maxWidth="Infinity"/>
+
+        <!-- 🔹 כותרת -->
+        <Label text="Customer Management"
+               style="-fx-font-size: 22;
+                      -fx-font-weight: bold;
+                      -fx-text-fill: #2c3e50;"/>
+
+        <Separator/>
+
+        <!-- 🔹 טבלת לקוחות -->
+        <TableView fx:id="customerTable"
+                   prefHeight="350" prefWidth="650"
+                   style="-fx-background-color: #fff;
+                          -fx-border-color: #ddd;
+                          -fx-border-radius: 8;
+                          -fx-background-radius: 8;">
+            <columns>
+                <TableColumn fx:id="idCol" text="ID" prefWidth="80"/>
+                <TableColumn fx:id="nameCol" text="Name" prefWidth="150"/>
+                <TableColumn fx:id="emailCol" text="Email" prefWidth="200"/>
+                <TableColumn fx:id="branchCol" text="Branch" prefWidth="120"/>
+                <TableColumn fx:id="subscribedCol" text="Subscription" prefWidth="120"/>
+            </columns>
+        </TableView>
+
+        <Separator/>
+
+        <!-- 🔹 כפתורי פעולה -->
+        <HBox alignment="CENTER" spacing="16">
+            <Button text="Change Personal Details"
+                    fx:id="changeDetailsBtn"
+                    onAction="#onChangeDetailsClicked"
+                    style="-fx-background-color: #a64f73;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 8 25 8 25;
+                           -fx-cursor: hand;"/>
+
+            <Button text="Remove Selected"
+                    fx:id="removeCustomerBtn"
+                    onAction="#onRemoveCustomerClicked"
+                    style="-fx-background-color: #e7b3d1;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 8 25 8 25;
+                           -fx-cursor: hand;"/>
+
+            <Button text="Refresh"
+                    fx:id="refreshBtn"
+                    onAction="#onRefreshClicked"
+                    style="-fx-background-color: #cccccc;
+                           -fx-text-fill: #333;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 8 25 8 25;
+                           -fx-cursor: hand;"/>
+        </HBox>
+
+        <!-- 🔹 הודעה למערכת -->
+        <Label fx:id="messageLabel"
+               alignment="CENTER"
+               maxWidth="600"
+               style="-fx-text-fill: #b00020;
+                      -fx-font-weight: bold;
+                      -fx-font-size: 14;"
+               visible="false"/>
+
+    </VBox>
+</AnchorPane>
