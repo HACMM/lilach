@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.entities.Order;
 import il.cshaifasweng.OCSFMediatorExample.entities.OrderLine;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
@@ -69,7 +70,7 @@ public class MyOrdersController {
     /** שולח בקשה לשרת עבור ההזמנות של המשתמש המחובר */
     private void requestOrdersFromServer() {
         try {
-            UserAccount user = AppSession.getCurrentUser();
+            PublicUser user = AppSession.getCurrentUser();
             if (user != null && client != null && client.isConnected()) {
                 client.sendToServer("getOrdersForUser:" + user.getUserId());
             }

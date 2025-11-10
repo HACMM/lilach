@@ -125,7 +125,7 @@ public class CatalogController implements Initializable {
 		table.setItems(filteredData);
 
 		PublicUser currentUser = AppSession.getCurrentUser();
-		if (currentUser == null || (currentUser.getRole() != Role.EMPLOYEE && currentUser.getRole() != Role.MANAGER)) {
+		if (currentUser == null || (currentUser.getRole() != Role.EMPLOYEE && currentUser.getRole() != Role.MANAGER || currentUser.getRole() != Role.NETWORK_MANAGER)) {
 			addItemBtn.setVisible(false);
 		}
 		requestCatalog();
@@ -250,7 +250,7 @@ public class CatalogController implements Initializable {
 	/** Show complaint window */
 	@FXML
 	private void openComplaint() {
-		UserAccount currentUser = AppSession.getCurrentUser();
+		PublicUser currentUser = AppSession.getCurrentUser();
 
 		try {
 			if (currentUser != null &&

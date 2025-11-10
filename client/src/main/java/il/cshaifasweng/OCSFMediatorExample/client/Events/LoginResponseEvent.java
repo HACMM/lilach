@@ -1,7 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client.Events;
 
 import Request.PublicUser;
-import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 
 public class LoginResponseEvent {
     private final boolean success;

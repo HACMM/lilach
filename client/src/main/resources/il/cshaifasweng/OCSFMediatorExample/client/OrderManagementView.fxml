@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.OrderManagementController"
+            prefWidth="900" prefHeight="600"
+            style="-fx-background-color: linear-gradient(to bottom right, #fff9fb, #ffe4ec);">
+
+    <children>
+        <Label text="Orders Management"
+               layoutX="30" layoutY="30"
+               style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a64f73;"/>
+
+        <TableView fx:id="ordersTable" layoutX="30" layoutY="80" prefWidth="840" prefHeight="400">
+            <columns>
+                <TableColumn text="Order ID" prefWidth="100" fx:id="idColumn"/>
+                <TableColumn text="Customer" prefWidth="200" fx:id="customerColumn"/>
+                <TableColumn text="Total Price" prefWidth="150" fx:id="priceColumn"/>
+                <TableColumn text="Status" prefWidth="150" fx:id="statusColumn"/>
+                <TableColumn text="Date" prefWidth="200" fx:id="dateColumn"/>
+            </columns>
+        </TableView>
+
+        <Button text="Approve" layoutX="30" layoutY="500" fx:id="approveButton"
+                style="-fx-background-color: #e6b8c7; -fx-text-fill: white; -fx-font-weight: bold;"
+                onAction="#onApproveClicked"/>
+
+        <Button text="Ship" layoutX="140" layoutY="500" fx:id="shipButton"
+                style="-fx-background-color: #a64f73; -fx-text-fill: white; -fx-font-weight: bold;"
+                onAction="#onShipClicked"/>
+
+        <Button text="Back" layoutX="760" layoutY="500"
+                onAction="#onBackClicked"
+                style="-fx-background-color: transparent; -fx-text-fill: #a64f73; -fx-font-weight: bold;"/>
+    </children>
+</AnchorPane>
+
