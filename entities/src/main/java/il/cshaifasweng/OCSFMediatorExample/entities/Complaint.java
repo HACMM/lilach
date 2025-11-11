@@ -15,13 +15,13 @@ public class Complaint implements Serializable {
     @Column(name = "complaint_id", nullable = false, unique = true)
     private int complaint_id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
     private UserAccount userAccount;
 
-    /** Explicit FK column so it’s "order_id" (not a generated name). */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
+    /** Explicit FK column so it's "order_id" (not a generated name). */
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = true)
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,7 +45,7 @@ public class Complaint implements Serializable {
     private LocalDateTime createdAt;
 
     /** If you want cascade on history deletes when complaint is removed, add cascade = CascadeType.ALL */
-    @OneToMany(mappedBy = "complaint", orphanRemoval = true)
+    @OneToMany(mappedBy = "complaint",cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY )
     private Set<ComplaintEvent> complaintHistory = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,6 +64,10 @@ public class Complaint implements Serializable {
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 32)
+    private ComplaintStatus status;
+
     protected Complaint() {}
 
     public Complaint(Branch branch, String orderNumber, String clientName, String clientEmail, String description) {
@@ -77,6 +81,7 @@ public class Complaint implements Serializable {
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();
+        if (status == null) status = ComplaintStatus.Filed;
     }
 
     // --- getters/setters ---
@@ -119,14 +124,28 @@ public class Complaint implements Serializable {
     public Double getCompensation() { return compensation; }
     public void setCompensation(Double compensation) { this.compensation = compensation; }
 
-    public boolean isResolved() { return resolved; }
+    @Transient
+    public boolean isResolved() {  return status == ComplaintStatus.Approved || status == ComplaintStatus.Rejected; }
     public void setResolved(boolean resolved) { this.resolved = resolved; }
 
     public LocalDateTime getRespondedAt() { return respondedAt; }
     public void setRespondedAt(LocalDateTime respondedAt) { this.respondedAt = respondedAt; }
 
+    public ComplaintStatus getStatus() { return status; }
+    public void setStatus(ComplaintStatus status) { this.status = status; }
+
     @Override
     public String toString() {
         return "Complaint #" + complaint_id + " - " + clientName;
     }
+
+    public void addEvent(ComplaintStatus status, String managerCommentary, UserAccount actor) {
+        ComplaintEvent ev = new ComplaintEvent();
+        ev.setComplaint(this);
+        ev.setStatus(status);
+        ev.setManagerCommentary(managerCommentary);
+        ev.setActor(actor);
+        this.complaintHistory.add(ev);
+
+}
 }

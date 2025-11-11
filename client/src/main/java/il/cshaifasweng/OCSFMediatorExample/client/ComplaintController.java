@@ -1,10 +1,12 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.NewComplaint;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.EmailSender;
 import Request.Message;
+import il.cshaifasweng.OCSFMediatorExample.entities.User;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -39,9 +41,11 @@ public class ComplaintController {
     public void initialize() {
         EventBus.getDefault().register(this);
         try {
+            System.out.println("ComplaintController: Requesting branches from server...");
             client.sendToServer("#getAllBranches");
         } catch (IOException e) {
             System.err.println("❌ Failed to request branch list: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -72,30 +76,11 @@ public class ComplaintController {
 
         try {
             sendButton.setDisable(true);
-            Complaint complaint = new Complaint(branch, order, name, email, desc);
-            complaint.setCreatedAt(LocalDateTime.now());
-            client.sendToServer(new Message("newComplaint", complaint));
-
-            // שליחת מייל ללקוחה
-            EmailSender.sendEmail(
-                    "Complaint Received 💐",
-                    "Dear " + name + ",\n\nWe have received your complaint and will respond within 24 hours.\n\nThank you,\nFlowerShop Team",
-                    email
-            );
-
-            showSuccessPopup("💌 Complaint submitted successfully!");
-
-            // ניקוי שדות
-            BranchCombo.getSelectionModel().clearSelection();
-            NameTextField.clear();
-            OrderNumberTextField.clear();
-            EmailTextField.clear();
-            descriptionArea.clear();
-
+            client.sendToServer(new NewComplaint(branch.getId(),order,name,email,desc));
+            // Success/error handling is done in onComplaintResponse
         } catch (IOException e) {
             e.printStackTrace();
             showErrorPopup("Failed to send complaint to server ⚠️");
-        } finally {
             sendButton.setDisable(false);
         }
     }
@@ -112,7 +97,30 @@ public class ComplaintController {
 
     @Subscribe
     public void onBranchListReceived(BranchListEvent event) {
-        Platform.runLater(() -> BranchCombo.getItems().setAll(event.getBranches()));
+        System.out.println("ComplaintController: Received branch list with " + event.getBranches().size() + " branches");
+        Platform.runLater(() -> {
+            BranchCombo.getItems().setAll(event.getBranches());
+            System.out.println("ComplaintController: Populated combobox with " + BranchCombo.getItems().size() + " branches");
+        });
+    }
+
+    @Subscribe
+    public void onComplaintResponse(Message msg) {
+        Platform.runLater(() -> {
+            if (msg.getType().equals("newComplaintOk")) {
+                showSuccessPopup("💌 Complaint submitted successfully!");
+                // Clear form fields
+                BranchCombo.getSelectionModel().clearSelection();
+                NameTextField.clear();
+                OrderNumberTextField.clear();
+                EmailTextField.clear();
+                descriptionArea.clear();
+                sendButton.setDisable(false);
+            } else if (msg.getType().equals("newComplaintError")) {
+                showErrorPopup("Failed to submit complaint: " + msg.getData());
+                sendButton.setDisable(false);
+            }
+        });
     }
 
     private void showSuccessPopup(String text) {

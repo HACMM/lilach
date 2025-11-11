@@ -53,17 +53,33 @@ public class SimpleClient extends AbstractClient {
             } else if (msg instanceof Message && ((Message) msg).getType().equals("branch list")) {
                 @SuppressWarnings("unchecked")
                 List<Branch> branches = (List<Branch>) ((Message) msg).getData();
+                System.out.println("SimpleClient: Received branch list with " + branches.size() + " branches");
                 EventBus.getDefault().post(new BranchListEvent(branches));
 
             } else if (msg instanceof Message && ((Message) msg).getType().equals("newOrderOk")) {
                 EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("newComplaintOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("newComplaintError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("complaintResolved")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("resolveComplaintError")) {
+                EventBus.getDefault().post(msg);
             }
             else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
-                if (!list.isEmpty() && list.get(0) instanceof Item) {
-                    List<Item> items = (List<Item>) list;
-                    System.out.println("Received catalog with " + items.size() + " items.");
-                    EventBus.getDefault().post(items);
+                if (!list.isEmpty()) {
+                    if (list.get(0) instanceof Item) {
+                        List<Item> items = (List<Item>) list;
+                        System.out.println("Received catalog with " + items.size() + " items.");
+                        EventBus.getDefault().post(items);
+                    } else if (list.get(0) instanceof il.cshaifasweng.OCSFMediatorExample.entities.Complaint) {
+                        @SuppressWarnings("unchecked")
+                        List<il.cshaifasweng.OCSFMediatorExample.entities.Complaint> complaints = 
+                            (List<il.cshaifasweng.OCSFMediatorExample.entities.Complaint>) list;
+                        EventBus.getDefault().post(complaints);
+                    }
                 }
             }
         }

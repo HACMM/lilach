@@ -162,8 +162,8 @@ public class UserAccount implements Serializable {
         // Generate salt, calculate hash, set salt and hash
         var generatedSalt = Passwords.getNextSalt();
         var hash = Passwords.hash(password.toCharArray(), generatedSalt);
-        this.hash = new String(hash);
-        this.salt = new String(generatedSalt);
+        this.hash = Base64.getEncoder().encodeToString(hash);
+        this.salt = Base64.getEncoder().encodeToString(generatedSalt);
         this.defaultPaymentMethod = defaultPaymentMethod;
         this.is_active = true;
         this.role = Role.CUSTOMER;

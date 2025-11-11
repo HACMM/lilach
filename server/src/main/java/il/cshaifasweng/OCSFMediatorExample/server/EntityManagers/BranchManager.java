@@ -90,4 +90,42 @@ public class BranchManager extends BaseManager {
             return row;
         });
     }
+
+    /** Initialize test branches if database is empty. */
+    public void AddTestBranches() {
+        List<Branch> existing = listAll();
+        if (!existing.isEmpty()) {
+            System.out.println("Branches already exist, skipping initialization");
+            return;
+        }
+
+        write(s -> {
+            Branch branch1 = new Branch();
+            branch1.setName("Tel Aviv Branch");
+            branch1.setDescription("Our main branch in the heart of Tel Aviv");
+            branch1.setSchedule("Sunday-Thursday: 9:00-20:00, Friday: 9:00-14:00");
+            s.persist(branch1);
+
+            Branch branch2 = new Branch();
+            branch2.setName("Jerusalem Branch");
+            branch2.setDescription("Located in the beautiful city of Jerusalem");
+            branch2.setSchedule("Sunday-Thursday: 9:00-19:00, Friday: 9:00-13:00");
+            s.persist(branch2);
+
+            Branch branch3 = new Branch();
+            branch3.setName("Haifa Branch");
+            branch3.setDescription("Serving the northern region");
+            branch3.setSchedule("Sunday-Thursday: 8:00-19:00, Friday: 8:00-14:00");
+            s.persist(branch3);
+
+            Branch branch4 = new Branch();
+            branch4.setName("Beer Sheva Branch");
+            branch4.setDescription("Our southern branch");
+            branch4.setSchedule("Sunday-Thursday: 9:00-18:00, Friday: 9:00-13:00");
+            s.persist(branch4);
+
+            System.out.println("Initialized 4 test branches");
+            return null;
+        });
+    }
 }

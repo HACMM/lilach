@@ -21,9 +21,13 @@ public class ItemManager {
 
     public boolean AddTestItems() {
         List<Item> catalog = GetItemList(new ArrayList<>());
-        if (catalog.size() >= 5)
+        System.out.println("AddTestItems: Current catalog size = " + catalog.size());
+        if (catalog.size() >= 5) {
+            System.out.println("AddTestItems: Catalog already has 5+ items, skipping initialization");
             return true;
+        }
 
+        System.out.println("AddTestItems: Initializing test items...");
         ArrayList<Item> toAdd = new ArrayList<>();
 
         toAdd.add(createItem(
@@ -76,7 +80,13 @@ public class ItemManager {
                 "Wildflower"
         ));
 
-        return AddItem(toAdd);
+        boolean success = AddItem(toAdd);
+        if (success) {
+            System.out.println("AddTestItems: Successfully added " + toAdd.size() + " test items");
+        } else {
+            System.err.println("AddTestItems: Failed to add test items!");
+        }
+        return success;
     }
 
     /** טוען תמונה מקובץ resources לתוך byte[] */

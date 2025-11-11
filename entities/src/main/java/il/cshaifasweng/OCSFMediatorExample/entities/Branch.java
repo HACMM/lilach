@@ -1,12 +1,14 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "Branch")
-public class Branch {
+public class Branch implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "branch_id", nullable = false, unique = true)
@@ -21,12 +23,12 @@ public class Branch {
     @OneToMany(mappedBy = "branch",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
-    private Set<Order> orders = new HashSet<Order>();
+    private transient Set<Order> orders = new HashSet<Order>();
 
     @OneToMany(mappedBy = "primaryKey.branch",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
-    private Set<BranchInventory> branchInventory = new HashSet<BranchInventory>();
+    private transient Set<BranchInventory> branchInventory = new HashSet<BranchInventory>();
 
     public Branch() {
     }
@@ -77,5 +79,10 @@ public class Branch {
 
     public void removeOrder(Order order) {
         orders.remove(order);
+    }
+
+    @Override
+    public String toString() {
+        return name != null ? name : "Unnamed Branch";
     }
 }

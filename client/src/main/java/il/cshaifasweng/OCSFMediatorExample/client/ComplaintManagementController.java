@@ -1,6 +1,8 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
+import Request.PublicUser;
+import Request.ResolveComplaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -77,6 +79,19 @@ public class ComplaintManagementController {
         });
     }
 
+    /** Handle complaint resolved response */
+    @Subscribe
+    public void onComplaintResolved(Message msg) {
+        Platform.runLater(() -> {
+            if (msg.getType().equals("complaintResolved")) {
+                requestComplaints(); // Refresh the list
+            } else if (msg.getType().equals("resolveComplaintError")) {
+                showMessage("Failed to resolve complaint: " + msg.getData(), false);
+            }
+        });
+    }
+
+    /** כפתור שליחה */
     @FXML
     private void onSendResponse() {
         if (selectedComplaint == null) {
@@ -100,47 +115,18 @@ public class ComplaintManagementController {
             }
         }
 
-        // 🔹 Only IDs / primitives from client
-        Integer managerId = (AppSession.getCurrentUser() != null)
-                ? AppSession.getCurrentUser().getUserId()
-                : null;
-
-        if (managerId == null) {
-            showMessage("You must be logged in to resolve complaints.", false);
-            return;
-        }
-
-        // Payload = [complaintId, responseText, compensation, resolved, managerUserId]
-        var payload = java.util.List.of(
-                selectedComplaint.getComplaintId(),
-                responseText,
-                compensation,
-                Boolean.TRUE,
-                managerId
-        );
+        PublicUser currentUser = AppSession.getCurrentUser();
+        Integer managerUserId = (currentUser != null) ? currentUser.getUserId() : null;
 
         try {
-            client.sendToServer(new Message("resolveComplaint", payload));
-
-            //send a local email to the customer for UX
-            EmailSender.sendEmail(
-                    "Response to your complaint 💐",
-                    "Dear " + selectedComplaint.getClientName() + ",\n\n" +
-                            "We have reviewed your complaint:\n\"" + selectedComplaint.getDescription() + "\"\n\n" +
-                            "Response: " + responseText + "\n" +
-                            (compensation > 0 ? "Compensation: " + compensation + "₪\n\n" : "\n") +
-                            "Thank you for your patience 🌸\nFlowerShop Team",
-                    selectedComplaint.getClientEmail()
-            );
-
+            client.sendToServer(new ResolveComplaint(selectedComplaint.getComplaintId(), responseText, compensation, managerUserId));
             showMessage("Response sent successfully!", true);
-            requestComplaints(); // refresh list
+            // Don't refresh here - wait for server response which will include updated list
         } catch (IOException e) {
             e.printStackTrace();
             showMessage("Failed to send response.", false);
         }
     }
-
 
     private void showMessage(String text, boolean success) {
         messageLabel.setText(text);
