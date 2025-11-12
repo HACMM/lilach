@@ -128,6 +128,16 @@ public class ComplaintManagementController {
         }
     }
 
+    @FXML
+    private void onBackClicked() {
+        try {
+            App.setRoot("MainPage");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private void showMessage(String text, boolean success) {
         messageLabel.setText(text);
         messageLabel.setStyle(success

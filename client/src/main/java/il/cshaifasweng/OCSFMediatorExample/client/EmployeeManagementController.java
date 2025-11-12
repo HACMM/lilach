@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
@@ -32,6 +33,9 @@ public class EmployeeManagementController {
 
     @FXML
     public void initialize() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
         idCol.setCellValueFactory(c -> new SimpleObjectProperty<>(c.getValue().getUserId()));
         nameCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getName()));
         emailCol.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getEmail()));
@@ -98,4 +102,6 @@ public class EmployeeManagementController {
             employeeTable.refresh();
         });
     }
+
+
 }

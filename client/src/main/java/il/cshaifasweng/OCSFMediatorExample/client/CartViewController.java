@@ -78,7 +78,43 @@ public class CartViewController {
         subtotalCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getSubtotal()));
         subtotalCol.setCellFactory(col -> moneyCell());
         qtyCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getQty()));
-        qtyCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        qtyCol.setCellFactory(col -> new TableCell<>() {
+            private final HBox box = new HBox(5);
+            private final Button minusBtn = new Button("-");
+            private final Label qtyLbl = new Label();
+            private final Button plusBtn = new Button("+");
+
+            {
+                box.getChildren().addAll(minusBtn, qtyLbl, plusBtn);
+                box.setStyle("-fx-alignment: center;");
+
+                minusBtn.setOnAction(e -> changeQty(-1));
+                plusBtn.setOnAction(e -> changeQty(1));
+
+                minusBtn.setStyle("-fx-background-color: #ffcccc; -fx-font-weight: bold;");
+                plusBtn.setStyle("-fx-background-color: #ccffcc; -fx-font-weight: bold;");
+            }
+
+            private void changeQty(int delta) {
+                CartItem ci = getTableView().getItems().get(getIndex());
+                int newQty = Math.max(1, ci.getQty() + delta);
+                ci.setQty(newQty);
+                qtyLbl.setText(String.valueOf(newQty));
+                refreshTotals();
+                table.refresh();
+            }
+
+            @Override
+            protected void updateItem(Integer qty, boolean empty) {
+                super.updateItem(qty, empty);
+                if (empty || qty == null) {
+                    setGraphic(null);
+                } else {
+                    qtyLbl.setText(String.valueOf(qty));
+                    setGraphic(box);
+                }
+            }
+        });
 
         qtyCol.setOnEditCommit(ev -> {
             CartItem row = ev.getRowValue();
@@ -121,6 +157,20 @@ public class CartViewController {
             refreshTotals();
         });
 
+        pickupRadio.setToggleGroup(receiveGroup);
+        deliveryRadio.setToggleGroup(receiveGroup);
+
+        deliveryRadio.selectedProperty().addListener((obs, oldV, newV) -> {
+            deliveryFields.setVisible(newV);
+            if (newV) pickupRadio.setSelected(false);
+            refreshTotals();
+        });
+
+        pickupRadio.selectedProperty().addListener((obs, oldV, newV) -> {
+            if (newV) deliveryRadio.setSelected(false);
+            refreshTotals();
+        });
+
         refreshTotals();
     }
 
@@ -136,30 +186,49 @@ public class CartViewController {
     }
 
     private void refreshTotals() {
-        double total = CartService.get().total();
+        double total = CartService.get().total();  // סה"כ מוצרים
         PublicUser currentUser = AppSession.getCurrentUser();
 
-        if (currentUser != null && currentUser.isSubscriptionUser()) {
-            double discount = total * 0.1;
-            double newTotal = total - discount;
+        double discount = 0.0;
 
+        // ✅ אם זה מנוי, חישוב הנחה
+        if (currentUser != null && currentUser.isSubscriptionUser()) {
+            discount = total * 0.1;
+        }
+
+        // ✅ תוספת משלוח אם נבחרה האפשרות
+        double deliveryFee = deliveryRadio.isSelected() ? 20.0 : 0.0;
+
+        double finalTotal = total - discount + deliveryFee;
+
+        // 🔹 עדכון תצוגה
+        if (discount > 0) {
             totalLbl.setText(currency.format(total));
             totalLbl.setStyle("-fx-text-fill: gray; -fx-strikethrough: true; -fx-font-size: 16px;");
-            discountedTotalLbl.setText(currency.format(newTotal));
+
+            discountedTotalLbl.setText(currency.format(finalTotal));
             discountedTotalLbl.setStyle("-fx-text-fill: green; -fx-font-weight: bold; -fx-font-size: 18px;");
             discountedTotalLbl.setVisible(true);
-            discountLbl.setText("(10% subscriber discount)");
+
+            discountLbl.setText(String.format("(10%% subscriber discount, + %s delivery)",
+                    currency.format(deliveryFee)));
             discountLbl.setStyle("-fx-text-fill: #228B22; -fx-font-style: italic;");
             discountLbl.setVisible(true);
         } else {
-            totalLbl.setText(currency.format(total));
+            totalLbl.setText(currency.format(finalTotal));
             totalLbl.setStyle("-fx-font-size: 18px; -fx-text-fill: black;");
-            discountLbl.setVisible(false);
             discountedTotalLbl.setVisible(false);
-        }
-        if (deliveryRadio.isSelected()) total += 20.0; // מחיר משלוח קבוע
 
+            if (deliveryFee > 0) {
+                discountLbl.setText(String.format("(includes %s delivery fee)", currency.format(deliveryFee)));
+                discountLbl.setStyle("-fx-text-fill: gray;");
+                discountLbl.setVisible(true);
+            } else {
+                discountLbl.setVisible(false);
+            }
+        }
     }
+
 
     @FXML
     private void onSelectPayment() {

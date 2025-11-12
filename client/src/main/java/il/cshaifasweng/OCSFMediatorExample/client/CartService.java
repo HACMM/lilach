@@ -25,8 +25,20 @@ public final class CartService {
     public static CartService get() { return INSTANCE; }
 
     private CartService() {
-        lines.addListener((ListChangeListener<CartItem>) c -> recalc());
+        // מאזין לשינויים ברשימה עצמה
+        lines.addListener((ListChangeListener<CartItem>) change -> {
+            while (change.next()) {
+                if (change.wasAdded()) {
+                    for (CartItem ci : change.getAddedSubList()) {
+                        // ✅ מאזין לשינויים בכמות של כל פריט חדש
+                        ci.qtyProperty().addListener((obs, oldV, newV) -> recalc());
+                    }
+                }
+            }
+            recalc();
+        });
     }
+
 
     /* ---------- State ---------- */
     private final ObservableList<CartItem> lines = FXCollections.observableArrayList();

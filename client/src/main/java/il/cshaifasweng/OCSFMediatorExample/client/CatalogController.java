@@ -126,6 +126,7 @@ public class CatalogController implements Initializable {
 
 		PublicUser currentUser = AppSession.getCurrentUser();
 		if (currentUser == null || (currentUser.getRole() != Role.EMPLOYEE && currentUser.getRole() != Role.MANAGER || currentUser.getRole() != Role.NETWORK_MANAGER)) {
+
 			addItemBtn.setVisible(false);
 		}
 		requestCatalog();

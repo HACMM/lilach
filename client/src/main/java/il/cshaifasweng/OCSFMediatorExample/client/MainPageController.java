@@ -16,19 +16,25 @@ import java.io.IOException;
 
 public class MainPageController {
 
+    @FXML private Button LogInBtn;
     @FXML private Button reportsBtn;
     @FXML private Button manageEmployeesBtn;
     @FXML private Button newsletterBtn;
     @FXML private Button manageCustomersBtn;
 
+
     @FXML
     private void initialize() {
         PublicUser user = AppSession.getCurrentUser();
-        if (user == null || user.getRole() != Role.MANAGER || user.getRole() != Role.NETWORK_MANAGER) {
+        if (user == null || (user.getRole() != Role.MANAGER && user.getRole() != Role.NETWORK_MANAGER)) {
             manageEmployeesBtn.setVisible(false);
             newsletterBtn.setVisible(false);
             manageCustomersBtn.setVisible(false);
             reportsBtn.setVisible(false);
+        }
+
+        if (user != null) {
+            LogInBtn.setVisible(false);
         }
     }
 
@@ -82,8 +88,21 @@ public class MainPageController {
 
     @FXML
     private void onReportsClicked(ActionEvent event) {
-        switchTo("ReportView");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("ReportView.fxml"));
+            Parent root = loader.load();
+
+            Stage reportStage = new Stage();
+            reportStage.setTitle("Reports");
+            reportStage.setScene(new Scene(root));
+            reportStage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to open Reports window.").showAndWait();
+        }
     }
+
 
     private void switchTo(String fxml) {
         try {

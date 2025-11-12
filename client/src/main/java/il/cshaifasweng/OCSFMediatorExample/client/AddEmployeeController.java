@@ -33,7 +33,7 @@ public class AddEmployeeController {
 
         // בקשה לשרת להביא סניפים
         try {
-            client.sendToServer("show branches");
+            client.sendToServer("#getAllBranches");
         } catch (IOException e) {
             e.printStackTrace();
         }

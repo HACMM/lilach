@@ -25,6 +25,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class AccountCreationController {
 
+    @FXML private TextField idField;
     @FXML private TextField     nameField;
     @FXML private TextField     emailField;
     @FXML private TextField     usernameField;
@@ -98,10 +99,11 @@ public class AccountCreationController {
         String email    = emailField.getText().trim();
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
+        String idNumber = idField.getText().trim();
 
         // make sure nothing’s blank
         if (name.isEmpty() || email.isEmpty() ||
-                username.isEmpty() || password.isEmpty()) {
+                username.isEmpty() || password.isEmpty() || idNumber.isEmpty()) {
             EventBus.getDefault().post(
                     new WarningEvent(new Warning("Must fill all fields!"))
             );
@@ -133,7 +135,7 @@ public class AccountCreationController {
         // UserAccount newUser = new UserAccount(username, password, name, email, selectedPaymentMethod, branchType);
 
         try {
-            client.sendToServer(new SignupRequest(username,password,name,email,selectedPaymentMethod, branchType));
+            client.sendToServer(new SignupRequest(username,password,name,email, idNumber,selectedPaymentMethod, branchType));
         } catch (IOException e) {
             e.printStackTrace();
         }

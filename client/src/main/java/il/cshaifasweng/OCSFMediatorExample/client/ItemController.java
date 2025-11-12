@@ -34,6 +34,8 @@ public class ItemController {
     private Button RemoveBTN;
     @FXML
     private ImageView addToCartImage;
+    @FXML private Label cartMessageLbl;
+
 
     @FXML
     private void initialize() {
@@ -47,11 +49,21 @@ public class ItemController {
 
         CartService.get().addOne(item);
 
-        Alert ok = new Alert(Alert.AlertType.INFORMATION,
-                item.getName() + " added to your cart!");
-        ok.setHeaderText("Added to Cart");
-        ok.showAndWait();
+        cartMessageLbl.setText("✅ " + item.getName() + " added to cart!");
+        cartMessageLbl.setStyle("-fx-text-fill: #a64f73; -fx-font-weight: bold; "
+                + "-fx-background-color: rgba(255,255,255,0.8); -fx-background-radius: 10; "
+                + "-fx-padding: 4 12 4 12;");
+        cartMessageLbl.setVisible(true);
+
+        // ההודעה נעלמת אחרי 2 שניות
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                javafx.application.Platform.runLater(() -> cartMessageLbl.setVisible(false));
+            } catch (InterruptedException ignored) {}
+        }).start();
     }
+
 
     public void updatePriceLabel(double newPrice) {
         priceLabel.setText("Price: " + item.getPrice() + "$");

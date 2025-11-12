@@ -54,11 +54,12 @@
                                   -fx-border-color: #ddd;
                                   -fx-background-color: #fff;" />
 
-            <TextField promptText="ID Number"
+            <TextField fx:id="idField" promptText="ID Number"
                        style="-fx-background-radius: 8;
-                                  -fx-border-radius: 8;
-                                  -fx-border-color: #ddd;
-                                  -fx-background-color: #fff;" />
+                  -fx-border-radius: 8;
+                  -fx-border-color: #ddd;
+                  -fx-background-color: #fff;" />
+
 
             <TextField fx:id="emailField" promptText="Email"
                        style="-fx-background-radius: 8;

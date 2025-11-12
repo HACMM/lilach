@@ -3,6 +3,7 @@ package il.cshaifasweng.OCSFMediatorExample.server;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ItemManager;
 import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.BranchManager;
+import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.UserAccountManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -51,6 +52,7 @@ public class DbConnector implements AutoCloseable {
 
             new ItemManager(sessionFactory).AddTestItems();
             new BranchManager(sessionFactory).AddTestBranches();
+            new UserAccountManager(sessionFactory).addDefaultManager();
 
         } catch (Throwable t) {
             StandardServiceRegistryBuilder.destroy(registry);

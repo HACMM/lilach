@@ -40,7 +40,7 @@ public class NewsletterController {
     @FXML
     private void onBackClicked(ActionEvent event) {
         try {
-            App.setRoot("ManagementPage"); // או MainPage, בהתאם לארגון שלך
+            App.setRoot("MainPage");
         } catch (IOException e) {
             e.printStackTrace();
         }

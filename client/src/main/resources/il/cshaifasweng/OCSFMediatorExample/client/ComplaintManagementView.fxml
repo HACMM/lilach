@@ -22,7 +22,20 @@
               AnchorPane.topAnchor="30" AnchorPane.bottomAnchor="30"
               style="-fx-background-color: rgba(255,255,255,0.85);
                      -fx-background-radius: 12;
-                     -fx-padding: 20;">
+                     -fx-padding: 25;">
+
+            <!-- 🔹 כפתור Back בפינה השמאלית העליונה -->
+            <HBox alignment="CENTER_LEFT">
+                <Button fx:id="backBtn"
+                        text="← Back"
+                        onAction="#onBackClicked"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #a64f73;
+                               -fx-font-size: 15px;
+                               -fx-font-weight: bold;
+                               -fx-cursor: hand;
+                               -fx-border-color: transparent;" />
+            </HBox>
 
             <!-- 🔹 כותרת -->
             <HBox alignment="CENTER" style="-fx-padding: 8;">

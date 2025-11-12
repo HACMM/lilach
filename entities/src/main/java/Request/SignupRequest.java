@@ -12,17 +12,19 @@ public class SignupRequest implements Serializable {
     private String password;
     private String name;
     private String email;
+    private String idNumber;
     private PaymentMethod paymentMethod;
     private UserBranchType branchType;
 
     public SignupRequest() {
     }
 
-    public SignupRequest(String username, String password, String name, String email, PaymentMethod payment, UserBranchType branchType) {
+    public SignupRequest(String username, String password, String name, String email,String idNumber, PaymentMethod payment, UserBranchType branchType) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.email = email;
+        this.idNumber = idNumber;
         this.paymentMethod = payment;
         this.branchType = branchType;
     }
@@ -42,6 +44,8 @@ public class SignupRequest implements Serializable {
     public String getEmail() {
         return email;
     }
+
+    public String getIdNumber() {return idNumber;}
 
     public PaymentMethod getPayment() {
         return paymentMethod;
@@ -66,6 +70,8 @@ public class SignupRequest implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
 
     public void setPayment(PaymentMethod payment) {
         this.paymentMethod = payment;

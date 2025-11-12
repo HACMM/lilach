@@ -47,6 +47,7 @@ public class PersonalDetailsController {
         currentUser = AppSession.getCurrentUser();
         if (currentUser != null) {
             populateUserData(currentUser);
+            loginReminderBtn.setVisible(false);
         } else {
             disableAllFields();
         }
