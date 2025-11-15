@@ -92,6 +92,19 @@
                               -fx-text-fill: #93345c;"/>
             </HBox>
 
+            <!-- 🔹 כפתור ביטול הזמנה -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button fx:id="cancelOrderBtn"
+                        text="Cancel Order"
+                        onAction="#onCancelOrder"
+                        style="-fx-background-color: #d9534f;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;
+                               -fx-padding: 8 20 8 20;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
         </VBox>
     </children>
 </AnchorPane>

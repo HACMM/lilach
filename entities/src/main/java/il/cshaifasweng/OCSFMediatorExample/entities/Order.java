@@ -32,14 +32,14 @@ public class Order implements Serializable {
 
     /** Requires Complaint to have: @ManyToOne(fetch=LAZY) @JoinColumn(name="order_id") private Order order; */
     @OneToMany(mappedBy = "order")
-    private List<Complaint> complaints = new ArrayList<>();
+    private transient List<Complaint> complaints = new ArrayList<>();
 
-    /** If your schema requires a branch, keep optional=false and ensure you set it before persist */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "branch_id", nullable = false)
+    /** Branch is optional - orders can be network-wide or for a specific branch */
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id", nullable = true)
     private Branch branch;
 
-    @Column(length = 50)
+    @Column(length = 1000)
     private String greeting;
 
     @Column(name = "delivery_type")

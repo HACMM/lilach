@@ -159,6 +159,15 @@ public class AccountCreationController {
             Parent root = loader.load();
 
             PaymentMethodController controller = loader.getController();
+            
+            // If user already added a payment method in this session, show it as saved
+            if (selectedPaymentMethod != null) {
+                java.util.List<PaymentMethod> savedCards = new java.util.ArrayList<>();
+                savedCards.add(selectedPaymentMethod);
+                controller.loadSavedCards(savedCards);
+                System.out.println("Loaded previously added payment method from signup session");
+            }
+
             Stage stage = new Stage();
             stage.setTitle("Choose Payment Method");
             stage.setScene(new Scene(root));

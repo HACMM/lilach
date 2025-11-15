@@ -33,9 +33,12 @@ public class EmailSender {
             message.setText(body);
 
             Transport.send(message);
-            System.out.println("Email sent successfully.");
+            System.out.println("Email sent successfully to: " + to);
         } catch (MessagingException e) {
+            System.err.println("Email sending failed to " + to + ": " + e.getMessage());
             e.printStackTrace();
+            // Re-throw the exception so calling code can handle it
+            throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
         }
     }
 }

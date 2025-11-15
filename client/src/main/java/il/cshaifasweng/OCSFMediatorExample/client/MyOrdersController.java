@@ -1,5 +1,6 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
+import Request.Message;
 import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.entities.Order;
 import il.cshaifasweng.OCSFMediatorExample.entities.OrderLine;
@@ -96,6 +97,13 @@ public class MyOrdersController {
             }
             ordersTable.refresh();
         });
+    }
+
+    @Subscribe
+    public void onRefreshOrders(Message msg) {
+        if (msg.getType().equals("refreshOrders")) {
+            requestOrdersFromServer();
+        }
     }
 
     private Callback<TableColumn<OrderRow, Void>, TableCell<OrderRow, Void>> createDetailsButtonFactory() {

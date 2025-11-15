@@ -66,6 +66,34 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("resolveComplaintError")) {
                 EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("updateUserDetailsOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("updateUserDetailsError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("updatePaymentMethodOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("updatePaymentMethodError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("purchaseSubscriptionOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("purchaseSubscriptionError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("renewSubscriptionOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("renewSubscriptionError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("customOrderOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("customOrderError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("item removed successfully")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("item remove error")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("cancelOrderOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("cancelOrderError")) {
+                EventBus.getDefault().post(msg);
             }
             else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
@@ -79,6 +107,12 @@ public class SimpleClient extends AbstractClient {
                         List<il.cshaifasweng.OCSFMediatorExample.entities.Complaint> complaints = 
                             (List<il.cshaifasweng.OCSFMediatorExample.entities.Complaint>) list;
                         EventBus.getDefault().post(complaints);
+                    } else if (list.get(0) instanceof il.cshaifasweng.OCSFMediatorExample.entities.Order) {
+                        @SuppressWarnings("unchecked")
+                        List<il.cshaifasweng.OCSFMediatorExample.entities.Order> orders = 
+                            (List<il.cshaifasweng.OCSFMediatorExample.entities.Order>) list;
+                        System.out.println("SimpleClient: Received " + orders.size() + " orders");
+                        EventBus.getDefault().post(orders);
                     }
                 }
             }

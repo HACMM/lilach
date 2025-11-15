@@ -1,10 +1,14 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.CustomOrder;
+import Request.Message;
+import Request.PublicUser;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 
@@ -18,6 +22,14 @@ public class CustomOrderController {
     @FXML private TextField colorField;
     @FXML private TextArea notesArea;
     @FXML private Label messageLabel; // תווית להודעות
+
+    @FXML
+    public void initialize() {
+        // Register for EventBus to receive server responses
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
 
     @FXML
     private void onSubmitClicked() {
@@ -41,11 +53,18 @@ public class CustomOrderController {
                 return;
             }
 
+            // Check if user is logged in
+            PublicUser currentUser = AppSession.getCurrentUser();
+            if (currentUser == null) {
+                showMessage("Please log in before submitting a custom design request.", false);
+                return;
+            }
+
             // בונים בקשת עיצוב אישי
-            CustomOrder order = new CustomOrder(type, minPrice, maxPrice, color, notes);
+            CustomOrder order = new CustomOrder(currentUser.getUserId(), type, minPrice, maxPrice, color, notes);
             client.sendToServer(order);
 
-            showMessage("Your custom design request has been submitted!", true);
+            showMessage("Submitting custom design request...", true);
 
             // סוגרים אחרי כמה שניות (רק אם רוצים)
 //            new Thread(() -> {
@@ -82,5 +101,22 @@ public class CustomOrderController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Subscribe
+    public void onCustomOrderResponse(Message msg) {
+        javafx.application.Platform.runLater(() -> {
+            if (msg.getType().equals("customOrderOk")) {
+                showMessage("✅ Custom design order submitted successfully! It will appear in 'My Orders'.", true);
+                // Clear form after successful submission
+                itemTypeCombo.setValue(null);
+                minPriceField.clear();
+                maxPriceField.clear();
+                colorField.clear();
+                notesArea.clear();
+            } else if (msg.getType().equals("customOrderError")) {
+                showMessage("❌ Failed to submit custom design order: " + msg.getData(), false);
+            }
+        });
     }
 }

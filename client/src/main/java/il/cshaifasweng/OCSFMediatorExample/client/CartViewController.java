@@ -238,6 +238,15 @@ public class CartViewController {
             Parent root = loader.load();
             PaymentMethodController ctrl = loader.getController();
 
+            // Load user's saved payment method if available
+            PublicUser currentUser = AppSession.getCurrentUser();
+            if (currentUser != null && currentUser.getDefaultPaymentMethod() != null) {
+                java.util.List<PaymentMethod> savedCards = new java.util.ArrayList<>();
+                savedCards.add(currentUser.getDefaultPaymentMethod());
+                ctrl.loadSavedCards(savedCards);
+                System.out.println("Loaded saved payment method for user: " + currentUser.getLogin());
+            }
+
             Stage st = new Stage();
             st.initModality(Modality.APPLICATION_MODAL);
             st.setTitle("Select Payment Method");
@@ -281,6 +290,13 @@ public class CartViewController {
         PublicUser currentUser = AppSession.getCurrentUser();
         if (currentUser == null) {
             showMessage("Please log in before checking out.", false);
+            return;
+        }
+
+        // Check if cart is empty
+        if (CartService.get().items().isEmpty()) {
+            System.err.println("ERROR: Attempted to checkout with empty cart!");
+            showMessage("Your cart is empty. Please add items before checking out.", false);
             return;
         }
 
@@ -334,14 +350,18 @@ public class CartViewController {
             }
 
             // Order lines from cart (snapshot unit price now)
+            System.out.println("DEBUG: Cart has " + CartService.get().items().size() + " items");
             for (CartItem ci : CartService.get().items()) {
                 Item item = ci.getItem();
                 int qty   = Math.max(1, ci.getQty());
+                System.out.println("DEBUG: Adding cart item: " + item.getName() + " (ID: " + item.getId() + ") x" + qty + " @ " + item.getPrice());
                 req.lines.add(new NewOrderRequest.Line(item.getId(), qty, item.getPrice()));
             }
+            System.out.println("DEBUG: Order request has " + req.lines.size() + " lines, userId=" + req.userId);
 
             // ---- Send to server ----
             client.sendToServer(new Message("newOrder", req));
+            System.out.println("DEBUG: Sent newOrder request to server");
 
             // ---- Immediate confirmation email (client-side) ----
             // We don’t have the server order-id yet; this is a “request received” email.

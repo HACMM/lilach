@@ -34,7 +34,8 @@ public class DbConnector implements AutoCloseable {
                     .addAnnotatedClass(Branch.class)
                     .addAnnotatedClass(BranchInventory.class)
                     .addAnnotatedClass(ItemCategory.class)
-                    .addAnnotatedClass(Category.class);
+                    .addAnnotatedClass(Category.class)
+                    .addAnnotatedClass(CustomItem.class);
 
             Metadata metadata = sources.buildMetadata();
 

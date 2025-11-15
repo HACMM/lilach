@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.PublicUser;
 import Request.RenewSubscriptionRequest;
+import Request.PurchaseSubscriptionRequest;
 import Request.UpdatePaymentMethodRequest;
 import Request.UpdateUserDetailsRequest;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
@@ -16,6 +17,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import Request.Message;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 
@@ -39,6 +42,11 @@ public class PersonalDetailsController {
 
     @FXML
     public void initialize() {
+        // Register for EventBus to receive update responses
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+
         if (editingUser != null) {
             populateUserData(editingUser);
             return;
@@ -83,12 +91,22 @@ public class PersonalDetailsController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(
                     "/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
+            Parent root = loader.load();
+            PaymentMethodController controller = loader.getController();
+
+            // Load user's saved payment method if available
+            if (currentUser.getDefaultPaymentMethod() != null) {
+                java.util.List<PaymentMethod> savedCards = new java.util.ArrayList<>();
+                savedCards.add(currentUser.getDefaultPaymentMethod());
+                controller.loadSavedCards(savedCards);
+                System.out.println("Loaded saved payment method for user: " + currentUser.getLogin());
+            }
+
             Stage st = new Stage();
-            st.setScene(new Scene(loader.load()));
+            st.setScene(new Scene(root));
             st.setTitle("Change Payment Method");
             st.showAndWait();
 
-            PaymentMethodController controller = loader.getController();
             PaymentMethod newPayment = controller.getPaymentMethod();
 
             if (newPayment != null) {
@@ -99,6 +117,7 @@ public class PersonalDetailsController {
             }
         } catch (Exception e) {
             statusLabel.setText("❌ Error opening payment window.");
+            e.printStackTrace();
         }
     }
 
@@ -109,7 +128,44 @@ public class PersonalDetailsController {
             statusLabel.setText("Log in to purchase a subscription.");
             return;
         }
-        statusLabel.setText("✅ Subscription purchased successfully!");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(
+                    "/il/cshaifasweng/OCSFMediatorExample/client/PaymentMethodView.fxml"));
+            Parent root = loader.load();
+            PaymentMethodController controller = loader.getController();
+
+            // Load user's saved payment method if available
+            if (currentUser.getDefaultPaymentMethod() != null) {
+                java.util.List<PaymentMethod> savedCards = new java.util.ArrayList<>();
+                savedCards.add(currentUser.getDefaultPaymentMethod());
+                controller.loadSavedCards(savedCards);
+                System.out.println("Loaded saved payment method for subscription purchase");
+            }
+
+            Stage st = new Stage();
+            st.setScene(new Scene(root));
+            st.setTitle("Select Payment Method for Subscription");
+            st.showAndWait();
+
+            PaymentMethod selectedPayment = controller.getPaymentMethod();
+
+            if (selectedPayment != null) {
+                // Save payment method and purchase subscription
+                try {
+                    client.sendToServer(new PurchaseSubscriptionRequest(
+                            currentUser.getUserId(), selectedPayment));
+                    statusLabel.setText("Processing subscription purchase...");
+                } catch (Exception e) {
+                    statusLabel.setText("❌ Error sending subscription request.");
+                    e.printStackTrace();
+                }
+            } else {
+                statusLabel.setText("Payment method selection was cancelled.");
+            }
+        } catch (Exception e) {
+            statusLabel.setText("❌ Error opening payment window.");
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -203,6 +259,68 @@ public class PersonalDetailsController {
         renewSubBtn.setDisable(true);
         purchaseSubBtn.setDisable(true);
         statusLabel.setText("");
+    }
+
+    @Subscribe
+    public void onUpdateUserDetailsResponse(Message msg) {
+        javafx.application.Platform.runLater(() -> {
+            if (msg.getType().equals("updateUserDetailsOk")) {
+                statusLabel.setText("✅ Details updated successfully!");
+                // Refresh user data from session (it should be updated on next login, but we can update locally)
+                if (currentUser != null) {
+                    currentUser.setName(nameField.getText().trim());
+                    currentUser.setEmail(emailField.getText().trim());
+                    currentUser.setIdNumber(idField.getText().trim());
+                }
+            } else if (msg.getType().equals("updateUserDetailsError")) {
+                statusLabel.setText("❌ Failed to update details: " + msg.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onUpdatePaymentMethodResponse(Message msg) {
+        javafx.application.Platform.runLater(() -> {
+            if (msg.getType().equals("updatePaymentMethodOk")) {
+                statusLabel.setText("✅ Payment method updated successfully!");
+                // Note: Payment method will be updated in user's account, but won't reflect in current session
+                // until next login. For now, we just show success message.
+            } else if (msg.getType().equals("updatePaymentMethodError")) {
+                statusLabel.setText("❌ Failed to update payment method: " + msg.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onPurchaseSubscriptionResponse(Message msg) {
+        javafx.application.Platform.runLater(() -> {
+            if (msg.getType().equals("purchaseSubscriptionOk")) {
+                statusLabel.setText("✅ Subscription purchased successfully! Payment method saved.");
+                // Note: Payment method and subscription are saved in database
+                // The user will see updated data on next login, but we update local data for immediate feedback
+                if (currentUser != null) {
+                    currentUser.setSubscriptionUser(true);
+                    currentUser.setSubscriptionExpirationDate(java.time.LocalDate.now().plusYears(1));
+                    // Refresh UI
+                    purchaseSubBtn.setVisible(false);
+                    renewSubBtn.setVisible(true);
+                    subscriptionExpiryLbl.setText(currentUser.getSubscriptionExpirationDate().toString());
+                }
+            } else if (msg.getType().equals("purchaseSubscriptionError")) {
+                statusLabel.setText("❌ Failed to purchase subscription: " + msg.getData());
+            }
+        });
+    }
+
+    @Subscribe
+    public void onRenewSubscriptionResponse(Message msg) {
+        javafx.application.Platform.runLater(() -> {
+            if (msg.getType().equals("renewSubscriptionOk")) {
+                statusLabel.setText("✅ Subscription renewed successfully!");
+            } else if (msg.getType().equals("renewSubscriptionError")) {
+                statusLabel.setText("❌ Failed to renew subscription: " + msg.getData());
+            }
+        });
     }
 }
 

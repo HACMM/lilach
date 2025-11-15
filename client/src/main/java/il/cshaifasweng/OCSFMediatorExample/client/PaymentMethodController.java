@@ -50,7 +50,7 @@ public class PaymentMethodController {
                 protected void updateItem(PaymentMethod card, boolean empty) {
                     super.updateItem(card, empty);
                     if (empty || card == null) {
-                        setText(null);
+                        setText("Select saved card...");
                     } else {
                         String last4 = card.getCardNumber()
                                 .substring(card.getCardNumber().length() - 4);
@@ -58,6 +58,12 @@ public class PaymentMethodController {
                     }
                 }
             });
+            
+            // Auto-select if there's only one saved card
+            if (savedCards.size() == 1) {
+                savedCardsCombo.getSelectionModel().select(0);
+                paymentMethod = savedCards.get(0);
+            }
         }
     }
 

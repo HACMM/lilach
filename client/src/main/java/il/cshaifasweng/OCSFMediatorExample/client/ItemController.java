@@ -12,7 +12,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +41,10 @@ public class ItemController {
     @FXML
     private void initialize() {
         addToCartImage.setImage(new Image(getClass().getResourceAsStream("/images/cart_icon.jpg")));
+        // Register for EventBus to receive server responses
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
     }
 
 
@@ -151,14 +156,36 @@ public class ItemController {
         if (confirm.getResult() == ButtonType.YES) {
             try {
                 client.sendToServer(new Message("removeItem", item));
-                Alert ok = new Alert(Alert.AlertType.INFORMATION,
-                        "Item removed successfully!");
-                ok.showAndWait();
+                // Wait for server response - handled in @Subscribe method
             } catch (IOException e) {
                 e.printStackTrace();
                 new Alert(Alert.AlertType.ERROR, "Failed to contact server.").showAndWait();
             }
         }
+    }
+
+    @Subscribe
+    public void onRemoveItemResponse(Message msg) {
+        javafx.application.Platform.runLater(() -> {
+            if (msg.getType().equals("item removed successfully")) {
+                Alert success = new Alert(Alert.AlertType.INFORMATION,
+                        "Item removed successfully!");
+                success.setHeaderText("Success");
+                success.showAndWait();
+                
+                // Close the item view window and go back to catalog
+                try {
+                    App.setRoot("CatalogView");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (msg.getType().equals("item remove error")) {
+                Alert error = new Alert(Alert.AlertType.ERROR,
+                        "Failed to remove item: " + msg.getData());
+                error.setHeaderText("Error");
+                error.showAndWait();
+            }
+        });
     }
 
     public void onBackClicked(ActionEvent actionEvent) {

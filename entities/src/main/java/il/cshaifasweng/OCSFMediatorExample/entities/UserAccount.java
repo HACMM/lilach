@@ -133,6 +133,8 @@ public class UserAccount implements Serializable {
     @Column(name = "subscription_expiration_date")
     private LocalDate subscriptionExpirationDate;
 
+    @Column(name = "store_credit", nullable = false)
+    private double storeCredit = 0.0;  // Store credit balance for refunds
 
     @Enumerated(EnumType.STRING)
     @Column(name = "branch_type", nullable = false)
@@ -313,6 +315,10 @@ public class UserAccount implements Serializable {
         return this.subscriptionExpirationDate;
     }
 
+    public void setSubscriptionExpirationDate(LocalDate subscriptionExpirationDate) {
+        this.subscriptionExpirationDate = subscriptionExpirationDate;
+    }
+
     public UserBranchType getUserBranchType() {
         return this.userBranchType;
     }
@@ -323,5 +329,17 @@ public class UserAccount implements Serializable {
 
     public void setBranch(Branch branch) {
         this.branch = branch;
+    }
+
+    public double getStoreCredit() {
+        return storeCredit;
+    }
+
+    public void setStoreCredit(double storeCredit) {
+        this.storeCredit = storeCredit;
+    }
+
+    public void addStoreCredit(double amount) {
+        this.storeCredit += amount;
     }
 }
