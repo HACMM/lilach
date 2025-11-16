@@ -409,7 +409,11 @@ public class CartViewController {
                             : "Pickup")
             );
 
-            EmailSender.sendEmail(subject, body, currentUser.getEmail());
+            try {
+                EmailSender.sendEmail(subject, body, currentUser.getEmail());
+            } catch (Exception emailError) {
+                System.err.println("Checkout email failed: " + emailError.getMessage());
+            }
 
             // ---- UI & flow feedback (same as you had) ----
             showMessage("Your order has been placed successfully!", true);

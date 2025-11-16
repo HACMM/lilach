@@ -45,6 +45,13 @@ public class SimpleClient extends AbstractClient {
                 SignupResult signupResult = (SignupResult) msg;
                EventBus.getDefault().post(SignupResponseEvent.from(signupResult));
 
+            } else if (msg instanceof il.cshaifasweng.OCSFMediatorExample.entities.ComplaintsReportEvent) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof il.cshaifasweng.OCSFMediatorExample.entities.OrdersReportEvent) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof il.cshaifasweng.OCSFMediatorExample.entities.RevenueReportEvent) {
+                EventBus.getDefault().post(msg);
+
             } else if (msg instanceof Message && ((Message) msg).getType().equals("item added successfully")) {
                 Item item = (Item) ((Message) msg).getData();
                 long itemId = item.getId();

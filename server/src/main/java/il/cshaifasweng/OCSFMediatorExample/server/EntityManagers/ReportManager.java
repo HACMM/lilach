@@ -7,6 +7,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Complaint;
 import il.cshaifasweng.OCSFMediatorExample.entities.ComplaintEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.ComplaintStatus;
+import il.cshaifasweng.OCSFMediatorExample.entities.Order;
 import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 
@@ -78,6 +79,54 @@ public class ReportManager extends BaseManager {
             ));
         }
         return rows;
+    }
+
+    /** Return raw complaints list in range, optionally filtered by branch. */
+    public List<Complaint> complaintsInRange(Date from, Date to, ReportScope scope, Integer branchId) {
+        Objects.requireNonNull(from, "from is null");
+        Objects.requireNonNull(to, "to is null");
+        return read(s -> {
+            String hql = "select c from Complaint c left join fetch c.branch b " +
+                    "where c.createdAt between :f and :t";
+            if (scope == ReportScope.BRANCH && branchId != null) {
+                hql += " and b.id = :b";
+            }
+            var q = s.createQuery(hql, Complaint.class)
+                    .setParameter("f", toLocalDateTime(from))
+                    .setParameter("t", toLocalDateTime(to));
+            if (scope == ReportScope.BRANCH && branchId != null) {
+                q.setParameter("b", branchId);
+            }
+            List<Complaint> list = q.getResultList();
+            // initialize history lazily for potential client use
+            for (Complaint c : list) {
+                Hibernate.initialize(c.getComplaintHistory());
+            }
+            return list;
+        });
+    }
+
+    /** Orders (with lines and items) in range, optionally by branch - used for Orders and Revenue reports. */
+    public List<Order> ordersInRange(Date from, Date to, ReportScope scope, Integer branchId) {
+        Objects.requireNonNull(from, "from is null");
+        Objects.requireNonNull(to, "to is null");
+        return read(s -> {
+            String hql = "select distinct o from Order o " +
+                    "left join fetch o.orderLines ol " +
+                    "left join fetch ol.item it " +
+                    "left join fetch o.branch b " +
+                    "where o.createdAt between :f and :t";
+            if (scope == ReportScope.BRANCH && branchId != null) {
+                hql += " and b.id = :b";
+            }
+            var q = s.createQuery(hql, Order.class)
+                    .setParameter("f", toLocalDateTime(from))
+                    .setParameter("t", toLocalDateTime(to));
+            if (scope == ReportScope.BRANCH && branchId != null) {
+                q.setParameter("b", branchId);
+            }
+            return q.getResultList();
+        });
     }
 
     /* ================= helpers ================= */

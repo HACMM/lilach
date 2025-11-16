@@ -180,7 +180,14 @@ public class CatalogController implements Initializable {
 //		Platform.runLater(() -> table.getItems().setAll(items));
 //	}
 	@Subscribe
-	public void onCatalogReceived(List<Item> items) {
+	public void onCatalogReceived(List<?> list) {
+		// EventBus uses raw types for List, so verify the payload is actually a list of Item
+		if (list == null || list.isEmpty() || !(list.get(0) instanceof Item)) {
+			return; // ignore non-catalog lists (e.g., orders list)
+		}
+		@SuppressWarnings("unchecked")
+		List<Item> items = (List<Item>) list;
+
 		Platform.runLater(() -> {
 			masterData.setAll(items);
 

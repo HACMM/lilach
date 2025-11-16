@@ -28,6 +28,7 @@ public class SimpleServer extends AbstractServer {
     private ItemManager itemManager = null;
     private ComplaintManager complaintManager = null;
     private OrderManager orderManager = null;
+    private il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ReportManager reportManager = null;
 
     public SimpleServer(int port) {
         super(port);
@@ -35,6 +36,7 @@ public class SimpleServer extends AbstractServer {
         this.itemManager = new ItemManager(sessionFactory);
         this.complaintManager = new ComplaintManager(sessionFactory);
         this.orderManager = new OrderManager(sessionFactory);
+        this.reportManager = new il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ReportManager(sessionFactory);
     }
 
     private PublicUser toPublicUser(UserAccount u) {
@@ -1071,6 +1073,66 @@ public class SimpleServer extends AbstractServer {
                 try {
                     client.sendToClient(new Message("cancelOrderError", "Failed to cancel order: " + e.getMessage()));
                 } catch (IOException ignored) {}
+            }
+
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("getComplaintsReport")) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object> data = (List<Object>) ((Message) msg).getData();
+                Integer branchId = (Integer) data.get(0);
+                java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
+                java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
+
+                java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+
+                var list = reportManager.complaintsInRange(from, to,
+                        (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
+                        branchId);
+
+                client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.ComplaintsReportEvent(list));
+            } catch (Exception e) {
+                try { client.sendToClient(new Message("complaintsReportError", e.getMessage())); } catch (IOException ignored) {}
+            }
+
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("getOrdersReport")) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object> data = (List<Object>) ((Message) msg).getData();
+                Integer branchId = (Integer) data.get(0);
+                java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
+                java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
+
+                java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+
+                var orders = reportManager.ordersInRange(from, to,
+                        (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
+                        branchId);
+
+                client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.OrdersReportEvent(orders));
+            } catch (Exception e) {
+                try { client.sendToClient(new Message("ordersReportError", e.getMessage())); } catch (IOException ignored) {}
+            }
+
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("getRevenueReport")) {
+            try {
+                @SuppressWarnings("unchecked")
+                List<Object> data = (List<Object>) ((Message) msg).getData();
+                Integer branchId = (Integer) data.get(0);
+                java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
+                java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
+
+                java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+
+                var orders = reportManager.ordersInRange(from, to,
+                        (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
+                        branchId);
+
+                client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.RevenueReportEvent(orders));
+            } catch (Exception e) {
+                try { client.sendToClient(new Message("revenueReportError", e.getMessage())); } catch (IOException ignored) {}
             }
 
         } else if (msg instanceof Message && ((Message) msg).getType().equals("show branches")) {
