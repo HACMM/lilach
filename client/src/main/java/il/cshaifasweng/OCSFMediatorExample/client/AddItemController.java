@@ -57,32 +57,6 @@ public class AddItemController {
         }
     }
 
-    public static byte[] imageToByteArray(Image image) {
-        if (image == null) {
-            throw new IllegalArgumentException("Image cannot be null");
-        }
-
-        int width = (int) image.getWidth();
-        int height = (int) image.getHeight();
-        PixelReader pixelReader = image.getPixelReader();
-
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                int argb = pixelReader.getArgb(x, y);
-                bufferedImage.setRGB(x, y, argb);
-            }
-        }
-
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ImageIO.write(bufferedImage, "png", outputStream);
-            return outputStream.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 
     @FXML
     private void handleUploadImage(ActionEvent e) {
@@ -128,11 +102,18 @@ public class AddItemController {
                 return;
             }
 
-            byte[] imagebytes = null;
-            if (previewImage.getImage() != null) {
-                imagebytes = imageToByteArray(previewImage.getImage());
+            String imagePath = null;
+            if (selectedImageFile != null) {
+
+                File serverDir = new File("images");
+                if (!serverDir.exists()) serverDir.mkdirs();
+
+                File destination = new File(serverDir, selectedImageFile.getName());
+                Files.copy(selectedImageFile.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                imagePath = "/images/" + selectedImageFile.getName();
             }
-            Item newItem = new Item(name, type, description, price, imagebytes, color);
+            Item newItem = new Item(name, type, description, price, imagePath, color);
 
             // TODO: Make AddItemMessage
             client.sendToServer(new Message("AddItem",newItem));

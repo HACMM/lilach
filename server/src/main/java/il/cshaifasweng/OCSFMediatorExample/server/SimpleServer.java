@@ -847,7 +847,7 @@ public class SimpleServer extends AbstractServer {
             item.setPrice(in.getPrice());
             item.setColor(in.getColor());
             // new binary image field
-            item.setImageData(in.getImageData());
+            item.setImagePath(in.getImagePath());
             // optional flowerType if your entity has it
             try {
                 // reflect to avoid compile error if method doesn’t exist

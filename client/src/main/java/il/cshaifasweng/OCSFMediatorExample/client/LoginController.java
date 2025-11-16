@@ -90,8 +90,8 @@ public void onLoginResponse(LoginResponseEvent event) {
                         .post(new WarningEvent(new Warning("⚠ Could not load CatalogView.")));
             }
         } else {
-            EventBus.getDefault()
-                    .post(new WarningEvent(new Warning("⚠ Invalid username or password")));
+            warningLabel.setText("⚠ Invalid username or password");
+            warningLabel.setStyle("-fx-text-fill: red;");
         }
     });
 }

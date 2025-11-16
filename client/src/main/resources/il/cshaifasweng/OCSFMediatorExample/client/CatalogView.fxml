@@ -1,70 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CatalogController"
-            prefWidth="820" prefHeight="580"
-            style="-fx-background-image: url('/images/flower_background.png');
-                   -fx-background-repeat: no-repeat;
-                   -fx-background-size: cover;
-                   -fx-background-position: center;
-                   -fx-padding: 20;">
+<AnchorPane prefHeight="580" prefWidth="820" style="-fx-background-image: url('/images/flower_background.png');                    -fx-background-repeat: no-repeat;                    -fx-background-size: cover;                    -fx-background-position: center;                    -fx-padding: 20;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CatalogController">
 
     <children>
-        <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
-                    AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
-                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
-                    style="-fx-background-color: transparent;">
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" style="-fx-background-color: transparent;" vbarPolicy="AS_NEEDED" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         <!-- תיבת התוכן -->
-        <VBox spacing="18"
-              AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40"
-              AnchorPane.topAnchor="30" AnchorPane.bottomAnchor="30"
-              style="-fx-background-color: rgba(255,255,255,0.85);
-                     -fx-background-radius: 12;
-                     -fx-padding: 20;">
+        <VBox spacing="18" style="-fx-background-color: rgba(255,255,255,0.85);                      -fx-background-radius: 12;                      -fx-padding: 20;" AnchorPane.bottomAnchor="30" AnchorPane.leftAnchor="40" AnchorPane.rightAnchor="40" AnchorPane.topAnchor="30">
 
             <!-- 🔹 שורת עליונה -->
-            <HBox spacing="10" alignment="CENTER_LEFT">
+            <HBox alignment="CENTER_LEFT" spacing="10">
                 <!-- Back -->
-                <Button fx:id="backBtn" onAction="#onBackClicked"
-                        text="← Back"
-                        style="-fx-background-color: transparent;
-                               -fx-text-fill: #2c3e50;
-                               -fx-font-weight: bold;" />
+                <Button fx:id="backBtn" onAction="#onBackClicked" style="-fx-background-color: transparent;                                -fx-text-fill: #2c3e50;                                -fx-font-weight: bold;" text="← Back" />
 
                 <!-- חיפוש -->
-                <TextField fx:id="filterField"
-                           promptText="Search..."
-                           prefWidth="220"
-                           style="-fx-background-radius: 8;
-                                  -fx-border-radius: 8;
-                                  -fx-border-color: #ddd;
-                                  -fx-background-color: #fff;" />
-                <Button fx:id="searchByBtn" text="🔍 Search By"
-                        onAction="#onSearchByClicked"
-                        style="-fx-background-color: #e7b3d1;
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;
-                               -fx-padding: 4 16 4 16;" />
-                <Button text="Clear Filters"
-                        fx:id="clearFiltersBtn"
-                        onAction="#onClearFiltersClicked"
-                        style="-fx-background-color: #f5d6e0; -fx-text-fill: #a64f73; -fx-font-weight: bold; -fx-background-radius: 10;" />
+                <TextField fx:id="filterField" prefWidth="220" promptText="Search..." style="-fx-background-radius: 8;                                   -fx-border-radius: 8;                                   -fx-border-color: #ddd;                                   -fx-background-color: #fff;" />
+                <Button fx:id="searchByBtn" onAction="#onSearchByClicked" style="-fx-background-color: #e7b3d1;                                -fx-text-fill: white;                                -fx-font-weight: bold;                                -fx-background-radius: 20;                                -fx-padding: 4 16 4 16;" text="🔍 Search By" />
+                <Button fx:id="clearFiltersBtn" onAction="#onClearFiltersClicked" style="-fx-background-color: #f5d6e0; -fx-text-fill: #a64f73; -fx-font-weight: bold; -fx-background-radius: 10;" text="Clear Filters" />
 
 
-                <Region HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS" />
 
                 <!-- פרופיל -->
-                <Button fx:id="profileBtn"
-                        onAction="#onProfileClicked"
-                        style="-fx-background-color: transparent;
-                               -fx-cursor: hand;">
+                <Button fx:id="profileBtn" onAction="#onProfileClicked" style="-fx-background-color: transparent;                                -fx-cursor: hand;">
                     <graphic>
                         <ImageView fitHeight="28" fitWidth="28" preserveRatio="true">
                             <image>
@@ -74,10 +44,7 @@
                     </graphic>
                 </Button>
 
-                <Button fx:id="cartBtn"
-                        onAction="#onCartClicked"
-                        style="-fx-background-color: transparent;
-                   -fx-cursor: hand;">
+                <Button fx:id="cartBtn" onAction="#onCartClicked" style="-fx-background-color: transparent;                    -fx-cursor: hand;">
                     <graphic>
                         <ImageView fitHeight="28" fitWidth="28" preserveRatio="true">
                             <image>
@@ -91,37 +58,22 @@
             <Separator />
 
             <!-- 🔹 טבלה + כפתור Custom Design -->
-            <VBox spacing="12"
-                  style="-fx-background-color: rgba(255,255,255,0.9);
-                         -fx-background-radius: 8;
-                         -fx-border-radius: 8;
-                         -fx-border-color: #ddd;
-                         -fx-padding: 12;">
+            <VBox spacing="12" style="-fx-background-color: rgba(255,255,255,0.9);                          -fx-background-radius: 8;                          -fx-border-radius: 8;                          -fx-border-color: #ddd;                          -fx-padding: 12;">
 
-                <TableView fx:id="table"
-                           onMouseClicked="#onItemClicked"
-                           prefHeight="380"
-                           style="-fx-background-radius: 8;
-                                  -fx-border-radius: 8;">
+                <TableView fx:id="table" onMouseClicked="#onItemClicked" prefHeight="380" style="-fx-background-radius: 8;                                   -fx-border-radius: 8;">
                     <columns>
                         <TableColumn fx:id="nameCol" prefWidth="200" text="Name" />
                         <TableColumn fx:id="typeCol" prefWidth="150" text="Type" />
                         <TableColumn fx:id="priceCol" prefWidth="100" text="Price" />
                         <TableColumn fx:id="imageCol" prefWidth="180" text="Image" />
+                        <TableColumn fx:id="actionCol" prefWidth="200.0" text="Actions" />
+
                     </columns>
                 </TableView>
 
                 <!-- 🔸 כפתור Custom Design מתחת לטבלה -->
                 <HBox alignment="CENTER">
-                    <Button fx:id="customOrderBtn"
-                            text="Custom Design"
-                            onAction="#onCustomOrderClicked"
-                            style="-fx-background-color: #e7b3d1;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-background-radius: 20;
-                                   -fx-padding: 6 20 6 20;
-                                   -fx-cursor: hand;" />
+                    <Button fx:id="customOrderBtn" onAction="#onCustomOrderClicked" style="-fx-background-color: #e7b3d1;                                    -fx-text-fill: white;                                    -fx-font-weight: bold;                                    -fx-background-radius: 20;                                    -fx-padding: 6 20 6 20;                                    -fx-cursor: hand;" text="Custom Design" />
                 </HBox>
             </VBox>
 
@@ -129,14 +81,7 @@
 
             <!-- 🔹 כפתור Add Item -->
             <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-padding: 8;">
-                <Button fx:id="addItemBtn"
-                        text="+ Add Item"
-                        onAction="#onAddItemClicked"
-                        style="-fx-background-color: #e7b3d1;
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;
-                               -fx-padding: 6 18 6 18;" />
+                <Button fx:id="addItemBtn" onAction="#onAddItemClicked" style="-fx-background-color: #e7b3d1;                                -fx-text-fill: white;                                -fx-font-weight: bold;                                -fx-background-radius: 20;                                -fx-padding: 6 18 6 18;" text="+ Add Item" />
             </HBox>
 
         </VBox>

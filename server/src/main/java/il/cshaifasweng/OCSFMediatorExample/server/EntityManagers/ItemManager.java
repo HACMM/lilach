@@ -8,6 +8,9 @@ import org.hibernate.Transaction;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,23 +92,35 @@ public class ItemManager {
         return success;
     }
 
-    /** טוען תמונה מקובץ resources לתוך byte[] */
-    private byte[] loadImage(String path) {
-        try (InputStream is = getClass().getResourceAsStream(path)) {
-            if (is == null) return null;
-            return is.readAllBytes();
+
+
+    private byte[] loadImageBytesFromDisk(String relativePath) {
+        try {
+            Path path = Paths.get("." + relativePath);
+            return Files.readAllBytes(path);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
+
     /** יוצר אובייקט Item חדש עם נתונים ותמונה */
     private Item createItem(String name, String type, String description,
                             double price, String imagePath, String color, String flowerType) {
-        byte[] imageData = loadImage(imagePath);
-        return new Item(name, type, description, price, imageData, color);
+
+        Item item = new Item();
+        item.setName(name);
+        item.setType(type);
+        item.setDescription(description);
+        item.setPrice(price);
+        item.setImagePath(imagePath); // לשמור רק PATH
+        item.setColor(color);
+        item.setFlowerType(flowerType);
+
+        return item;
     }
+
 
     public boolean AddItem(Item item) {
         try (Session session = sessionFactory.openSession()) {
@@ -144,7 +159,7 @@ public class ItemManager {
                 i.setPrice(editedItem.getPrice());
                 i.setColor(editedItem.getColor());
                 i.setFlowerType(editedItem.getFlowerType());
-                i.setImageData(editedItem.getImageData());
+                i.setImagePath(editedItem.getImagePath());
                 session.update(i);
             }
             tx.commit();
@@ -210,6 +225,11 @@ public class ItemManager {
         List<Item> result = new ArrayList<>();
         try (Session session = sessionFactory.openSession()) {
             result = session.createQuery("FROM Item", Item.class).list();
+            for (Item item : result) {
+                if (item.getImagePath() != null) {
+                    item.setImageData(loadImageBytesFromDisk(item.getImagePath()));
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

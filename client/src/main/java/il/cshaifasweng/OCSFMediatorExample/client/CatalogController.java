@@ -21,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.control.TableView;
@@ -42,7 +43,9 @@ import java.util.stream.Collectors;
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class CatalogController implements Initializable {
-    @FXML
+	@FXML
+	private TableColumn<Item, Void> actionCol;
+	@FXML
     private TableView<Item> table;
     @FXML
     private TableColumn<Item, String> nameCol;
@@ -113,6 +116,8 @@ public class CatalogController implements Initializable {
 
 			return new SimpleObjectProperty<>(imageView);
 
+
+
 	});
 
 //		categoryFilter.setItems(FXCollections.observableArrayList("All", "Bouquet", "Single Flower", "Plant", "Accessory"));
@@ -135,7 +140,82 @@ public class CatalogController implements Initializable {
 		if (last != null) {
 			applySearchCriteria(last);
 		}
+
+		addButtonToTable();
+
 	}
+
+	private void addButtonToTable() {
+		actionCol.setCellFactory(col -> new TableCell<Item, Void>() {
+
+			private final Button addBtn = new Button();
+			private final Label msgLabel = new Label("");
+			private final HBox container = new HBox(6);
+
+			{
+				// טוענים אייקון של עגלה
+				ImageView icon = new ImageView(
+						new Image(Objects.requireNonNull(
+								getClass().getResourceAsStream("/images/AddToCart_icon.png")
+						))
+				);
+				icon.setFitWidth(33);
+				icon.setFitHeight(33);
+
+				addBtn.setGraphic(icon);
+				addBtn.setStyle(
+						"-fx-background-color: transparent;" +
+								"-fx-cursor: hand;" +
+								"-fx-padding: 4;"
+				);
+
+				// אפקט יפה בהובר
+				addBtn.setOnMouseEntered(e -> addBtn.setStyle(
+						"-fx-background-color: rgba(231,179,209,0.35);" +
+								"-fx-background-radius: 20;" +
+								"-fx-cursor: hand;"
+				));
+				addBtn.setOnMouseExited(e -> addBtn.setStyle(
+						"-fx-background-color: transparent;" +
+								"-fx-padding: 4;"
+				));
+
+				// הודעה קטנה ליד הכפתור
+				msgLabel.setStyle("-fx-text-fill: #a64f73; -fx-font-weight: bold;");
+				msgLabel.setVisible(false);
+
+				container.getChildren().addAll(addBtn, msgLabel);
+
+				addBtn.setOnAction(e -> {
+					Item item = getTableView().getItems().get(getIndex());
+					CartService.get().addOne(item);
+
+					msgLabel.setText("✓ Added!");
+					msgLabel.setVisible(true);
+
+					new Thread(() -> {
+						try {
+							Thread.sleep(1500);
+							Platform.runLater(() -> msgLabel.setVisible(false));
+						} catch (InterruptedException ignored) {}
+					}).start();
+				});
+			}
+
+			@Override
+			protected void updateItem(Void item, boolean empty) {
+				super.updateItem(item, empty);
+				if (empty) {
+					setGraphic(null);
+				} else {
+					setGraphic(container);
+				}
+			}
+		});
+	}
+
+
+
 
 	private void applySearchCriteria(SearchCriteria criteria) {
 		List<Item> filtered = masterData.stream()
@@ -377,6 +457,15 @@ public class CatalogController implements Initializable {
 			e.printStackTrace();
 		}
 	}
+
+	private void onAddToCart(Item item) {
+		System.out.println("Added to cart → " + item.getName());
+		CartService.get().addOne(item);
+
+		// כאן בסוף תוסיפי שליחה לשרת / עדכון בעגלת המשתמש
+		// client.sendToServer(new AddToCartRequest(item));
+	}
+
 
 	public void onClearFiltersClicked(ActionEvent actionEvent) {
 		// ננקה את הקריטריונים האחרונים

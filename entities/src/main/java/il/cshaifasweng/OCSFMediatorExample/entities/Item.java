@@ -20,7 +20,12 @@ public class Item implements Serializable {
     @Column(name = "price") private double price;
 
     @Lob
-    @Column(name = "image", columnDefinition = "MEDIUMBLOB") private byte[] imageData;
+    @Transient
+    private byte[] imageData; // נשלח ללקוח
+
+    @Column(name = "image_path")
+    private String imagePath;
+
     @Column(name = "color") private String color;
     @Column(name = "flower_type") private String flowerType;
 
@@ -37,12 +42,12 @@ public class Item implements Serializable {
     private Set<BranchInventory> branchInventory = new HashSet<>();
 
     public Item() {}
-    public Item(String name, String type, String description, double price, byte[] imageData, String color) {
+    public Item(String name, String type, String description, double price, String imagePath, String color) {
         this.name = name;
         this.type = type;
         this.description = description;
         this.price = price;
-        this.imageData = imageData;
+        this.imagePath = imagePath;
         this.color = color;
     }
     public int getId() { return id; }
@@ -59,6 +64,14 @@ public class Item implements Serializable {
     public void setColor(String color) { this.color = color; }
     public String getFlowerType() { return flowerType; }
     public void setFlowerType(String flowerType) { this.flowerType = flowerType; }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
 
     public byte[] getImageData() {
         return imageData;
