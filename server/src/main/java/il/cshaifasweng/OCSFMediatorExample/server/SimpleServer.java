@@ -497,6 +497,8 @@ public class SimpleServer extends AbstractServer {
 
                 if(ok){
                     client.sendToClient(LoginResult.ok(toPublicUser(user)));
+                    EmailSender.sendEmail("Test Email", "Hello from Lilach System!", "המייל_שלך@gmail.com");
+
                 } else {
                     client.sendToClient(LoginResult.notFound("Invalid username or password"));
                 }

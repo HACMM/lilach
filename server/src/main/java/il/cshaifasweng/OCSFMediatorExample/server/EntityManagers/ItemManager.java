@@ -94,15 +94,19 @@ public class ItemManager {
 
 
 
-    private byte[] loadImageBytesFromDisk(String relativePath) {
-        try {
-            Path path = Paths.get("." + relativePath);
-            return Files.readAllBytes(path);
-        } catch (IOException e) {
+    private byte[] loadImageFromResources(String path) {
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is == null) {
+                System.out.println("❌ Image NOT found in resources: " + path);
+                return null;
+            }
+            return is.readAllBytes();
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
 
 
     /** יוצר אובייקט Item חדש עם נתונים ותמונה */
@@ -226,8 +230,13 @@ public class ItemManager {
         try (Session session = sessionFactory.openSession()) {
             result = session.createQuery("FROM Item", Item.class).list();
             for (Item item : result) {
+                System.out.println("Item path = " + item.getImagePath());
+
                 if (item.getImagePath() != null) {
-                    item.setImageData(loadImageBytesFromDisk(item.getImagePath()));
+                    item.setImageData(loadImageFromResources(item.getImagePath()));
+                    System.out.println("Loaded image for: " + item.getName()
+                            + " | path=" + item.getImagePath()
+                            + " | bytes=" + (item.getImageData() == null ? "NULL" : item.getImageData().length));
                 }
             }
         } catch (Exception e) {
