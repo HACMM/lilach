@@ -113,6 +113,9 @@ public class PersonalDetailsController {
                 client.sendToServer(new UpdatePaymentMethodRequest(
                         currentUser.getUserId(), newPayment
                 ));
+                // update the in-memory user so UI will use the new card from now on
+                currentUser.setDefaultPaymentMethod(newPayment);
+                AppSession.setCurrentUser(currentUser);
                 statusLabel.setText("💳 Payment method update requested.");
             }
         } catch (Exception e) {
@@ -283,8 +286,6 @@ public class PersonalDetailsController {
         javafx.application.Platform.runLater(() -> {
             if (msg.getType().equals("updatePaymentMethodOk")) {
                 statusLabel.setText("✅ Payment method updated successfully!");
-                // Note: Payment method will be updated in user's account, but won't reflect in current session
-                // until next login. For now, we just show success message.
             } else if (msg.getType().equals("updatePaymentMethodError")) {
                 statusLabel.setText("❌ Failed to update payment method: " + msg.getData());
             }
