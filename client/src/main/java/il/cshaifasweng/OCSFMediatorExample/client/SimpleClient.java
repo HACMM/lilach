@@ -101,8 +101,21 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("cancelOrderError")) {
                 EventBus.getDefault().post(msg);
-            }
-            else if (msg instanceof List<?>) {
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("customersList")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("employeesList")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("addEmployeeOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("addEmployeeError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("removeEmployeeOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("removeCustomerOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("removeCustomerError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
                 if (!list.isEmpty()) {
                     if (list.get(0) instanceof Item) {

@@ -50,6 +50,7 @@ public class AddEmployeeController {
     /** שמירה של עובד חדש */
     @FXML
     private void onSaveClicked() {
+
         String name = nameField.getText().trim();
         String email = emailField.getText().trim();
         String username = usernameField.getText().trim();

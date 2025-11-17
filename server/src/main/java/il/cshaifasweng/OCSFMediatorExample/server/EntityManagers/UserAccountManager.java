@@ -5,6 +5,7 @@ import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
+import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import Request.SignupRequest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -12,6 +13,7 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserAccountManager extends BaseManager {
 
@@ -104,8 +106,58 @@ public class UserAccountManager extends BaseManager {
     }
 
     public UserAccount create(UserAccount ua) {
-        return write(s -> { s.persist(ua); s.flush(); return ua; });
+        return write(s -> {
+
+            // Reattach Branch if present (avoid detached entity error)
+            if (ua.getBranch() != null) {
+                int branchId = ua.getBranch().getId();
+                Branch managedBranch = s.get(Branch.class, branchId);
+                ua.setBranch(managedBranch);
+            }
+
+            s.persist(ua);
+            s.flush();
+            return ua;
+        });
     }
+
+    public void deleteById(int userId) {
+        write(session -> {
+            UserAccount user = session.get(UserAccount.class, userId);
+            if (user == null) {
+                System.out.println("User with ID " + userId + " not found, nothing to delete");
+                return null;
+            }
+
+            // check if this user has any orders
+            Long ordersCount = session.createQuery(
+                            "select count(o) from Order o where o.userAccount.userId = :uid",
+                            Long.class
+                    )
+                    .setParameter("uid", userId)
+                    .uniqueResult();
+
+            if (ordersCount != null && ordersCount > 0) {
+                // don’t even try to delete
+                throw new IllegalStateException(
+                        "Cannot delete customer: they have " + ordersCount + " order(s)."
+                );
+            }
+
+            System.out.println("Deleting user with ID " + userId + " (" + user.getLogin() + ")");
+            session.delete(user);
+            return null;
+        });
+    }
+
+
+
+    public void delete(UserAccount ua) {
+        if (ua == null) return;
+        deleteById(ua.getUserId());
+    }
+
+
 
     public UserAccount update(UserAccount ua) {
         return write(s -> (UserAccount) s.merge(ua));
@@ -185,4 +237,25 @@ public class UserAccountManager extends BaseManager {
             return user;
         });
     }
+
+
+    public List<UserAccount> listCustomers() {
+        return read(s -> s.createQuery(
+                "select u from UserAccount u where u.role = :role",
+                UserAccount.class
+        ).setParameter("role", Role.CUSTOMER).getResultList());
+    }
+
+    public List<UserAccount> listEmployees() {
+        return read(s -> s.createQuery(
+                        "select u from UserAccount u " +
+                                "where u.role = :r1 or u.role = :r2 or u.role = :r3",
+                        UserAccount.class
+                )
+                .setParameter("r1", Role.EMPLOYEE)
+                .setParameter("r2", Role.MANAGER)
+                .setParameter("r3", Role.NETWORK_MANAGER)
+                .getResultList());
+    }
+
 }

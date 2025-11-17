@@ -96,12 +96,20 @@ public class EmployeeManagementController {
 
     /** מאזין לאירוע שמחזיר את רשימת העובדים */
     @Subscribe
-    public void onEmployeesListReceived(List<UserAccount> list) {
-        javafx.application.Platform.runLater(() -> {
-            employees.setAll(list);
-            employeeTable.refresh();
-        });
+    public void onEmployeesListReceived(Message msg) {
+        if ("employeesList".equals(msg.getType())) {
+            @SuppressWarnings("unchecked")
+            List<UserAccount> list = (List<UserAccount>) msg.getData();
+
+            javafx.application.Platform.runLater(() -> {
+                System.out.println("EmployeeManagementController: got " + list.size() + " employees");
+                employees.setAll(list);
+                employeeTable.refresh();
+            });
+        }
     }
+
+
 
 
 }

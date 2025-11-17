@@ -65,12 +65,20 @@ public class CustomerManagementController {
 
     /** מאזין לרשימת לקוחות */
     @Subscribe
-    public void onCustomersReceived(List<UserAccount> list) {
-        Platform.runLater(() -> {
-            customers.setAll(list);
-            customerTable.refresh();
-        });
+    public void onCustomersReceived(Message msg) {
+        if ("customersList".equals(msg.getType())) {
+            @SuppressWarnings("unchecked")
+            List<UserAccount> list = (List<UserAccount>) msg.getData();
+
+            Platform.runLater(() -> {
+                System.out.println("CustomerManagementController: got " + list.size() + " customers");
+                customers.setAll(list);
+                customerTable.refresh();
+            });
+        }
     }
+
+
 
     @FXML
     private void onChangeDetailsClicked() {
@@ -114,6 +122,17 @@ public class CustomerManagementController {
             e.printStackTrace();
         }
     }
+
+    @Subscribe
+    public void onRemoveCustomerError(Message msg) {
+        if ("removeCustomerError".equals(msg.getType())) {
+            String error = (String) msg.getData();
+            Platform.runLater(() -> {
+                new Alert(Alert.AlertType.ERROR, error).showAndWait();
+            });
+        }
+    }
+
 
     /** רענון ידני */
     @FXML

@@ -277,9 +277,76 @@ public class SimpleServer extends AbstractServer {
                 client.sendToClient(complaints);
             } catch (Exception e) {
                 e.printStackTrace();
-                try { client.sendToClient(new Message("getComplaintsError", "Failed to fetch complaints")); }
-                catch (IOException ignored) {}
+                try {
+                    client.sendToClient(new Message("getComplaintsError", "Failed to fetch complaints"));
+                } catch (IOException ignored) {
+                }
             }
+
+        } else if ("getCustomers".equals(msgString)) {
+            try {
+                System.out.println("Received getCustomers request");
+                List<UserAccount> customers = userAccountManager.listCustomers();
+                System.out.println("Sending " + customers.size() + " customers to client");
+                client.sendToClient(new Message("customersList", customers));
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("getCustomersError",
+                            "Failed to fetch customers: " + e.getMessage()));
+                } catch (IOException ignored) {}
+            }
+
+        } else if (msg instanceof Message && "removeCustomer".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+            Integer userId = (Integer) m.getData();
+
+            try {
+                System.out.println("Received removeCustomer request for userId=" + userId);
+
+                // delete from DB
+                userAccountManager.deleteById(userId);
+
+                // send updated customer list back
+                List<UserAccount> customers = userAccountManager.listCustomers();
+                client.sendToClient(new Message("customersList", customers));
+
+                client.sendToClient(new Message("removeCustomerOk", "Customer removed successfully"));
+            } catch (IllegalStateException ise) {
+                // our own "has orders" exception
+                System.err.println("Cannot delete customer " + userId + ": " + ise.getMessage());
+                try {
+                    client.sendToClient(new Message(
+                            "removeCustomerError",
+                            ise.getMessage()
+                    ));
+                } catch (IOException ignored) {}
+
+            } catch (Exception e) {
+                System.err.println("ERROR in removeCustomer handler: " + e.getMessage());
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "removeCustomerError",
+                            "Failed to remove customer: " + e.getMessage()
+                    ));
+                } catch (IOException ignored) {}
+            }
+
+        } else if ("getAllEmployees".equals(msgString)) {
+            try {
+                System.out.println("Received getAllEmployees request");
+                List<UserAccount> employees = userAccountManager.listEmployees();
+                System.out.println("Sending " + employees.size() + " employees to client");
+                client.sendToClient(new Message("employeesList", employees));
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("getAllEmployeesError",
+                            "Failed to fetch employees: " + e.getMessage()));
+                } catch (IOException ignored) {}
+            }
+
 
         } else if (msgString != null && msgString.startsWith("getOrdersForUser:")) {
             try {
@@ -518,6 +585,69 @@ public class SimpleServer extends AbstractServer {
                 } catch (IOException ignored) {}
             }
 
+
+        } else if (msg instanceof Message && "addEmployee".equals(((Message) msg).getType())) {
+            Message message = (Message) msg;
+            UserAccount newEmployee = (UserAccount) message.getData();
+
+            System.out.println("Received addEmployee request for username=" + newEmployee.getLogin());
+
+            try {
+
+                UserAccount saved = userAccountManager.create(newEmployee);
+                System.out.println("Employee saved with ID: " + saved.getUserId());
+
+                // send success back to client
+                try {
+                    client.sendToClient(new Message("addEmployeeOk", saved));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                // optional: refresh employees list for that client
+                try {
+                    List<UserAccount> employees = userAccountManager.listEmployees();
+                    client.sendToClient(new Message("employeesList", employees));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } catch (Exception e) {
+                System.err.println("ERROR in addEmployee handler: " + e.getMessage());
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("addEmployeeError", e.getMessage()));
+                } catch (IOException ignored) {
+                }
+            }
+
+        } else if (msg instanceof Message && "removeEmployee".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+            Integer userId = (Integer) m.getData();
+
+            try {
+                System.out.println("Received removeEmployee request for userId=" + userId);
+
+                // delete in DB
+                userAccountManager.deleteById(userId);
+
+                // send updated list back to client (EmployeeManagementController already listens to "employeesList")
+                List<UserAccount> employees = userAccountManager.listEmployees();
+                client.sendToClient(new Message("employeesList", employees));
+
+                 client.sendToClient(new Message("removeEmployeeOk", "Employee removed successfully"));
+
+            } catch (Exception e) {
+                System.err.println("ERROR in removeEmployee handler: " + e.getMessage());
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "removeEmployeeError",
+                            "Failed to remove employee: " + e.getMessage()
+                    ));
+                } catch (IOException ignored) {
+                }
+            }
 
         } else if (msg instanceof Message && ((Message) msg).getType().equals("AddItem")) {
             Message message = (Message) msg;
