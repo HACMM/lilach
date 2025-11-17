@@ -47,7 +47,7 @@ public class UserAccountManager extends BaseManager {
                         null,
                         UserBranchType.ALL_BRANCHES
                 );
-                manager.setRole(Role.MANAGER);
+                manager.setRole(Role.NETWORK_MANAGER);
                 manager.setIdNumber("123456789");
                 session.persist(manager);
                 System.out.println("✅ Default manager created: " + manager.getEmail());

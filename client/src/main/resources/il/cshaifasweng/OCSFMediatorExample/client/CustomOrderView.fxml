@@ -73,7 +73,6 @@
         <!-- 🔹 כפתורים -->
         <HBox alignment="CENTER" spacing="16">
             <Button onAction="#onSubmitClicked" style="-fx-background-color: #e7b3d1;                            -fx-text-fill: white;                            -fx-font-weight: bold;                            -fx-background-radius: 20;                            -fx-padding: 8 25 8 25;                            -fx-cursor: hand;" text="Submit Request" />
-            <Button onAction="#onCancelClicked" style="-fx-background-color: #cccccc;                            -fx-text-fill: #333;                            -fx-font-weight: bold;                            -fx-background-radius: 20;                            -fx-padding: 8 25 8 25;                            -fx-cursor: hand;" text="Cancel" />
         </HBox>
 
         <!-- 🔹 הודעת מערכת -->
