@@ -144,6 +144,19 @@
                                -fx-padding: 8 20 8 20;
                                -fx-cursor: hand;
                                -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
+
+                <Button fx:id="LogoutBtn" text="Log Out" onAction="#onLogoutClicked"
+                        prefWidth="160"
+                        visible="false" managed="false"
+                        style="-fx-background-color: linear-gradient(to bottom, #ffffff, #f3c3dd);
+               -fx-text-fill: #4a004e;
+               -fx-font-weight: bold;
+               -fx-font-size: 14;
+               -fx-background-radius: 30;
+               -fx-padding: 8 20 8 20;
+               -fx-cursor: hand;
+               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
+
             </VBox>
         </VBox>
     </children>

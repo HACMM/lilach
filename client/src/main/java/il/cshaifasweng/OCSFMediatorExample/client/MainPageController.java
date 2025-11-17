@@ -17,6 +17,7 @@ import java.io.IOException;
 public class MainPageController {
 
     @FXML private Button LogInBtn;
+    @FXML private Button LogoutBtn;
     @FXML private Button reportsBtn;
     @FXML private Button manageEmployeesBtn;
     @FXML private Button newsletterBtn;
@@ -33,8 +34,24 @@ public class MainPageController {
             reportsBtn.setVisible(false);
         }
 
-        if (user != null) {
+        if (user == null) {
+            // not logged in
+            LogInBtn.setVisible(true);
+            LogInBtn.setManaged(true);
+
+            if (LogoutBtn != null) {
+                LogoutBtn.setVisible(false);
+                LogoutBtn.setManaged(false);
+            }
+        } else {
+            // logged in
             LogInBtn.setVisible(false);
+            LogInBtn.setManaged(false);
+
+            if (LogoutBtn != null) {
+                LogoutBtn.setVisible(true);
+                LogoutBtn.setManaged(true);
+            }
         }
     }
 
@@ -44,6 +61,21 @@ public class MainPageController {
     }
 
     @FXML
+    private void onLogoutClicked(ActionEvent event) {
+        // Clear session
+        AppSession.clear();
+
+        // go back to Login screen
+        try {
+            App.setRoot("Login");
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Failed to load Login view.").showAndWait();
+        }
+    }
+
+
+    @FXML
     private void onBrowseClicked(ActionEvent event) {
         switchTo("CatalogView");
     }
@@ -51,6 +83,10 @@ public class MainPageController {
     @FXML
     private void onOrdersClicked(ActionEvent event) {
         PublicUser user = AppSession.getCurrentUser();
+        if (user == null) {
+            new Alert(Alert.AlertType.ERROR, "Please log in first.").showAndWait();
+            return;
+        }
         if (user.getRole() == Role.CUSTOMER) {
             switchTo("MyOrdersView");
         } else {
