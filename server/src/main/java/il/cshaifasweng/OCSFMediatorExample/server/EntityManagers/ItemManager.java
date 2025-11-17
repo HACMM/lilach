@@ -195,15 +195,43 @@ public class ItemManager extends BaseManager {
         return read(session -> {
             List<Item> result = session.createQuery("FROM Item", Item.class).list();
             for (Item item : result) {
-                System.out.println("Item path = " + item.getImagePath());
-                if (item.getImagePath() != null) {
-                    item.setImageData(loadImageFromResources(item.getImagePath()));
+                String imagePath = item.getImagePath();
+                System.out.println("Item path = " + imagePath);
+                
+                if (imagePath != null && !imagePath.trim().isEmpty()) {
+                    // Try to load from the specified path
+                    byte[] imageData = loadImageFromResources(imagePath);
+                    item.setImageData(imageData);
                     System.out.println("Loaded image for: " + item.getName()
-                            + " | path=" + item.getImagePath()
-                            + " | bytes=" + (item.getImageData() == null ? "NULL" : item.getImageData().length));
+                            + " | path=" + imagePath
+                            + " | bytes=" + (imageData == null ? "NULL" : imageData.length));
+                } else {
+                    // If no path, try to load a default image based on item name/type
+                    String defaultPath = getDefaultImagePath(item);
+                    if (defaultPath != null) {
+                        byte[] imageData = loadImageFromResources(defaultPath);
+                        item.setImageData(imageData);
+                        System.out.println("Loaded default image for: " + item.getName() + " (path was null, using: " + defaultPath + ")");
+                    } else {
+                        // Try to load a generic no-image placeholder
+                        byte[] imageData = loadImageFromResources("/images/no_image.jpg");
+                        item.setImageData(imageData);
+                    }
                 }
             }
             return result;
         });
+    }
+    
+    private String getDefaultImagePath(Item item) {
+        // Try to infer image path from item name
+        String name = item.getName().toLowerCase();
+        if (name.contains("magnolia")) return "/images/magnolia.jpg";
+        if (name.contains("sunflower")) return "/images/sunflower.jpg";
+        if (name.contains("rose")) return "/images/rose.jpg";
+        if (name.contains("daisy")) return "/images/daisy.jpg";
+        if (name.contains("poppy")) return "/images/poppy.jpg";
+        // Default fallback
+        return "/images/no_image.jpg";
     }
 }

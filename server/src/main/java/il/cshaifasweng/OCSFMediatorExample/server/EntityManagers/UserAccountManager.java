@@ -26,7 +26,24 @@ public class UserAccountManager extends BaseManager {
                     UserAccount.class
             );
             q.setParameter("u", login);
-            return q.uniqueResult();
+            List<UserAccount> results = q.getResultList();
+            
+            if (results.isEmpty()) {
+                return null;
+            }
+            
+            // If multiple users with same login, prefer active ones
+            for (UserAccount user : results) {
+                if (user.isIs_active()) {
+                    return user;
+                }
+            }
+            
+            // If no active user found, return the first one (shouldn't happen, but handle gracefully)
+            if (results.size() > 1) {
+                System.err.println("WARNING: Found " + results.size() + " users with login '" + login + "'. Using first one.");
+            }
+            return results.get(0);
         });
     }
 
