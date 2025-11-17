@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NewOrderRequest implements Serializable {
+
     public static class Line implements Serializable {
         public long itemId;
+        public Integer branchId;
         public int qty;
         public double unitPrice;
         public Line() {}
@@ -21,8 +23,7 @@ public class NewOrderRequest implements Serializable {
 
     // who is ordering
     public int userId;                  // from PublicUser.getUserId()
-    public Integer branchId;            // optional – null if N/A
-
+    public Integer branchId;
     // fulfillment
     public String deliveryType;         // "Pickup" | "Delivery"
     public LocalDateTime deliveryDateTime;

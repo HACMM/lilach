@@ -24,6 +24,7 @@ public class OrderDetailController {
     @FXML private Label orderIdLabel;
     @FXML private Label dateLabel;
     @FXML private Label statusLabel;
+    @FXML private Label branchLabel;
     @FXML private TableView<OrderLine> itemsTable;
     @FXML private TableColumn<OrderLine, String> itemNameCol;
     @FXML private TableColumn<OrderLine, Integer> itemQtyCol;
@@ -48,6 +49,10 @@ public class OrderDetailController {
         orderIdLabel.setText(order.orderId);
         dateLabel.setText(order.date);
         statusLabel.setText(order.status);
+
+        if (branchLabel != null) {
+            branchLabel.setText(order.branchName != null ? order.branchName : "-");
+        }
 
         // Show/hide cancel button based on order status
         if (cancelOrderBtn != null) {
@@ -77,6 +82,8 @@ public class OrderDetailController {
 
         totalLabel.setText(String.format("$%.2f", computedTotal));
     }
+
+
 
     @FXML
     private void onClose(ActionEvent event) {

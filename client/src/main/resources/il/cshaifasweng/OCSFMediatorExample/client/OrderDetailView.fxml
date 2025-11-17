@@ -62,6 +62,12 @@
                            style="-fx-font-weight: bold; -fx-text-fill: #5c3a4b;"/>
                     <Label fx:id="statusLabel" style="-fx-text-fill: #5c3a4b;"/>
                 </VBox>
+
+                <VBox spacing="4" alignment="CENTER_LEFT">
+                    <Label text="Branch:"
+                           style="-fx-font-weight: bold; -fx-text-fill: #5c3a4b;"/>
+                    <Label fx:id="branchLabel" style="-fx-text-fill: #5c3a4b;"/>
+                </VBox>
             </HBox>
 
             <!-- 🔹 טבלת פריטים -->

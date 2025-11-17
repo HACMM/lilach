@@ -90,9 +90,12 @@ public class MyOrdersController {
                 double total = o.getTotalPrice();
                 String status = o.getStatus() != null ? o.getStatus() : "Pending";
                 String date = o.getCreatedAt() != null ? o.getCreatedAt().toString() : "Unknown";
+                String branchName = (o.getBranch() != null && o.getBranch().getName() != null)
+                        ? o.getBranch().getName()
+                        : "—";
 
                 masterData.add(new OrderRow(
-                        String.valueOf(o.getId()), date, itemCount, total, status, o.getOrderLines()
+                        String.valueOf(o.getId()), date, itemCount, total, status, branchName,o.getOrderLines()
                 ));
             }
             ordersTable.refresh();
@@ -180,14 +183,16 @@ public class MyOrdersController {
         public final int itemsCount;
         public final double total;
         public final String status;
+        public final String branchName;
         public final List<OrderLine> items;
 
-        public OrderRow(String orderId, String date, int itemsCount, double total, String status, List<OrderLine> items) {
+        public OrderRow(String orderId, String date, int itemsCount, double total, String status, String branchName, List<OrderLine> items) {
             this.orderId = orderId;
             this.date = date;
             this.itemsCount = itemsCount;
             this.total = total;
             this.status = status;
+            this.branchName = branchName;
             this.items = items;
         }
     }
