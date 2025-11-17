@@ -1,12 +1,17 @@
 package il.cshaifasweng.OCSFMediatorExample.server.EntityManagers;
 
+import Request.SignupResult;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
+import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
+import Request.SignupRequest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
+import java.time.LocalDate;
 
 public class UserAccountManager extends BaseManager {
 
@@ -24,16 +29,14 @@ public class UserAccountManager extends BaseManager {
     }
 
     public void addDefaultManager() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
-
-            // בדיקה אם יש כבר מנהלת
+        write(session -> {
             Long count = session.createQuery(
-                            "select count(u) from UserAccount u where u.role = :role", Long.class)
-                    .setParameter("role", Role.NETWORK_MANAGER)
+                            "select count(u) from UserAccount u where u.login = :login",
+                            Long.class)
+                    .setParameter("login", "manager")
                     .uniqueResult();
 
-            if (count == 0) {
+            if (count == null || count == 0) {
                 UserAccount manager = new UserAccount(
                         "manager",
                         "1234",
@@ -45,14 +48,56 @@ public class UserAccountManager extends BaseManager {
                 manager.setRole(Role.MANAGER);
                 manager.setIdNumber("123456789");
                 session.persist(manager);
-                tx.commit();
                 System.out.println("✅ Default manager created: " + manager.getEmail());
+            } else {
+                System.out.println("✅ Default manager already exists, skipping creation");
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            return null; // required because write() returns T
+        });
     }
+
+
+    public SignupResult signup(SignupRequest req) {
+        return write(session -> {
+            // 1) Check if username is already taken
+            Long cnt = session.createQuery(
+                            "select count(u) from UserAccount u where u.login = :login",
+                            Long.class
+                    )
+                    .setParameter("login", req.getUsername())
+                    .uniqueResult();
+
+            if (cnt != null && cnt > 0) {
+                // someone already uses this login
+                return SignupResult.usernameTaken();
+            }
+
+            // 2) Create and save the user
+            UserAccount ua = new UserAccount(
+                    req.getUsername(),
+                    req.getPassword(),
+                    req.getName(),
+                    req.getEmail(),
+                    req.getPayment(),     // PaymentMethod
+                    req.getBranchType()   // UserBranchType
+            );
+
+            if (req.getIdNumber() != null && !req.getIdNumber().isEmpty()) {
+                ua.setIdNumber(req.getIdNumber());
+            }
+
+            session.save(ua);  // or session.persist(ua);
+            System.out.println(
+                    "User created: " + ua.getLogin() +
+                            " with payment method: " +
+                            (ua.getDefaultPaymentMethod() != null ? "saved" : "none")
+            );
+
+            return SignupResult.ok();
+        });
+    }
+
 
     public UserAccount findByUsername(String username) {
         return findByLogin(username);
@@ -64,5 +109,80 @@ public class UserAccountManager extends BaseManager {
 
     public UserAccount update(UserAccount ua) {
         return write(s -> (UserAccount) s.merge(ua));
+    }
+
+    public UserAccount updateDetails(int userId, String name, String email, String idNumber) {
+        return write(session -> {
+            UserAccount user = session.get(UserAccount.class, userId);
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            user.setName(name);
+            user.setEmail(email);
+            user.setIdNumber(idNumber);
+
+            session.merge(user); // make sure changes are saved
+            System.out.println("User details updated successfully for user: " + user.getLogin());
+            return user;
+        });
+    }
+
+    public UserAccount purchaseSubscription(int userId, PaymentMethod paymentMethod) {
+        return write(session -> {
+            UserAccount user = session.get(UserAccount.class, userId);
+            if (user == null) {
+                throw new RuntimeException("User with ID " + userId + " not found");
+            }
+
+            // Save payment method
+            user.setDefaultPaymentMethod(paymentMethod);
+
+            // Activate subscription (sets subscriptionUser=true and expiration date)
+            user.activateSubscription();
+
+            session.update(user);
+            session.flush();
+            return user;
+        });
+    }
+
+    public UserAccount renewSubscription(int userId) {
+        return write(session -> {
+            UserAccount user = session.get(UserAccount.class, userId);
+            if (user == null) {
+                throw new RuntimeException("User with ID " + userId + " not found");
+            }
+
+
+            if (user.getSubscriptionExpirationDate() != null &&
+                    user.getSubscriptionExpirationDate().isAfter(LocalDate.now())) {
+                // Extend from current expiration date
+                user.setSubscriptionExpirationDate(user.getSubscriptionExpirationDate().plusYears(1));
+            } else {
+                // Start new subscription from today
+                user.activateSubscription();
+            }
+
+            session.update(user);
+            session.flush();
+            return user;
+        });
+    }
+
+
+    public UserAccount updatePaymentMethod(int userId, PaymentMethod paymentMethod) {
+        return write(session -> {
+            UserAccount user = session.get(UserAccount.class, userId);
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            user.setDefaultPaymentMethod(paymentMethod);
+            session.merge(user);
+
+            System.out.println("Payment method updated successfully for user: " + user.getLogin());
+            return user;
+        });
     }
 }

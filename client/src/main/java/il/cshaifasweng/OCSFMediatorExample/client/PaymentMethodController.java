@@ -84,38 +84,49 @@ public class PaymentMethodController {
     private void onSave() {
         errorLabel.setText("");
 
+        String num = cardNumberField.getText().trim();
+        String holder = cardHolderField.getText().trim();
+        String expiry = expiryDateField.getText().trim();
+        String cvv = cvvField.getText().trim();
 
+        boolean hasTypedCard =
+                !num.isEmpty() || !holder.isEmpty() || !expiry.isEmpty() || !cvv.isEmpty();
+
+        // 1) If user typed a new card → use it
+        if (hasTypedCard) {
+            if (num.isEmpty() || holder.isEmpty() || expiry.isEmpty() || cvv.isEmpty()) {
+                errorLabel.setText("Please fill all fields.");
+                return;
+            }
+            if (!num.matches("\\d{16}")) {
+                errorLabel.setText("Card number must be 16 digits.");
+                return;
+            }
+            if (!cvv.matches("\\d{3}")) {
+                errorLabel.setText("CVV must be 3 digits.");
+                return;
+            }
+            if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+                errorLabel.setText("Expiry date must be in MM/YY format.");
+                return;
+            }
+
+            paymentMethod = new PaymentMethod(num, holder, expiry, cvv);
+            close();
+            return;
+        }
+
+        // 2) No new card typed → use selected saved card (if any)
         if (savedCardsCombo.getValue() != null) {
             paymentMethod = savedCardsCombo.getValue();
             close();
             return;
         }
 
-        String num = cardNumberField.getText().trim();
-        String holder = cardHolderField.getText().trim();
-        String expiry = expiryDateField.getText().trim();
-        String cvv = cvvField.getText().trim();
-
-        if (num.isEmpty() || holder.isEmpty() || expiry.isEmpty() || cvv.isEmpty()) {
-            errorLabel.setText("Please fill all fields.");
-            return;
-        }
-        if (!num.matches("\\d{16}")) {
-            errorLabel.setText("Card number must be 16 digits.");
-            return;
-        }
-        if (!cvv.matches("\\d{3}")) {
-            errorLabel.setText("CVV must be 3 digits.");
-            return;
-        }
-        if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
-            errorLabel.setText("Expiry date must be in MM/YY format.");
-            return;
-        }
-
-        paymentMethod = new PaymentMethod(num, holder, expiry, cvv);
-        close();
+        // 3) Nothing typed & nothing selected
+        errorLabel.setText("Please select an existing card or enter a new one.");
     }
+
 
 
     @FXML

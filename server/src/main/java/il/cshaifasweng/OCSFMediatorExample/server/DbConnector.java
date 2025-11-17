@@ -39,16 +39,6 @@ public class DbConnector implements AutoCloseable {
 
             Metadata metadata = sources.buildMetadata();
 
-//            // 🔎 Diagnostic: list bound entities + their properties
-//            for (PersistentClass pc : metadata.getEntityBindings()) {
-//                System.out.println(">> Entity: " + pc.getClassName() +
-//                        " -> table=" + (pc.getTable() != null ? pc.getTable().getName() : "<null>"));
-//                for (Iterator<Property> it = pc.getPropertyIterator(); it.hasNext();) {
-//                    Property p = it.next();
-//                    System.out.println("   - prop: " + p.getName());
-//                }
-//            }
-
             sessionFactory = metadata.buildSessionFactory();
 
             new ItemManager(sessionFactory).AddTestItems();

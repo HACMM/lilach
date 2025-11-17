@@ -14,13 +14,42 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ItemManager {
-
-    private final SessionFactory sessionFactory;
+public class ItemManager extends BaseManager {
 
     public ItemManager(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+        super(sessionFactory);
     }
+
+    // ---------- helpers ----------
+
+    private byte[] loadImageFromResources(String path) {
+        try (InputStream is = getClass().getResourceAsStream(path)) {
+            if (is == null) {
+                System.out.println("❌ Image NOT found in resources: " + path);
+                return null;
+            }
+            return is.readAllBytes();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private Item createItem(String name, String type, String description,
+                            double price, String imagePath, String color, String flowerType) {
+
+        Item item = new Item();
+        item.setName(name);
+        item.setType(type);
+        item.setDescription(description);
+        item.setPrice(price);
+        item.setImagePath(imagePath);
+        item.setColor(color);
+        item.setFlowerType(flowerType);
+        return item;
+    }
+
+    // ---------- public API ----------
 
     public boolean AddTestItems() {
         List<Item> catalog = GetItemList(new ArrayList<>());
@@ -92,69 +121,24 @@ public class ItemManager {
         return success;
     }
 
-
-
-    private byte[] loadImageFromResources(String path) {
-        try (InputStream is = getClass().getResourceAsStream(path)) {
-            if (is == null) {
-                System.out.println("❌ Image NOT found in resources: " + path);
-                return null;
-            }
-            return is.readAllBytes();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-
-    /** יוצר אובייקט Item חדש עם נתונים ותמונה */
-    private Item createItem(String name, String type, String description,
-                            double price, String imagePath, String color, String flowerType) {
-
-        Item item = new Item();
-        item.setName(name);
-        item.setType(type);
-        item.setDescription(description);
-        item.setPrice(price);
-        item.setImagePath(imagePath); // לשמור רק PATH
-        item.setColor(color);
-        item.setFlowerType(flowerType);
-
-        return item;
-    }
-
-
     public boolean AddItem(Item item) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        return write(session -> {
             session.persist(item);
-            tx.commit();
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        });
     }
 
     public boolean AddItem(ArrayList<Item> items) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        return write(session -> {
             for (Item i : items) {
                 session.persist(i);
             }
-            tx.commit();
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        });
     }
 
     public boolean EditItem(Item editedItem) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        return write(session -> {
             Item i = session.get(Item.class, editedItem.getId());
             if (i != null) {
                 i.setName(editedItem.getName());
@@ -166,72 +150,52 @@ public class ItemManager {
                 i.setImagePath(editedItem.getImagePath());
                 session.update(i);
             }
-            tx.commit();
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        });
     }
 
     public boolean RemoveItem(Item itemToRemove) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        return write(session -> {
             Item persistentItem = session.get(Item.class, itemToRemove.getId());
             if (persistentItem != null) {
                 session.delete(persistentItem);
             }
-            tx.commit();
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        });
     }
 
     public boolean RemoveItem(ArrayList<Item> itemListToRemove) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        return write(session -> {
             for (Item item : itemListToRemove) {
                 Item persistentItem = session.get(Item.class, item.getId());
                 if (persistentItem != null) {
                     session.delete(persistentItem);
                 }
             }
-            tx.commit();
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        });
     }
 
     public Item GetItem(int id) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.get(Item.class, id);
-        }
+        return read(session -> session.get(Item.class, id));
     }
 
     public ArrayList<Item> GetItem(ArrayList<Integer> idList) {
-        ArrayList<Item> result = new ArrayList<>();
-        try (Session session = sessionFactory.openSession()) {
-            Transaction tx = session.beginTransaction();
+        return read(session -> {
+            ArrayList<Item> result = new ArrayList<>();
             for (int id : idList) {
                 Item item = session.get(Item.class, id);
                 if (item != null) result.add(item);
             }
-            tx.commit();
-        }
-        return result;
+            return result;
+        });
     }
 
     public List<Item> GetItemList(List<Filter> filterList) {
-        List<Item> result = new ArrayList<>();
-        try (Session session = sessionFactory.openSession()) {
-            result = session.createQuery("FROM Item", Item.class).list();
+        return read(session -> {
+            List<Item> result = session.createQuery("FROM Item", Item.class).list();
             for (Item item : result) {
                 System.out.println("Item path = " + item.getImagePath());
-
                 if (item.getImagePath() != null) {
                     item.setImageData(loadImageFromResources(item.getImagePath()));
                     System.out.println("Loaded image for: " + item.getName()
@@ -239,9 +203,7 @@ public class ItemManager {
                             + " | bytes=" + (item.getImageData() == null ? "NULL" : item.getImageData().length));
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+            return result;
+        });
     }
 }
