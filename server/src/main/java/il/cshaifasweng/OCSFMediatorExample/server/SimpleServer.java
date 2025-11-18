@@ -89,6 +89,25 @@ public class SimpleServer extends AbstractServer {
                 throw new RuntimeException(e);
             }
 
+        } else if (msg instanceof Message && "getCatalogForBranch".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+            Integer branchId = (Integer) m.getData();
+            System.out.println("Server: getCatalogForBranch, branchId = " + branchId);
+
+            try {
+                List<Item> items = itemManager.GetItemListForBranch(branchId);
+                System.out.println("Catalog for branch " + branchId + " has " + items.size() + " items");
+                client.sendToClient(items);
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "getCatalogError",
+                            "Failed to load catalog for branch " + branchId
+                    ));
+                } catch (IOException ignored) {}
+            }
+
         } else if (msgString.startsWith("getCatalog")) {
             List<Item> items = itemManager.GetItemList(new ArrayList<>());
             System.out.println("Catalog received");
@@ -105,6 +124,11 @@ public class SimpleServer extends AbstractServer {
                 List<Branch> branches = branchManager.listAll();
 
                 System.out.println("Found " + branches.size() + " branches in database");
+                //
+                for (Branch b : branches) {
+                    System.out.println("Branch: id=" + b.getId() + ", name=" + b.getName());
+                }
+                //
                 if (branches.isEmpty()) {
                     System.out.println("WARNING: No branches found in database! Branches may need to be initialized.");
                 }

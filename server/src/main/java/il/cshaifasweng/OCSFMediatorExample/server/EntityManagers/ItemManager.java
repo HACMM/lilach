@@ -222,6 +222,52 @@ public class ItemManager extends BaseManager {
             return result;
         });
     }
+
+    public List<Item> GetItemListForBranch(Integer branchId) {
+        return read(session -> {
+            List<Item> result;
+
+            if (branchId == null) {
+                result = session.createQuery("FROM Item", Item.class).list();
+            } else {
+                // Only items available in the given branch
+                result = session.createQuery(
+                                "select distinct bi.primaryKey.item " +
+                                        "from BranchInventory bi " +
+                                        "where bi.primaryKey.branch.id = :bid",
+                                Item.class
+                        )
+                        .setParameter("bid", branchId)
+                        .list();
+            }
+
+            for (Item item : result) {
+                String imagePath = item.getImagePath();
+                System.out.println("Item path = " + imagePath);
+
+                if (imagePath != null && !imagePath.trim().isEmpty()) {
+                    byte[] imageData = loadImageFromResources(imagePath);
+                    item.setImageData(imageData);
+                    System.out.println("Loaded image for: " + item.getName()
+                            + " | path=" + imagePath
+                            + " | bytes=" + (imageData == null ? "NULL" : imageData.length));
+                } else {
+                    String defaultPath = getDefaultImagePath(item);
+                    if (defaultPath != null) {
+                        byte[] imageData = loadImageFromResources(defaultPath);
+                        item.setImageData(imageData);
+                        System.out.println("Loaded default image for: " + item.getName()
+                                + " (path was null, using: " + defaultPath + ")");
+                    } else {
+                        byte[] imageData = loadImageFromResources("/images/no_image.jpg");
+                        item.setImageData(imageData);
+                    }
+                }
+            }
+
+            return result;
+        });
+    }
     
     private String getDefaultImagePath(Item item) {
         // Try to infer image path from item name

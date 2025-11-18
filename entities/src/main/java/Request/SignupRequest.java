@@ -15,11 +15,13 @@ public class SignupRequest implements Serializable {
     private String idNumber;
     private PaymentMethod paymentMethod;
     private UserBranchType branchType;
+    private Integer branchId;
 
     public SignupRequest() {
     }
 
-    public SignupRequest(String username, String password, String name, String email,String idNumber, PaymentMethod payment, UserBranchType branchType) {
+    public SignupRequest(String username, String password, String name, String email,String idNumber, PaymentMethod payment, UserBranchType branchType
+            , Integer branchId) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -27,6 +29,7 @@ public class SignupRequest implements Serializable {
         this.idNumber = idNumber;
         this.paymentMethod = payment;
         this.branchType = branchType;
+        this.branchId = branchId;
     }
 
     public String getUsername() {
@@ -55,6 +58,8 @@ public class SignupRequest implements Serializable {
         return branchType;
     }
 
+    public Integer getBranchId() { return branchId; }
+
     public void setUsername(String username) {
         this.username = username;
     }
@@ -81,8 +86,11 @@ public class SignupRequest implements Serializable {
         this.branchType = branchType;
     }
 
+    public void setBranchId(Integer branchId) { this.branchId = branchId; }
+
     @Override
     public String toString() {
-        return "SignupRequest{username='" + username + "', name='" + name + "', email='" + email + "', payment='" + paymentMethod + "', branchType='" + branchType + "'}";
+        return "SignupRequest{username='" + username + "', name='" + name + "', email='" + email + "', payment='" + paymentMethod
+                + "', branchType='" + branchType + "', branchId='" + branchId + "'}";
     }
 }

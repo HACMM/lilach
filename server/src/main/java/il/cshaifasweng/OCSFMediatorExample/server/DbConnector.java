@@ -41,9 +41,7 @@ public class DbConnector implements AutoCloseable {
 
             sessionFactory = metadata.buildSessionFactory();
 
-            new ItemManager(sessionFactory).AddTestItems();
-            new BranchManager(sessionFactory).AddTestBranches();
-            new UserAccountManager(sessionFactory).addDefaultManager();
+            DemoDataSeeder.seed(sessionFactory);
 
         } catch (Throwable t) {
             StandardServiceRegistryBuilder.destroy(registry);

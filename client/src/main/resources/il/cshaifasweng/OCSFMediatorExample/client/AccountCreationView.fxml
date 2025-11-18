@@ -96,6 +96,20 @@
                style="-fx-fill: #555; -fx-font-size: 12;"
                wrappingWidth="360" />
 
+          <!-- 🔹 Branch selection (only relevant for Branch Account) -->
+          <Label fx:id="branchLabel"
+                 text="Branch:"
+                 visible="false" managed="false"
+                 style="-fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
+
+          <ComboBox fx:id="branchCombo"
+                    promptText="Choose branch"
+                    visible="false" managed="false"
+                    style="-fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-border-color: #ddd;
+                             -fx-background-color: #fff;" />
+
          <Separator />
 
          <!-- 🔹 כפתורי תשלום -->

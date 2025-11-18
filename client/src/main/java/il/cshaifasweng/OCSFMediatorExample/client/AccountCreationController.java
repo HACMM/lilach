@@ -1,11 +1,11 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
-import Request.Message;
 import Request.SignupRequest;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.SignupResponseEvent;
+import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.PaymentMethod;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.WarningEvent;
-import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import Request.Warning;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserBranchType;
 import javafx.event.ActionEvent;
@@ -34,9 +34,12 @@ public class AccountCreationController {
     @FXML private Button addPaymentBtn;
     @FXML private Button backBtn;
     @FXML private ComboBox<String> accountTypeCombo;
+    @FXML private ComboBox<Branch> branchCombo;
+    @FXML private Label branchLabel;
     //@FXML private Label subscriptionNote;
     @FXML private Button ChooseCard;
     @FXML private Button checkoutBtn;
+
 
 
     private PaymentMethod selectedPaymentMethod;
@@ -55,8 +58,37 @@ public class AccountCreationController {
             String selected = accountTypeCombo.getValue();
             ChooseCard.setVisible("Yearly Subscription".equals(selected));
             checkoutBtn.setVisible("Yearly Subscription".equals(selected));
+
+            boolean isBranchAccount = "Branch Account".equals(selected);
+            branchLabel.setVisible(isBranchAccount);
+            branchLabel.setManaged(isBranchAccount);
+            branchCombo.setVisible(isBranchAccount);
+            branchCombo.setManaged(isBranchAccount);
+        });
+        accountTypeCombo.getOnAction().handle(null);
+
+        try {
+            client.sendToServer("#getAllBranches");
+        } catch (IOException e) {
+            e.printStackTrace();
+            warningLabel.setText("Failed to load branches from server.");
+        }
+        branchCombo.setCellFactory(cb -> new ListCell<>() {
+            @Override
+            protected void updateItem(Branch item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getName());
+            }
+        });
+        branchCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Branch item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getName());
+            }
         });
     }
+
 
     // Call this when leaving the view (e.g., onBack or when you navigate away)
     private void unregisterBus() {
@@ -130,12 +162,21 @@ public class AccountCreationController {
             default -> UserBranchType.ALL_BRANCHES;
         };
 
-
-        // send data off to server
-        // UserAccount newUser = new UserAccount(username, password, name, email, selectedPaymentMethod, branchType);
+        Integer branchId = null;
+        if (branchType == UserBranchType.BRANCH) {
+            Branch selectedBranch = branchCombo.getValue();
+            if (selectedBranch == null) {
+                warningLabel.setText("Please select a branch.");
+                return;
+            }
+            branchId = selectedBranch.getId();
+        } else {
+            // Network/subscription users arent tied to a specific branch
+            branchId = null;
+        }
 
         try {
-            client.sendToServer(new SignupRequest(username,password,name,email, idNumber,selectedPaymentMethod, branchType));
+            client.sendToServer(new SignupRequest(username,password,name,email, idNumber,selectedPaymentMethod, branchType, branchId));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -201,6 +242,7 @@ public class AccountCreationController {
     }
 
 
+
     @Subscribe
     public void onSignupResponseEvent(SignupResponseEvent ev) {
         javafx.application.Platform.runLater(() -> {
@@ -219,5 +261,16 @@ public class AccountCreationController {
             warningLabel.setText(msg);
         });
     }
+
+    @Subscribe
+    public void onBranchListEvent(BranchListEvent event) {
+        javafx.application.Platform.runLater(() -> {
+            branchCombo.getItems().setAll(event.getBranches());
+            if (!event.getBranches().isEmpty()) {
+                branchCombo.getSelectionModel().selectFirst();
+            }
+        });
+    }
+
 
 }
