@@ -2,10 +2,13 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Filter;
 import Request.PublicUser;
+import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
+import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -55,12 +58,6 @@ public class CatalogController implements Initializable {
     private TableColumn<Item, Double> priceCol;
     @FXML
     private TableColumn<Item, ImageView> imageCol;
-//    @FXML
-//    private ComboBox<String> categoryFilter;
-//    @FXML
-//    private ComboBox<String> colorFilter;
-//    @FXML
-//    private ComboBox<String> priceFilter;
     @FXML
     private TextField filterField;
 	@FXML
@@ -75,6 +72,10 @@ public class CatalogController implements Initializable {
 	// ← Back button
 	@FXML private Button backBtn;
 
+    @FXML private Label branchLabel;
+    @FXML private ComboBox<Branch> branchSelector;
+    private final ObservableList<Branch> branchChoices = FXCollections.observableArrayList();
+
 	/** Set up table and ask server for catalog */
 	@Override
 	public void initialize(URL loc, ResourceBundle res) {
@@ -83,19 +84,6 @@ public class CatalogController implements Initializable {
 		nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
-//		imageCol.setCellValueFactory(d -> {
-//			String path = "/images/" + d.getValue().getImageLink();
-//			Image img;
-//			try {
-//				img = new Image(getClass().getResourceAsStream(path));
-//			} catch (Exception ex) {
-//				img = null;
-//			}
-//			ImageView iv = new ImageView(img);
-//			iv.setFitWidth(100);
-//			iv.setFitHeight(100);
-//			iv.setPreserveRatio(true);
-//			return new SimpleObjectProperty<>(iv);
 
 		imageCol.setCellValueFactory(d -> {
 			byte[] imgData = d.getValue().getImageData();
@@ -115,15 +103,7 @@ public class CatalogController implements Initializable {
 			}
 
 			return new SimpleObjectProperty<>(imageView);
-
-
-
 	});
-
-//		categoryFilter.setItems(FXCollections.observableArrayList("All", "Bouquet", "Single Flower", "Plant", "Accessory"));
-//		categoryFilter.setValue("All");
-//		categoryFilter.setOnAction(e -> applyFilters());
-
 
 		filterField.textProperty().addListener((obs, oldV, newV) -> applyFilters());
 
@@ -134,7 +114,51 @@ public class CatalogController implements Initializable {
 
 			addItemBtn.setVisible(false);
 		}
-		requestCatalog();
+
+        // Branch selector visibility & behavior
+        if (currentUser != null && currentUser.isNetworkUser()) {
+            // network / subscription users: can switch branch
+            branchSelector.setVisible(true);
+            branchSelector.setManaged(true);
+            branchLabel.setText("Branch:");
+
+            // request list of all branches from server
+            try {
+                client.sendToServer(new Message("show branches", null));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            // branch-only account: fixed branch
+            branchSelector.setVisible(false);
+            branchSelector.setManaged(false);
+
+            Integer branchId = (currentUser != null ? currentUser.getBranchId() : null);
+            if (branchId != null) {
+                branchLabel.setText("Branch ID: " + branchId);
+                // we don’t have Branch object yet here; we’ll fill it once we get BranchListEvent
+            } else {
+                branchLabel.setText("Branch: (unknown)");
+            }
+            requestCatalogForBranch(branchId);
+        }
+
+        //  nice rendering of Branch in combo
+        branchSelector.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(Branch b, boolean empty) {
+                super.updateItem(b, empty);
+                setText(empty || b == null ? "" : b.getName());
+            }
+        });
+        branchSelector.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Branch b, boolean empty) {
+                super.updateItem(b, empty);
+                setText(empty || b == null ? "Select branch" : b.getName());
+            }
+        });
 
 		SearchCriteria last = AppSession.getLastSearchCriteria();
 		if (last != null) {
@@ -243,22 +267,19 @@ public class CatalogController implements Initializable {
 	}
 
 	/** Ask server for the full catalog */
-	private void requestCatalog() {
-		try {
-			if (client != null && client.isConnected()) {
-				client.sendToServer("getCatalog");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+    private void requestCatalogForBranch(Integer branchId) {
+        try {
+            if (client != null && client.isConnected()) {
+                client.sendToServer(new Message("getCatalogForBranch", branchId));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 	/** Receive catalog and populate table */
-//	@Subscribe
-//	public void onCatalogReceived(List<Item> items) {
-//
-//		Platform.runLater(() -> table.getItems().setAll(items));
-//	}
+
 	@Subscribe
 	public void onCatalogReceived(List<?> list) {
 		// EventBus uses raw types for List, so verify the payload is actually a list of Item
@@ -377,12 +398,6 @@ public class CatalogController implements Initializable {
 	private void applyFilters() {
 	Filter f = new Filter();
 	f.setSearchText(filterField.getText().trim());
-	//f.setCategory(categoryFilter.getValue());
-
-	// f.setFlowerType(flowerTypeCombo.getValue());
-	//f.setColor(colorFilter.getValue());
-	//f.setMinPrice(minPriceField.getValue());
-	//f.setMaxPrice(maxPriceField.getValue());
 
 	List<Item> filtered = masterData.stream()
 			.filter(f::filter)
@@ -390,17 +405,6 @@ public class CatalogController implements Initializable {
 
 	filteredData.setAll(filtered);
 
-
-
-//	String search = filterField.getText().toLowerCase().trim();
-//	String category = categoryFilter.getValue();
-//
-//	List<Item> filtered = masterData.stream()
-//			.filter(i -> (search.isEmpty() || i.getName().toLowerCase().contains(search) || i.getType().toLowerCase().contains(search)))
-//			.filter(i -> ("All".equals(category) || i.getType().contains(category)))
-//			.collect(Collectors.toList());
-//
-//	filteredData.setAll(filtered);
 }
 
     @FXML
@@ -461,9 +465,6 @@ public class CatalogController implements Initializable {
 	private void onAddToCart(Item item) {
 		System.out.println("Added to cart → " + item.getName());
 		CartService.get().addOne(item);
-
-		// כאן בסוף תוסיפי שליחה לשרת / עדכון בעגלת המשתמש
-		// client.sendToServer(new AddToCartRequest(item));
 	}
 
 
@@ -478,4 +479,76 @@ public class CatalogController implements Initializable {
 		filteredData.setAll(masterData);
 		table.refresh();
 	}
+
+    @Subscribe
+    public void onBranchListReceived(BranchListEvent ev) {
+        if (ev == null || ev.getBranches() == null || ev.getBranches().isEmpty()) {
+            System.out.println("CatalogController: received empty branch list");
+            return;
+        }
+
+        java.util.List<Branch> branches = ev.getBranches();
+        System.out.println("CatalogController: received " + branches.size() + " branches");
+
+        Platform.runLater(() -> {
+            branchChoices.setAll(branches);
+            branchSelector.setItems(branchChoices);
+
+            Branch toSelect = null;
+
+            // 1) Prefer branch from AppSession if already set
+            Branch sessionBranch = AppSession.getCurrentBranch();
+            if (sessionBranch != null) {
+                for (Branch b : branches) {
+                    if (b.getId() == sessionBranch.getId()) {
+                        toSelect = b;
+                        break;
+                    }
+                }
+            }
+
+            // 2) If no session branch, fall back to user's fixed branch (if any)
+            if (toSelect == null) {
+                PublicUser currentUser = AppSession.getCurrentUser();
+                if (currentUser != null && currentUser.getBranchId() != null) {
+                    int userBranchId = currentUser.getBranchId();
+                    for (Branch b : branches) {
+                        if (b.getId() == userBranchId) {
+                            toSelect = b;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 3) Last resort: first branch in list
+            if (toSelect == null && !branches.isEmpty()) {
+                toSelect = branches.get(0);
+            }
+
+            if (toSelect != null) {
+                branchSelector.getSelectionModel().select(toSelect);
+                branchLabel.setText("Branch: " + toSelect.getName());
+                //  persist selection for next time
+                AppSession.setCurrentBranch(toSelect);
+                CartService.get().switchBranch(toSelect.getId());
+            }
+        });
+    }
+
+    @FXML
+    private void onBranchSelectorChanged(ActionEvent event) {
+        Branch selected = branchSelector.getValue();
+        if (selected == null) return;
+
+        CartService.get().switchBranch(selected.getId());
+        AppSession.setCurrentBranch(selected);
+        branchLabel.setText("Branch: " + selected.getName());
+        System.out.println("Catalog: switched to branch " + selected.getName()
+                + " (id=" + selected.getId() + ")");
+
+        requestCatalogForBranch(selected.getId());
+    }
+
+
 }

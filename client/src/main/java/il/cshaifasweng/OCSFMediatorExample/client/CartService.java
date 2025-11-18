@@ -9,7 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Singleton cart manager aligned with the existing codebase:
@@ -42,8 +42,49 @@ public final class CartService {
 
     /* ---------- State ---------- */
     private final ObservableList<CartItem> lines = FXCollections.observableArrayList();
+
+    private Integer currentBranchId = null;
+    private final Map<Integer, List<CartItem>> cartsByBranch = new HashMap<>();
+
     private final ReadOnlyIntegerWrapper itemsCount = new ReadOnlyIntegerWrapper(0);
     private final ReadOnlyDoubleWrapper  total      = new ReadOnlyDoubleWrapper(0.0);
+
+    /* ---------- Branch handling ---------- */
+
+    /**
+     * Called when the UI switches to a new branch.
+     * Saves the old branch cart, loads the new branch cart into `lines`.
+     */
+    public void switchBranch(Integer newBranchId) {
+        if (Objects.equals(currentBranchId, newBranchId)) {
+            // nothing to do
+            return;
+        }
+
+        // 1) Save current cart under old branch id
+        if (currentBranchId != null) {
+            // take a simple copy of the current list
+            cartsByBranch.put(currentBranchId, new ArrayList<>(lines));
+        }
+
+        // 2) Update current branch
+        currentBranchId = newBranchId;
+
+        // 3) Load saved cart for new branch (if any)
+        List<CartItem> saved = (newBranchId == null)
+                ? Collections.emptyList()
+                : cartsByBranch.getOrDefault(newBranchId, Collections.emptyList());
+
+        // replace the contents of the observable list
+        lines.setAll(saved);
+        recalc();
+    }
+
+    /** For diagnostics / checks. */
+    public Integer getCartBranchId() {
+        return currentBranchId;
+    }
+
 
     /* ---------- Primary API ---------- */
     /** Bind your TableView to this list. */
@@ -91,11 +132,15 @@ public final class CartService {
         recalc();
     }
 
-    /** Clear the entire cart. */
+    /** Clear the entire cart in the current branch. */
     public void clear() {
         lines.clear();
+        if (currentBranchId != null) {
+            cartsByBranch.remove(currentBranchId);
+        }
         recalc();
     }
+
 
     /* ---------- Compatibility with your CartViewController ---------- */
     public ObservableList<CartItem> items() { return lines; }          // used by controller

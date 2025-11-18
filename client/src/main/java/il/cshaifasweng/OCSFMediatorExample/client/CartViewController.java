@@ -273,8 +273,7 @@ public class CartViewController {
 
     @FXML
     private void onBack(ActionEvent e) throws IOException {
-        // Pick the view you want to return to:
-        App.setRoot("CatalogView");    // or App.setRoot("CatalogView");
+        App.setRoot("CatalogView");
     }
 
     @FXML
@@ -331,8 +330,27 @@ public class CartViewController {
             // ---- Build the DTO we send to the server ----
             NewOrderRequest req = new NewOrderRequest();
             req.userId           = currentUser.getUserId();
-            // Branch is optional for network/subscription users; keep null if you don't have it
-            try { req.branchId = currentUser.getBranchId(); } catch (Throwable ignored) { req.branchId = null; }
+
+            Branch selectedBranch = AppSession.getCurrentBranch();
+
+            if (currentUser.isNetworkUser()) {
+                // Network / subscription user MUST choose a branch (or use default we set in Catalog)
+                if (selectedBranch == null) {
+                    showMessage("Please select a branch in the catalog before checking out.", false);
+                    return;
+                }
+                req.branchId = selectedBranch.getId();
+                System.out.println("Checkout: network user, using selected branch id=" + req.branchId);
+            } else {
+                // Regular branch-bound user – always tied to their own branch
+                Integer userBranchId = currentUser.getBranchId();
+                if (userBranchId == null) {
+                    showMessage("Your account is not assigned to any branch. Please contact support.", false);
+                    return;
+                }
+                req.branchId = userBranchId;
+                System.out.println("Checkout: branch user, using fixed branch id=" + req.branchId);
+            }
 
             req.deliveryType     = deliveryType;
             LocalTime slotTime   = mapSlotToTime(timeSlot);

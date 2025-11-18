@@ -89,6 +89,25 @@ public class SimpleServer extends AbstractServer {
                 throw new RuntimeException(e);
             }
 
+        } else if (msg instanceof Message && "getCatalogForBranch".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+            Integer branchId = (Integer) m.getData();
+            System.out.println("Server: getCatalogForBranch, branchId = " + branchId);
+
+            try {
+                List<Item> items = itemManager.GetItemListForBranch(branchId);
+                System.out.println("Catalog for branch " + branchId + " has " + items.size() + " items");
+                client.sendToClient(items);
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "getCatalogError",
+                            "Failed to load catalog for branch " + branchId
+                    ));
+                } catch (IOException ignored) {}
+            }
+
         } else if (msgString.startsWith("getCatalog")) {
             List<Item> items = itemManager.GetItemList(new ArrayList<>());
             System.out.println("Catalog received");

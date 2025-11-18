@@ -13,6 +13,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
 <AnchorPane prefHeight="580" prefWidth="820" style="-fx-background-image: url('/images/flower_background.png');                    -fx-background-repeat: no-repeat;                    -fx-background-size: cover;                    -fx-background-position: center;                    -fx-padding: 20;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.CatalogController">
 
     <children>
@@ -30,6 +32,20 @@
                 <Button fx:id="searchByBtn" onAction="#onSearchByClicked" style="-fx-background-color: #e7b3d1;                                -fx-text-fill: white;                                -fx-font-weight: bold;                                -fx-background-radius: 20;                                -fx-padding: 4 16 4 16;" text="🔍 Search By" />
                 <Button fx:id="clearFiltersBtn" onAction="#onClearFiltersClicked" style="-fx-background-color: #f5d6e0; -fx-text-fill: #a64f73; -fx-font-weight: bold; -fx-background-radius: 10;" text="Clear Filters" />
 
+                <Label fx:id="branchLabel"
+                       text="Branch:"
+                       visible="false" managed="false"
+                       style="-fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+
+                <ComboBox fx:id="branchSelector"
+                          visible="false" managed="false"
+                          prefWidth="180"
+                          promptText="Select branch"
+                          onAction="#onBranchSelectorChanged"
+                          style="-fx-background-radius: 8;
+                     -fx-border-radius: 8;
+                     -fx-border-color: #ddd;
+                     -fx-background-color: #fff;" />
 
                 <Region HBox.hgrow="ALWAYS" />
 

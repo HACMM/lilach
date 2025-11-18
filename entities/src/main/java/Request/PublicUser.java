@@ -48,6 +48,7 @@ public class PublicUser implements Serializable {
         this.defaultPaymentMethod = defaultPaymentMethod;
     }
 
+
     // Getters
     public int getUserId() { return userId; }
     public String getLogin() { return login; }
@@ -75,4 +76,11 @@ public class PublicUser implements Serializable {
     public void setSubscriptionUser(boolean subscriptionUser) { this.subscriptionUser = subscriptionUser; }
     public void setSubscriptionExpirationDate(LocalDate subscriptionExpirationDate) { this.subscriptionExpirationDate = subscriptionExpirationDate; }
     public void setDefaultPaymentMethod(PaymentMethod defaultPaymentMethod) { this.defaultPaymentMethod = defaultPaymentMethod; }
+
+
+
+    public boolean isNetworkUser() {
+        return branchType == UserBranchType.ALL_BRANCHES
+                || branchType == UserBranchType.SUBSCRIPTION;
+    }
 }
