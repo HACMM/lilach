@@ -106,6 +106,15 @@ public class UserAccountManager extends BaseManager {
                 ua.setIdNumber(req.getIdNumber());
             }
 
+            if (req.getBranchType() == UserBranchType.BRANCH && req.getBranchId() != null) {
+                Branch branch = session.get(Branch.class, req.getBranchId());
+                if (branch != null) {
+                    ua.setBranch(branch);
+                } else {
+                    System.err.println("WARNING: branchId " + req.getBranchId() + " not found in database!");
+                }
+            }
+
             session.save(ua);  // or session.persist(ua);
             System.out.println(
                     "User created: " + ua.getLogin() +

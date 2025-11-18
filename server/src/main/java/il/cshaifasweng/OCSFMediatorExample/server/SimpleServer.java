@@ -105,6 +105,11 @@ public class SimpleServer extends AbstractServer {
                 List<Branch> branches = branchManager.listAll();
 
                 System.out.println("Found " + branches.size() + " branches in database");
+                //
+                for (Branch b : branches) {
+                    System.out.println("Branch: id=" + b.getId() + ", name=" + b.getName());
+                }
+                //
                 if (branches.isEmpty()) {
                     System.out.println("WARNING: No branches found in database! Branches may need to be initialized.");
                 }
