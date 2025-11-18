@@ -1,7 +1,10 @@
 package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.PublicUser;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.SalesListEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
+import il.cshaifasweng.OCSFMediatorExample.entities.Sale;
+import il.cshaifasweng.OCSFMediatorExample.entities.SaleStatus;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,8 +14,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MainPageController {
 
@@ -22,6 +28,8 @@ public class MainPageController {
     @FXML private Button manageEmployeesBtn;
     @FXML private Button newsletterBtn;
     @FXML private Button manageCustomersBtn;
+    @FXML private Button addSaleBtn;
+    @FXML private SaleCarouselController carouselController;
 
 
     @FXML
@@ -32,6 +40,8 @@ public class MainPageController {
             newsletterBtn.setVisible(false);
             manageCustomersBtn.setVisible(false);
             reportsBtn.setVisible(false);
+            addSaleBtn.setVisible(false);
+            addSaleBtn.setManaged(false);
         }
 
         if (user == null) {
@@ -187,5 +197,24 @@ public class MainPageController {
             e.printStackTrace();
         }
     }
+
+    @Subscribe
+    public void onSalesArrived(SalesListEvent event) {
+        List<Sale> active = event.getSales().stream()
+                .filter(s -> s.getStatus() != SaleStatus.Stashed)
+                .collect(Collectors.toList());
+
+        carouselController.setSales(active);
+    }
+
+    @FXML
+    private void onAddSaleClicked(ActionEvent event) {
+        try {
+            App.setRoot("SaleCreateView");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 

@@ -15,149 +15,175 @@
             fx:controller="il.cshaifasweng.OCSFMediatorExample.client.MainPageController">
 
     <children>
-        <VBox alignment="CENTER" spacing="20"
-              AnchorPane.topAnchor="60"
-              AnchorPane.bottomAnchor="60"
-              AnchorPane.leftAnchor="80"
-              AnchorPane.rightAnchor="80"
-              style="-fx-background-color: rgba(255,255,255,0.85);
-                     -fx-background-radius: 16;
-                     -fx-padding: 25;
-                     -fx-border-color: #f3b3cb;
-                     -fx-border-radius: 16;">
+        <!-- עוטף שקוף שממרכז את הכרטיס הלבן -->
+        <HBox alignment="CENTER"
+              AnchorPane.leftAnchor="40"
+              AnchorPane.rightAnchor="40"
+              AnchorPane.topAnchor="30"
+              AnchorPane.bottomAnchor="30">
 
-            <!-- 🔹 כפתור פרופיל -->
-            <HBox alignment="TOP_RIGHT" prefWidth="32" spacing="8">
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="profileBtn"
-                        onAction="#onProfileClicked"
-                        style="-fx-background-color: transparent;
-                               -fx-cursor: hand;
-                               -fx-padding: 4;">
-                    <graphic>
-                        <ImageView fitHeight="32" fitWidth="32" preserveRatio="true">
-                            <image>
-                                <Image url="@/images/user_icon.png"/>
-                            </image>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </HBox>
+            <!-- הכרטיס הלבן עצמו -->
+            <VBox spacing="18"
+                  alignment="CENTER"
+                  prefWidth="1200"
+                  maxWidth="1200"
+                  style="-fx-background-color: rgba(255,255,255,0.85);
+                         -fx-background-radius: 12;
+                         -fx-padding: 25;
+                         -fx-border-color: #f3b3cb;
+                         -fx-border-radius: 12;">
 
-            <!-- 🔹 כותרת -->
-            <Text text="🌸 Welcome to Lilach 🌸"
-                  style="-fx-font-size: 22;
-                         -fx-font-weight: bold;
-                         -fx-fill: #93345c;"/>
-            <Text text="Where every bloom brightens your day"
-                  style="-fx-font-size: 15;
-                         -fx-fill: #c36b91;
-                         -fx-font-style: italic;"/>
+                <!-- 🔹 כפתור פרופיל -->
+                <HBox alignment="TOP_RIGHT" prefWidth="32" spacing="8">
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="profileBtn"
+                            onAction="#onProfileClicked"
+                            style="-fx-background-color: transparent;
+                                   -fx-cursor: hand;
+                                   -fx-padding: 4;">
+                        <graphic>
+                            <ImageView fitHeight="32" fitWidth="32" preserveRatio="true">
+                                <image>
+                                    <Image url="@/images/user_icon.png"/>
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                </HBox>
 
-            <!-- 🔹 תפריט כפתורים -->
-            <VBox alignment="CENTER" spacing="18">
+                <!-- 🔹 כותרת -->
+                <Text text="🌸 Welcome to Lilach 🌸"
+                      style="-fx-font-size: 22;
+                             -fx-font-weight: bold;
+                             -fx-fill: #93345c;"/>
+                <Text text="Where every bloom brightens your day"
+                      style="-fx-font-size: 15;
+                             -fx-fill: #c36b91;
+                             -fx-font-style: italic;"/>
 
-                <!-- 🔸 כפתורים רגילים -->
-                <FlowPane alignment="CENTER" hgap="20" vgap="15">
-                    <Button fx:id="browseBtn" text="Browse Catalog" onAction="#onBrowseClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #e7b3d1;
-                                   -fx-text-fill: white;
+                <!-- 🔹 תפריט כפתורים -->
+                <VBox alignment="CENTER" spacing="18">
+
+                    <!-- 🔸 כפתורים רגילים -->
+                    <FlowPane alignment="CENTER" hgap="20" vgap="15">
+                        <Button fx:id="browseBtn" text="Browse Catalog" onAction="#onBrowseClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #e7b3d1;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                        <Button fx:id="ordersBtn" text="My Orders" onAction="#onOrdersClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #e7b3d1;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                        <Button fx:id="complaintsBtn" text="Complaints" onAction="#onComplaintsClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #e7b3d1;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+                    </FlowPane>
+
+                    <!-- 🔹 כפתורי ניהול – רק למנהלים -->
+                    <FlowPane fx:id="managementPane" alignment="CENTER" hgap="20" vgap="15">
+                        <Button fx:id="reportsBtn" text="Reports" onAction="#onReportsClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #a64f73;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                        <Button fx:id="manageEmployeesBtn" text="Manage Employees" onAction="#onManageEmployeesClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #a64f73;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                        <Button fx:id="manageCustomersBtn" text="Manage Customers" onAction="#onManageCustomersClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #a64f73;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                        <Button fx:id="newsletterBtn" text="Send Newsletter" onAction="#onNewsletterClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #a64f73;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
+                        <Button fx:id="addSaleBtn" text="Add Sale" onAction="#onAddSaleClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #a64f73;
+                                       -fx-text-fill: white;
+                                       -fx-font-weight: bold;
+                                       -fx-font-size: 14;
+                                       -fx-background-radius: 25;
+                                       -fx-cursor: hand;
+                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+                    </FlowPane>
+
+                    <!-- 🔹 כפתורי Login / Logout -->
+                    <Button fx:id="LogInBtn" text="Log In" onAction="#onLoginClicked"
+                            prefWidth="160"
+                            style="-fx-background-color: linear-gradient(to bottom, #f6c1e1, #e7a5d1);
+                                   -fx-text-fill: #4a004e;
                                    -fx-font-weight: bold;
                                    -fx-font-size: 14;
-                                   -fx-background-radius: 25;
+                                   -fx-background-radius: 30;
+                                   -fx-padding: 8 20 8 20;
                                    -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
 
-                    <Button fx:id="ordersBtn" text="My Orders" onAction="#onOrdersClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #e7b3d1;
-                                   -fx-text-fill: white;
+                    <Button fx:id="LogoutBtn" text="Log Out" onAction="#onLogoutClicked"
+                            prefWidth="160"
+                            visible="false" managed="false"
+                            style="-fx-background-color: linear-gradient(to bottom, #ffffff, #f3c3dd);
+                                   -fx-text-fill: #4a004e;
                                    -fx-font-weight: bold;
                                    -fx-font-size: 14;
-                                   -fx-background-radius: 25;
+                                   -fx-background-radius: 30;
+                                   -fx-padding: 8 20 8 20;
                                    -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
 
-                    <Button fx:id="complaintsBtn" text="Complaints" onAction="#onComplaintsClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #e7b3d1;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14;
-                                   -fx-background-radius: 25;
-                                   -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
-                </FlowPane>
+                    <!-- 🔹 הקורסולה -->
+                    <HBox alignment="CENTER">
+                        <VBox prefWidth="450" maxWidth="450">
+                            <fx:include source="Carousel.fxml" fx:id="carousel"/>
+                        </VBox>
+                    </HBox>
 
-                <!-- 🔹 כפתורי ניהול – רק למנהלים -->
-                <FlowPane fx:id="managementPane" alignment="CENTER" hgap="20" vgap="15">
-                    <Button fx:id="reportsBtn" text="Reports" onAction="#onReportsClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #a64f73;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14;
-                                   -fx-background-radius: 25;
-                                   -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
-
-                    <Button fx:id="manageEmployeesBtn" text="Manage Employees" onAction="#onManageEmployeesClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #a64f73;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14;
-                                   -fx-background-radius: 25;
-                                   -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
-
-                    <Button fx:id="manageCustomersBtn" text="Manage Customers" onAction="#onManageCustomersClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #a64f73;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14;
-                                   -fx-background-radius: 25;
-                                   -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
-
-                    <Button fx:id="newsletterBtn" text="Send Newsletter" onAction="#onNewsletterClicked"
-                            prefWidth="200" prefHeight="55"
-                            style="-fx-background-color: #a64f73;
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: bold;
-                                   -fx-font-size: 14;
-                                   -fx-background-radius: 25;
-                                   -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
-                </FlowPane>
-
-                <!-- 🔹 כפתור כניסה -->
-                <Button fx:id="LogInBtn" text="Log In" onAction="#onLoginClicked"
-                        prefWidth="160"
-                        style="-fx-background-color: linear-gradient(to bottom, #f6c1e1, #e7a5d1);
-                               -fx-text-fill: #4a004e;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 14;
-                               -fx-background-radius: 30;
-                               -fx-padding: 8 20 8 20;
-                               -fx-cursor: hand;
-                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
-
-                <Button fx:id="LogoutBtn" text="Log Out" onAction="#onLogoutClicked"
-                        prefWidth="160"
-                        visible="false" managed="false"
-                        style="-fx-background-color: linear-gradient(to bottom, #ffffff, #f3c3dd);
-               -fx-text-fill: #4a004e;
-               -fx-font-weight: bold;
-               -fx-font-size: 14;
-               -fx-background-radius: 30;
-               -fx-padding: 8 20 8 20;
-               -fx-cursor: hand;
-               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 2);"/>
-
+                </VBox>
             </VBox>
-        </VBox>
+
+        </HBox>
     </children>
 </AnchorPane>

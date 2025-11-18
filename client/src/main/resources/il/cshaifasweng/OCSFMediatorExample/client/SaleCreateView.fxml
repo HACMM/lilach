@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.SaleCreateController"
+            prefHeight="600" prefWidth="800"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;
+                   -fx-padding: 20;">
+    <ScrollPane fitToWidth="true" vbarPolicy="AS_NEEDED" hbarPolicy="NEVER"
+                AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+                style="-fx-background-color: transparent;">
+    <VBox alignment="TOP_CENTER" spacing="18"
+          style="-fx-background-color: rgba(255,255,255,0.85);
+                 -fx-background-radius: 12;
+                 -fx-padding: 30;"
+          AnchorPane.topAnchor="40"
+          AnchorPane.bottomAnchor="40"
+          AnchorPane.leftAnchor="100"
+          AnchorPane.rightAnchor="100">
+
+        <!-- 🔹 Back Button -->
+        <Button text="← Back"
+                fx:id="backBtn"
+                onAction="#onBack"
+                style="-fx-background-color: transparent;
+                       -fx-text-fill: #a64f73;
+                       -fx-font-size: 15px;
+                       -fx-font-weight: bold;
+                       -fx-cursor: hand;
+                       -fx-padding: 5 10;"
+                alignment="CENTER_LEFT"
+                maxWidth="Infinity"/>
+
+        <!-- 🔹 Title -->
+        <Label text="Create New Sale"
+               style="-fx-font-size: 22;
+                      -fx-font-weight: bold;
+                      -fx-text-fill: #2c3e50;"/>
+
+        <Separator/>
+
+        <!-- 🔹 Sale Name -->
+        <TextField fx:id="saleNameField"
+                   promptText="Sale Name"
+                   style="-fx-background-radius: 8;
+                          -fx-border-color: #ddd;
+                          -fx-border-radius: 8;" />
+
+        <!-- 🔹 Sale Description -->
+        <TextArea fx:id="saleDescField"
+                  promptText="Sale Description"
+                  prefRowCount="3"
+                  style="-fx-background-radius: 8;
+                         -fx-border-color: #ddd;
+                         -fx-border-radius: 8;" />
+
+        <!-- 🔹 Dates -->
+        <HBox spacing="30" alignment="CENTER">
+            <VBox spacing="5">
+                <Label text="Start Date"
+                       style="-fx-text-fill: #555;"/>
+                <DatePicker fx:id="startDatePicker"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="End Date"
+                       style="-fx-text-fill: #555;"/>
+                <DatePicker fx:id="endDatePicker"/>
+            </VBox>
+        </HBox>
+
+        <!-- 🔹 Image -->
+        <TextField fx:id="imageLinkField"
+                   promptText="Image URL"
+                   style="-fx-background-radius: 8;
+                          -fx-border-color: #ddd;
+                          -fx-border-radius: 8;" />
+
+        <!-- 🔹 Discount Section -->
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <Label text="Discount Type:" />
+            <ComboBox fx:id="discountTypeCombo"/>
+
+            <Label text="Value:" />
+            <TextField fx:id="discountValueField"
+                       promptText="10 / 20 / 30"
+                       style="-fx-pref-width: 80;
+                              -fx-background-radius: 8;
+                              -fx-border-color: #ddd;
+                              -fx-border-radius: 8;" />
+        </HBox>
+
+        <!-- 🔹 Select Items -->
+        <Label text="Select Items for Sale:"
+               style="-fx-font-size: 18px;
+                      -fx-font-weight: bold;
+                      -fx-text-fill: #a64f73;" />
+
+        <ListView fx:id="itemsList"
+                  prefHeight="150"
+                  style="-fx-background-radius: 8;
+                         -fx-border-color: #ddd;
+                         -fx-border-radius: 8;" />
+
+        <Separator/>
+
+        <!-- 🔹 Buttons -->
+        <HBox spacing="16" alignment="CENTER">
+            <Button text="Create Sale"
+                    onAction="#onCreateSale"
+                    style="-fx-background-color: #e7b3d1;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 8 25;
+                           -fx-cursor: hand;" />
+
+            <Button text="Cancel"
+                    onAction="#onBack"
+                    style="-fx-background-color: #cccccc;
+                           -fx-text-fill: #333;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 20;
+                           -fx-padding: 8 25;
+                           -fx-cursor: hand;" />
+        </HBox>
+
+        <!-- 🔹 Message Label -->
+        <Label fx:id="messageLabel"
+               visible="false" managed="false"
+               style="-fx-text-fill: #b00020;
+                      -fx-font-weight: bold;
+                      -fx-font-size: 14;" />
+
+    </VBox>
+    </ScrollPane>
+</AnchorPane>

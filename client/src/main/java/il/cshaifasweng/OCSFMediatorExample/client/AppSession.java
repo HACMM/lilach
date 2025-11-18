@@ -2,6 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.Sale;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
 
 public class AppSession {
@@ -9,6 +10,7 @@ public class AppSession {
     private static SearchCriteria lastSearchCriteria;
     private static Branch currentBranch;
 
+    private static Sale selectedSale;
 
     public static void setCurrentUser(PublicUser user) {
         currentUser = user;
@@ -36,11 +38,13 @@ public class AppSession {
         return null;
     }
 
-
     public static void clear() {
         currentUser = null;
         lastSearchCriteria = null;
         currentBranch = null;
     }
 
+    public static void setSelectedSale(Sale selected) {
+        selectedSale = selected;
+    }
 }

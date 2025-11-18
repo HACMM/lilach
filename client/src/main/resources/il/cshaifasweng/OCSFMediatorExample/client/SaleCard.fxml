@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<HBox spacing="20" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="il.cshaifasweng.OCSFMediatorExample.client.SaleCardController"
+      style="-fx-background-color: rgba(255,255,255,0.8);
+             -fx-background-radius: 20;
+             -fx-padding: 15;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 4);">
+
+    <children>
+
+        <!-- Image -->
+        <ImageView fx:id="saleImage"
+                   fitWidth="140" fitHeight="140"
+                   preserveRatio="true"
+                   style="-fx-background-radius: 20;" />
+
+        <!-- Info -->
+        <VBox spacing="10">
+            <Label fx:id="saleName"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #a64f73;" />
+            <Label fx:id="saleDesc"
+                   wrapText="true"
+                   style="-fx-font-size: 14px; -fx-text-fill: #4a2c3b;" />
+            <Label fx:id="saleDates"
+                   style="-fx-font-size: 12px; -fx-text-fill: #7b5b6e;" />
+        </VBox>
+
+    </children>
+
+</HBox>

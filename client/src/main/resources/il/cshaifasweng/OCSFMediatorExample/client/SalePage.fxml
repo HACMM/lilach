@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.SalePageController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;">
+
+    <children>
+
+        <!-- Title -->
+        <Label text="Special Promotions"
+               AnchorPane.topAnchor="25"
+               AnchorPane.leftAnchor="40"
+               style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #a64f73;" />
+
+        <!-- Back Button -->
+        <Button text="← Back"
+                AnchorPane.topAnchor="25"
+                AnchorPane.rightAnchor="40"
+                onAction="#onBack"
+                style="-fx-background-color: transparent; -fx-font-size: 15px;
+                       -fx-text-fill: #a64f73; -fx-font-weight: bold;" />
+
+        <!-- Scrollable sale grid -->
+        <ScrollPane AnchorPane.topAnchor="90" AnchorPane.bottomAnchor="20"
+                    AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20"
+                    fitToWidth="true" hbarPolicy="NEVER">
+
+            <VBox fx:id="saleContainer" spacing="20"
+                  style="-fx-padding: 10 10 10 10;" />
+
+        </ScrollPane>
+
+    </children>
+
+</AnchorPane>

@@ -58,6 +58,12 @@ public class CatalogController implements Initializable {
     private TableColumn<Item, Double> priceCol;
     @FXML
     private TableColumn<Item, ImageView> imageCol;
+//    @FXML
+//    private ComboBox<String> categoryFilter;
+//    @FXML
+//    private ComboBox<String> colorFilter;
+//    @FXML
+//    private ComboBox<String> priceFilter;
     @FXML
     private TextField filterField;
 	@FXML
@@ -110,9 +116,17 @@ public class CatalogController implements Initializable {
 		table.setItems(filteredData);
 
 		PublicUser currentUser = AppSession.getCurrentUser();
-		if (currentUser == null || (currentUser.getRole() != Role.EMPLOYEE && currentUser.getRole() != Role.MANAGER || currentUser.getRole() != Role.NETWORK_MANAGER)) {
+		if (currentUser != null &&
+				(currentUser.getRole() == Role.EMPLOYEE ||
+						currentUser.getRole() == Role.MANAGER ||
+						currentUser.getRole() == Role.NETWORK_MANAGER)) {
 
+			addItemBtn.setVisible(true);
+			addItemBtn.setManaged(true);
+
+		} else {
 			addItemBtn.setVisible(false);
+			addItemBtn.setManaged(false);
 		}
 
         // Branch selector visibility & behavior

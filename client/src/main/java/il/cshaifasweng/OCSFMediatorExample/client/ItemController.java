@@ -81,7 +81,7 @@ public class ItemController {
             Role role = currentUser.getRole();
 
             // just employee and manager see the button
-            if (role == Role.EMPLOYEE || role == Role.MANAGER) {
+            if (role == Role.EMPLOYEE || role == Role.MANAGER || role == Role.NETWORK_MANAGER) {
                 EditPriceBTN.setVisible(true);
                 RemoveBTN.setVisible(true);
             } else {
