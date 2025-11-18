@@ -275,4 +275,18 @@ public class UserAccountManager extends BaseManager {
                 .getResultList());
     }
 
+
+    public List<UserAccount> listNewsletterSubscribers() {
+        return read(session -> session.createQuery(
+                        "select u from UserAccount u " +
+                                "where u.role = :role " +
+                                "and u.email is not null " +
+                                "and u.email <> '' " ,
+                        UserAccount.class
+                )
+                .setParameter("role", Role.CUSTOMER)
+                .getResultList());
+    }
+
+
 }

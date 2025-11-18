@@ -294,8 +294,62 @@ public class SimpleServer extends AbstractServer {
                 try {
                     client.sendToClient(new Message("getCustomersError",
                             "Failed to fetch customers: " + e.getMessage()));
+                } catch (IOException ignored) {
+                }
+            }
+
+        } else if (msg instanceof Message && "newsletterSend".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+            String[] data = (String[]) m.getData();
+            String subject = data[0];
+            String body = data[1];
+
+            System.out.println("Received newsletterSend request. Subject=" + subject);
+
+            try {
+                List<UserAccount> recipients = userAccountManager.listNewsletterSubscribers();
+                System.out.println("Sending newsletter to " + recipients.size() + " subscribers");
+
+                int successCount = 0;
+                int failCount = 0;
+
+                for (UserAccount ua : recipients) {
+                    String to = ua.getEmail();
+                    if (to == null || to.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    try {
+                        EmailSender.sendEmail(subject, body, to);
+                        System.out.println("✅ Newsletter sent to: " + to);
+                        successCount++;
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Failed to send newsletter to " + to + ": " + e.getMessage());
+                        failCount++;
+                    }
+                }
+
+                String summary = String.format(
+                        "Newsletter sent. Success: %d, Failed: %d, Total recipients: %d",
+                        successCount, failCount, recipients.size()
+                );
+
+                try {
+                    client.sendToClient(new Message("newsletterSendOk", summary));
+                } catch (IOException e) {
+                    System.err.println("Failed to send newsletterSendOk to client: " + e.getMessage());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "newsletterSendError",
+                            "Failed to send newsletter: " + e.getMessage()
+                    ));
                 } catch (IOException ignored) {}
             }
+
 
         } else if (msg instanceof Message && "removeCustomer".equals(((Message) msg).getType())) {
             Message m = (Message) msg;

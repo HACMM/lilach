@@ -115,6 +115,10 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("removeCustomerError")) {
                 EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("newsletterSendOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("newsletterSendError")) {
+                EventBus.getDefault().post(msg);
             } else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
                 if (!list.isEmpty()) {
