@@ -1,144 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ItemController"
-            prefHeight="500" prefWidth="460"
-            style="-fx-background-image: url('/images/flower_background.png');
-                   -fx-background-repeat: no-repeat;
-                   -fx-background-size: cover;
-                   -fx-background-position: center;
-                   -fx-padding: 20;">
+<AnchorPane prefHeight="430" prefWidth="460" style="-fx-background-image: url('/images/flower_background.png');                    -fx-background-repeat: no-repeat;                    -fx-background-size: cover;                    -fx-background-position: center;                    -fx-padding: 20;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ItemController">
 
     <children>
-        <VBox spacing="18"
-              alignment="CENTER"
-              AnchorPane.leftAnchor="25"
-              AnchorPane.rightAnchor="25"
-              AnchorPane.topAnchor="25"
-              AnchorPane.bottomAnchor="25"
-              style="-fx-background-color: rgba(255,255,255,0.85);
-                     -fx-background-radius: 12;
-                     -fx-padding: 25;">
-
-            <StackPane alignment="TOP_LEFT">
-                <Button fx:id="backBtn"
-                        text="← Back"
-                        onAction="#onBackClicked"
-                        style="-fx-background-color: transparent;
-                               -fx-text-fill: #a64f73;
-                               -fx-font-size: 15px;
-                               -fx-font-weight: bold;
-                               -fx-cursor: hand;
-                               -fx-border-color: transparent;
-                               -fx-padding: 5 10 5 10;" />
-            </StackPane>
+        <VBox alignment="CENTER" spacing="12" style="-fx-background-color: rgba(255,255,255,0.85);                      -fx-background-radius: 12;                      -fx-padding: 25;" AnchorPane.bottomAnchor="25" AnchorPane.leftAnchor="25" AnchorPane.rightAnchor="25" AnchorPane.topAnchor="25">
 
             <!-- 🔹 תמונת המוצר -->
-            <ImageView fx:id="itemImage"
-                       fitHeight="160" fitWidth="160"
-                       preserveRatio="true"
-                       style="-fx-background-radius: 10;
-                              -fx-border-radius: 10;
-                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 1);" />
+            <ImageView fx:id="itemImage" fitHeight="160" fitWidth="160" preserveRatio="true" style="-fx-background-radius: 10;                               -fx-border-radius: 10;                               -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, 1);" />
 
             <!-- 🔹 פרטי המוצר -->
-            <VBox spacing="6" alignment="CENTER">
-                <Label fx:id="nameLabel"
-                       style="-fx-font-size: 20;
-                              -fx-font-weight: bold;
-                              -fx-text-fill: #2c3e50;" />
-                <Label fx:id="typeLabel"
-                       style="-fx-font-size: 14;
-                              -fx-text-fill: #5c5c5c;" />
-                <Label fx:id="priceLabel"
-                       style="-fx-font-size: 14;
-                              -fx-text-fill: #5c5c5c;" />
+            <VBox alignment="CENTER" spacing="6">
+                <Label fx:id="nameLabel" style="-fx-font-size: 20;                               -fx-font-weight: bold;                               -fx-text-fill: #2c3e50;" />
+                <Label fx:id="typeLabel" style="-fx-font-size: 14;                               -fx-text-fill: #5c5c5c;" />
+                <Label fx:id="priceLabel" style="-fx-font-size: 14;                               -fx-text-fill: #5c5c5c;" />
             </VBox>
 
             <!-- 🔹 תיאור -->
-            <TextArea fx:id="descriptionTextArea"
-                      editable="false"
-                      wrapText="true"
-                      prefHeight="100"
-                      prefWidth="360"
-                      style="-fx-background-color: #fff;
-                             -fx-border-color: #ddd;
-                             -fx-border-radius: 8;
-                             -fx-background-radius: 8;
-                             -fx-font-size: 13;
-                             -fx-text-fill: #2c3e50;" />
+            <TextArea fx:id="descriptionTextArea" editable="false" minHeight="90.0" prefHeight="90.0" prefRowCount="3" prefWidth="320.0" style=" -fx-background-color: transparent;               -fx-control-inner-background: transparent;               -fx-border-color: transparent;               -fx-focus-color: transparent;               -fx-faint-focus-color: transparent;               -fx-text-fill: #2c3e50;               -fx-font-size: 14;" wrapText="true" />
+
 
             <!-- 🔹 כפתורים -->
-            <HBox spacing="10" alignment="CENTER">
-                <!-- Add to Cart -->
-                <Button fx:id="addToCartBUTTON"
-                        onAction="#addToCart"
-                        prefWidth="130"
-                        style="-fx-background-color: #e7b3d1;
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 13;
-                               -fx-background-radius: 20;
-                               -fx-padding: 8 20 8 20;
-                               -fx-cursor: hand;">
-                    <graphic>
-                        <ImageView fx:id="addToCartImage"
-                                   fitHeight="18" fitWidth="18"
-                                   preserveRatio="true">
-                            <image>
-                                <Image url='@/images/cart_icon.jpg'/>
-                            </image>
-                        </ImageView>
-                    </graphic>
-                    <HBox.margin>
-                        <Insets right="6"/>
-                    </HBox.margin>
-                    <text>Add to Cart</text>
-                </Button>
+            <!-- 🔹 כפתורים -->
+            <VBox alignment="CENTER" spacing="10">
 
-                <!-- Edit Price -->
-                <Button fx:id="EditPriceBTN"
-                        onAction="#onEditPrice"
-                        text="Edit Price"
-                        prefWidth="110"
-                        style="-fx-background-color: #cccccc;
-                               -fx-text-fill: #333;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 13;
-                               -fx-background-radius: 20;
-                               -fx-padding: 8 20 8 20;
-                               -fx-cursor: hand;" />
+                <!-- שורה 1: Add to Cart -->
+                <HBox alignment="CENTER">
+                    <Button fx:id="addToCartBUTTON" onAction="#addToCart" prefWidth="150" style="-fx-background-color: #e7b3d1;                        -fx-text-fill: white;                        -fx-font-weight: bold;                        -fx-font-size: 13;                        -fx-background-radius: 20;                        -fx-padding: 8 20;                        -fx-cursor: hand;">
+                        <graphic>
+                            <ImageView fx:id="addToCartImage" fitHeight="18" fitWidth="18" preserveRatio="true">
+                                <image>
+                                    <Image url="@/images/cart_icon.jpg" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                        <text>Add to Cart</text>
+                    </Button>
+                </HBox>
 
-                <!-- Remove Item -->
-                <Button fx:id="RemoveBTN"
-                        onAction="#onRemoveItem"
-                        text="Remove Item"
-                        prefWidth="120"
-                        style="-fx-background-color: #f3a5a5;
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 13;
-                               -fx-background-radius: 20;
-                               -fx-padding: 8 20 8 20;
-                               -fx-cursor: hand;" />
-            </HBox>
+                <!-- שורה 2: Edit + Remove -->
+                <HBox alignment="CENTER" spacing="12">
+                    <Button fx:id="EditPriceBTN" onAction="#onEditPrice" prefWidth="110" style="-fx-background-color: #cccccc;                        -fx-text-fill: #333;                        -fx-font-weight: bold;                        -fx-font-size: 13;                        -fx-background-radius: 20;                        -fx-padding: 8 20;                        -fx-cursor: hand;" text="Edit Price" />
+
+                    <Button fx:id="RemoveBTN" onAction="#onRemoveItem" prefHeight="35.0" prefWidth="144.0" style="-fx-background-color: #f3a5a5;                        -fx-text-fill: white;                        -fx-font-weight: bold;                        -fx-font-size: 13;                        -fx-background-radius: 20;                        -fx-padding: 8 20;                        -fx-cursor: hand;" text="Remove Item" />
+                </HBox>
+
+            </VBox>
+
             <!-- 🔹 הודעה זמנית למשתמש -->
-            <Label fx:id="cartMessageLbl"
-                   text=""
-                   visible="false"
-                   alignment="CENTER"
-                   style="-fx-text-fill: #a64f73;
-              -fx-font-weight: bold;
-              -fx-font-size: 14;
-              -fx-background-color: rgba(255,255,255,0.7);
-              -fx-background-radius: 10;
-              -fx-padding: 4 12 4 12;" />
+            <Label fx:id="cartMessageLbl" alignment="CENTER" style="-fx-text-fill: #a64f73;               -fx-font-weight: bold;               -fx-font-size: 14;               -fx-background-color: rgba(255,255,255,0.7);               -fx-background-radius: 10;               -fx-padding: 4 12 4 12;" text="" visible="false" />
 
         </VBox>
     </children>

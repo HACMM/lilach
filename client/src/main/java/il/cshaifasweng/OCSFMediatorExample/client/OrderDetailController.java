@@ -3,6 +3,8 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 import Request.CancelOrderRequest;
 import Request.Message;
 import Request.PublicUser;
+import il.cshaifasweng.OCSFMediatorExample.client.OrderRow;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
@@ -33,7 +35,7 @@ public class OrderDetailController {
     @FXML private Button closeBtn;
     @FXML private Button cancelOrderBtn;
 
-    private MyOrdersController.OrderRow currentOrder;
+    private OrderRow currentOrder;
 
     @FXML
     private void initialize() {
@@ -44,20 +46,20 @@ public class OrderDetailController {
     }
 
     /** מקבל את ההזמנה מהמסך הקודם ומציג אותה */
-    public void init(MyOrdersController.OrderRow order) {
+    public void init(OrderRow order) {
         this.currentOrder = order;
-        orderIdLabel.setText(order.orderId);
-        dateLabel.setText(order.date);
-        statusLabel.setText(order.status);
+        orderIdLabel.setText(order.getOrderId());
+        dateLabel.setText(order.getDate());
+        statusLabel.setText(order.getStatus());
 
         if (branchLabel != null) {
-            branchLabel.setText(order.branchName != null ? order.branchName : "-");
+            branchLabel.setText(order.getBranchName() != null ? order.getBranchName() : "-");
         }
 
         // Show/hide cancel button based on order status
         if (cancelOrderBtn != null) {
-            boolean canCancel = !"Cancelled".equalsIgnoreCase(order.status) && 
-                               !"Delivered".equalsIgnoreCase(order.status);
+            boolean canCancel = !"Cancelled".equalsIgnoreCase(order.getStatus()) &&
+                               !"Delivered".equalsIgnoreCase(order.getStatus());
             cancelOrderBtn.setVisible(canCancel);
             cancelOrderBtn.setDisable(!canCancel);
         }
@@ -73,10 +75,10 @@ public class OrderDetailController {
                 new SimpleDoubleProperty(d.getValue().getUnitPrice()).asObject());
 
         // מילוי הטבלה בפריטים של ההזמנה
-        itemsTable.setItems(FXCollections.observableArrayList(order.items));
+        itemsTable.setItems(FXCollections.observableArrayList(order.getItems()));
 
         // חישוב הסכום הכולל
-        for (OrderLine line : order.items) {
+        for (OrderLine line : order.getItems()) {
             computedTotal += line.getQuantity() * line.getUnitPrice();
         }
 
@@ -109,13 +111,13 @@ public class OrderDetailController {
                 "• 1-3 hours before delivery: Partial credit (50%)\n" +
                 "• Less than 1 hour before delivery: No credit (0%)",
                 ButtonType.YES, ButtonType.NO);
-        confirm.setHeaderText("Cancel Order #" + currentOrder.orderId);
+        confirm.setHeaderText("Cancel Order #" + currentOrder.getOrderId());
         confirm.setTitle("Confirm Cancellation");
         confirm.showAndWait();
 
         if (confirm.getResult() == ButtonType.YES) {
             try {
-                int orderId = Integer.parseInt(currentOrder.orderId);
+                int orderId = Integer.parseInt(currentOrder.getOrderId());
                 CancelOrderRequest request = new CancelOrderRequest(currentUser.getUserId(), orderId);
                 client.sendToServer(request);
             } catch (NumberFormatException e) {

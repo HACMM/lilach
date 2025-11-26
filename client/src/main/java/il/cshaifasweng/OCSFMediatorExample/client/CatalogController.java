@@ -30,7 +30,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.TableView;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.*;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -38,9 +38,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
@@ -58,16 +56,12 @@ public class CatalogController implements Initializable {
     private TableColumn<Item, Double> priceCol;
     @FXML
     private TableColumn<Item, ImageView> imageCol;
-//    @FXML
-//    private ComboBox<String> categoryFilter;
-//    @FXML
-//    private ComboBox<String> colorFilter;
-//    @FXML
-//    private ComboBox<String> priceFilter;
     @FXML
     private TextField filterField;
 	@FXML
 	private Button addItemBtn;
+	@FXML
+	private TableColumn<Item, String> colorCol;
 
 	@FXML
 
@@ -86,30 +80,122 @@ public class CatalogController implements Initializable {
 	@Override
 	public void initialize(URL loc, ResourceBundle res) {
 		EventBus.getDefault().register(this);
-
+		Image placeholder = new Image(
+				Objects.requireNonNull(
+						getClass().getResource("/images/no_image.jpg")
+				).toExternalForm()
+		);
 		nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getName()));
 		typeCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getType()));
 		priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getPrice()));
 
 		imageCol.setCellValueFactory(d -> {
-			byte[] imgData = d.getValue().getImageData();
-			ImageView imageView;
+			ImageView imageView = new ImageView(placeholder);
+			imageView.setFitWidth(100);
+			imageView.setFitHeight(100);
+			imageView.setPreserveRatio(true);
+
+			Item item = d.getValue();
+			byte[] imgData = item.getImageData();
 
 			if (imgData != null && imgData.length > 0) {
-				Image img = new Image(new ByteArrayInputStream(imgData));
-				imageView = new ImageView(img);
-				imageView.setFitWidth(100);
-				imageView.setFitHeight(100);
-				imageView.setPreserveRatio(true);
-			} else {
-				imageView = new ImageView(new Image(getClass().getResourceAsStream("/images/no_image.jpg")));
-				imageView.setFitWidth(100);
-				imageView.setFitHeight(100);
-				imageView.setPreserveRatio(true);
+
+				// ⭐ 2 — טענת תמונה אמיתית ברקע
+				new Thread(() -> {
+					Image img = new Image(new ByteArrayInputStream(imgData));
+
+					Platform.runLater(() -> imageView.setImage(img));
+				}).start();
 			}
 
 			return new SimpleObjectProperty<>(imageView);
-	});
+		});
+
+
+
+
+		colorCol.setCellValueFactory(d ->
+				new SimpleStringProperty(d.getValue().getColor())
+		);
+
+		colorCol.setCellFactory(col -> new TableCell<Item, String>() {
+			@Override
+			protected void updateItem(String colorName, boolean empty) {
+				super.updateItem(colorName, empty);
+
+				if (empty || colorName == null || colorName.isEmpty()) {
+					setGraphic(null);
+					return;
+				}
+
+				// עיגול עדין
+				javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(8);
+
+				// אם הצבע הוא לבן → נוסיף גבול אפור כדי שיראה
+				String fill = colorName.toLowerCase();
+
+				// אם רוצים גוון עדין יותר:
+				switch (fill) {
+					case "red":
+						fill = "#ff8a8a";
+						break;
+					case "yellow":
+						fill = "#fff79a";
+						break;
+					case "pink":
+						fill = "#ffb6d5";
+						break;
+					case "purple":
+						fill = "#c7a7f3";
+						break;
+					case "white":
+						fill = "white";
+						break;
+					case "green":
+					case "deep green":
+						fill = "#8fd19e";  // ירוק פסטלי
+						break;
+					case "green with yellow edges":
+						fill = "#cce58b";  // ירוק-צהבהב עדין
+						break;
+					case "peach":
+						fill = "#ffd4b3";
+						break;
+					case "cream":
+						fill = "#fff3d6";
+						break;
+					case "lavender":
+					case "lavender & white":
+						fill = "#dcbcfa";
+						break;
+					case "peach, cream & white":
+						fill = "#f6d6c7";
+						break;
+					case "red & white":
+						fill = "#e6a4a4";
+						break;
+					case "pink & green":
+						fill = "#d4c6dd";
+						break;
+					case "green & white variegated":
+						fill = "#c9e3d3";
+						break;
+					default:
+						fill = "#dddddd"; // צבע ברירת מחדל עדין
+						break;
+				}
+
+
+				circle.setStyle(
+						"-fx-fill: " + fill + ";" +
+								"-fx-stroke: #cccccc;" +      // גבול עדין
+								"-fx-stroke-width: 1;"
+				);
+
+				setGraphic(circle);
+			}
+		});
+
 
 		filterField.textProperty().addListener((obs, oldV, newV) -> applyFilters());
 
@@ -469,8 +555,16 @@ public class CatalogController implements Initializable {
     }
 
 	public void onCartClicked(ActionEvent actionEvent) {
+		PublicUser currentUser = AppSession.getCurrentUser();
+
 		try {
-			App.setRoot("CartView");
+			if (currentUser == null) {
+				// המשתמש לא מחובר → מעבר לדף התחברות
+				App.setRoot("Login");
+			} else {
+				// המשתמש מחובר → מעבר לעגלת הקניות
+				App.setRoot("CartView");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

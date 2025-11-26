@@ -66,6 +66,16 @@
 
                     <!-- 🔸 כפתורים רגילים -->
                     <FlowPane alignment="CENTER" hgap="20" vgap="15">
+                        <Button fx:id="manageOrdersBtn" text="Manage Orders" onAction="#onManageOrdersClicked"
+                                prefWidth="200" prefHeight="55"
+                                style="-fx-background-color: #a64f73;
+               -fx-text-fill: white;
+               -fx-font-weight: bold;
+               -fx-font-size: 14;
+               -fx-background-radius: 25;
+               -fx-cursor: hand;
+               -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+
                         <Button fx:id="browseBtn" text="Browse Catalog" onAction="#onBrowseClicked"
                                 prefWidth="200" prefHeight="55"
                                 style="-fx-background-color: #e7b3d1;
@@ -76,15 +86,15 @@
                                        -fx-cursor: hand;
                                        -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
 
-                        <Button fx:id="ordersBtn" text="My Orders" onAction="#onOrdersClicked"
-                                prefWidth="200" prefHeight="55"
-                                style="-fx-background-color: #e7b3d1;
-                                       -fx-text-fill: white;
-                                       -fx-font-weight: bold;
-                                       -fx-font-size: 14;
-                                       -fx-background-radius: 25;
-                                       -fx-cursor: hand;
-                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>
+<!--                        <Button fx:id="ordersBtn" text="My Orders" onAction="#onOrdersClicked"-->
+<!--                                prefWidth="200" prefHeight="55"-->
+<!--                                style="-fx-background-color: #e7b3d1;-->
+<!--                                       -fx-text-fill: white;-->
+<!--                                       -fx-font-weight: bold;-->
+<!--                                       -fx-font-size: 14;-->
+<!--                                       -fx-background-radius: 25;-->
+<!--                                       -fx-cursor: hand;-->
+<!--                                       -fx-effect: dropshadow(gaussian, #f0c8d4, 5, 0, 0, 1);"/>-->
 
                         <Button fx:id="complaintsBtn" text="Complaints" onAction="#onComplaintsClicked"
                                 prefWidth="200" prefHeight="55"

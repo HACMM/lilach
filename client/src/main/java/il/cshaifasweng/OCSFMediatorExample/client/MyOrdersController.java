@@ -2,6 +2,8 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
 import Request.PublicUser;
+import il.cshaifasweng.OCSFMediatorExample.client.OrderRow;
+
 import il.cshaifasweng.OCSFMediatorExample.entities.Order;
 import il.cshaifasweng.OCSFMediatorExample.entities.OrderLine;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
@@ -51,11 +53,11 @@ public class MyOrdersController {
     private void initialize() {
         EventBus.getDefault().register(this);
 
-        idCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().orderId));
-        dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().date));
-        itemsCol.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().itemsCount).asObject());
-        totalCol.setCellValueFactory(d -> new SimpleDoubleProperty(d.getValue().total).asObject());
-        statusCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().status));
+        idCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getOrderId()));
+        dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDate()));
+        itemsCol.setCellValueFactory(d -> new SimpleIntegerProperty(d.getValue().getItemsCount()).asObject());
+        totalCol.setCellValueFactory(d -> new SimpleDoubleProperty(d.getValue().getTotal()).asObject());
+        statusCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getStatus()));
         detailsCol.setCellFactory(createDetailsButtonFactory());
 
         statusFilter.setItems(FXCollections.observableArrayList("All", "Pending", "Shipped", "Delivered", "Cancelled"));
@@ -134,8 +136,8 @@ public class MyOrdersController {
         String status = statusFilter.getValue();
 
         List<OrderRow> filtered = masterData.stream()
-                .filter(o -> search.isEmpty() || o.orderId.toLowerCase().contains(search))
-                .filter(o -> status == null || status.equals("All") || o.status.equalsIgnoreCase(status))
+                .filter(o -> search.isEmpty() || o.getOrderId().toLowerCase().contains(search))
+                .filter(o -> status == null || status.equals("All") || o.getStatus().equalsIgnoreCase(status))
                 .collect(Collectors.toList());
 
         ordersTable.setItems(FXCollections.observableArrayList(filtered));
@@ -158,7 +160,7 @@ public class MyOrdersController {
             OrderDetailController ctrl = loader.getController();
             ctrl.init(order);
             Stage st = new Stage();
-            st.setTitle("Order " + order.orderId);
+            st.setTitle("Order " + order.getOrderId());
             st.setScene(new Scene(root));
             st.show();
         } catch (IOException ex) {
@@ -176,24 +178,24 @@ public class MyOrdersController {
         }
     }
 
-    /** מודל שורה בטבלה */
-    public static class OrderRow {
-        public final String orderId;
-        public final String date;
-        public final int itemsCount;
-        public final double total;
-        public final String status;
-        public final String branchName;
-        public final List<OrderLine> items;
-
-        public OrderRow(String orderId, String date, int itemsCount, double total, String status, String branchName, List<OrderLine> items) {
-            this.orderId = orderId;
-            this.date = date;
-            this.itemsCount = itemsCount;
-            this.total = total;
-            this.status = status;
-            this.branchName = branchName;
-            this.items = items;
-        }
-    }
+//    /** מודל שורה בטבלה */
+//    public static class OrderRow {
+//        public final String orderId;
+//        public final String date;
+//        public final int itemsCount;
+//        public final double total;
+//        public final String status;
+//        public final String branchName;
+//        public final List<OrderLine> items;
+//
+//        public OrderRow(String orderId, String date, int itemsCount, double total, String status, String branchName, List<OrderLine> items) {
+//            this.orderId = orderId;
+//            this.date = date;
+//            this.itemsCount = itemsCount;
+//            this.total = total;
+//            this.status = status;
+//            this.branchName = branchName;
+//            this.items = items;
+//        }
+//    }
 }

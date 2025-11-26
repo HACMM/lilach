@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<AnchorPane prefWidth="820" prefHeight="580"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.BrowseCategoriesController"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-repeat: no-repeat;
+                   -fx-background-size: cover;
+                   -fx-background-position: center;">
+
+    <children>
+
+        <VBox spacing="20"
+              AnchorPane.topAnchor="40"
+              AnchorPane.leftAnchor="60"
+              AnchorPane.rightAnchor="60"
+              AnchorPane.bottomAnchor="40"
+              style="-fx-background-color: rgba(255,255,255,0.85); -fx-padding: 30; -fx-background-radius: 12;"
+              alignment="TOP_CENTER">
+
+            <Label text="Choose Category"
+                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a64f73;" />
+
+            <Separator />
+
+            <VBox fx:id="categoryList" spacing="15" alignment="CENTER" />
+
+        </VBox>
+
+    </children>
+
+</AnchorPane>

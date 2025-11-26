@@ -2,10 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.PublicUser;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.SalesListEvent;
-import il.cshaifasweng.OCSFMediatorExample.entities.Role;
-import il.cshaifasweng.OCSFMediatorExample.entities.Sale;
-import il.cshaifasweng.OCSFMediatorExample.entities.SaleStatus;
-import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
+import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,8 +17,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
+
 public class MainPageController {
 
+    @FXML private Button manageOrdersBtn;
+    //@FXML private Button ordersBtn;
+    @FXML private Button complaintsBtn;
     @FXML private Button LogInBtn;
     @FXML private Button LogoutBtn;
     @FXML private Button reportsBtn;
@@ -42,6 +44,11 @@ public class MainPageController {
             reportsBtn.setVisible(false);
             addSaleBtn.setVisible(false);
             addSaleBtn.setManaged(false);
+            //ordersBtn.setVisible(false);
+            complaintsBtn.setVisible(false);
+            manageOrdersBtn.setVisible(false);
+
+
         }
 
         if (user == null) {
@@ -57,6 +64,7 @@ public class MainPageController {
             // logged in
             LogInBtn.setVisible(false);
             LogInBtn.setManaged(false);
+            complaintsBtn.setVisible(true);
 
             if (LogoutBtn != null) {
                 LogoutBtn.setVisible(true);
@@ -87,7 +95,11 @@ public class MainPageController {
 
     @FXML
     private void onBrowseClicked(ActionEvent event) {
-        switchTo("CatalogView");
+        try {
+            client.sendToServer("getCategories");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -215,6 +227,30 @@ public class MainPageController {
             e.printStackTrace();
         }
     }
+
+    @Subscribe
+    public void onCategoriesReceived(List<?> list) {
+        if (list.isEmpty() || !(list.get(0) instanceof Category)) return;
+
+        List<Category> categories = (List<Category>) list;
+
+        try {
+            App.setRoot("BrouseCategoriesView");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onManageOrdersClicked(ActionEvent e) {
+        try {
+            App.setRoot("ManageOrdersView");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
 }
 

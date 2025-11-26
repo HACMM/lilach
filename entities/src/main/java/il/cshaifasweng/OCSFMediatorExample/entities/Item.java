@@ -15,6 +15,7 @@ public class Item implements Serializable {
     private int id;
     // Item name: "Rose"
     @Column(name = "name") private String name;
+    @Lob
     @Column(name = "description") private String description;
     @Column(name = "type") private String type;
     @Column(name = "price") private double price;

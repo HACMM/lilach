@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ManageOrdersController"
+            prefWidth="900" prefHeight="600"
+            style="-fx-background-image: url('/images/flower_background.png');
+                   -fx-background-size: cover;
+                   -fx-background-position: center;">
+
+    <children>
+
+        <VBox alignment="TOP_CENTER" spacing="15"
+              style="-fx-background-color: rgba(255,255,255,0.85);
+                 -fx-background-radius: 12;
+                 -fx-padding: 30;"
+              AnchorPane.topAnchor="40"
+              AnchorPane.bottomAnchor="40"
+              AnchorPane.leftAnchor="100"
+              AnchorPane.rightAnchor="100">
+
+            <HBox alignment="CENTER_LEFT" spacing="6">
+                <Button fx:id="BackBtn"
+                        text="← Back"
+                        onAction="#onBack"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #a0537a;
+                               -fx-font-weight: bold;
+                               -fx-font-size: 13;
+                               -fx-cursor: hand;"/>
+            </HBox>
+
+
+            <!-- title -->
+            <Text text="Manage Orders"
+                  style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: #93345c"/>
+
+            <!-- filters -->
+            <HBox spacing="15" alignment="CENTER">
+                <TextField fx:id="searchField" promptText="Search by Order ID"
+                           style="-fx-pref-width: 200;"/>
+                <ComboBox fx:id="statusFilter"
+                          style="-fx-pref-width: 150;"/>
+                <Button text="Filter" onAction="#onFilterClicked"
+                        style="-fx-background-color: #e7b3d1;
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;"/>
+            </HBox>
+
+            <!-- table -->
+            <TableView fx:id="ordersTable" prefHeight="420">
+
+                <columns>
+                    <TableColumn fx:id="idCol" text="Order ID" prefWidth="90"/>
+                    <TableColumn fx:id="dateCol" text="Date" prefWidth="150"/>
+                    <TableColumn fx:id="itemsCol" text="Items" prefWidth="80"/>
+                    <TableColumn fx:id="totalCol" text="Total" prefWidth="100"/>
+                    <TableColumn fx:id="statusCol" text="Status" prefWidth="120"/>
+                    <TableColumn fx:id="updateStatusCol" text="Update Status" prefWidth="140"/>
+                    <TableColumn fx:id="detailsCol" text="Details" prefWidth="100"/>
+                </columns>
+
+            </TableView>
+
+        </VBox>
+
+    </children>
+
+</AnchorPane>

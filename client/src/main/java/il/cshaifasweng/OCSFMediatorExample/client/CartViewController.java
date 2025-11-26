@@ -71,7 +71,17 @@ public class CartViewController {
         table.setItems(CartService.get().items());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         table.setEditable(true);
+        deliveryDate.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
 
+                if (date.isBefore(LocalDate.now())) {   // ← זה השורה שמונעת בחירת עבר
+                    setDisable(true);
+                    setStyle("-fx-background-color: #f2f2f2; -fx-text-fill: #b3b3b3;");
+                }
+            }
+        });
         nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getItem().getName()));
         priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getItem().getPrice()));
         priceCol.setCellFactory(col -> moneyCell());
