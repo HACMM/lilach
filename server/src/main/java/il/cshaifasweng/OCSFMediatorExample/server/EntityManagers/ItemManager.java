@@ -505,4 +505,46 @@ public class ItemManager extends BaseManager {
         // Default fallback
         return "/images/no_image.jpg";
     }
+
+    public List<String> getCategories() {
+        return read(session -> {
+            List<String> categories =
+                    session.createQuery("SELECT DISTINCT i.type FROM Item i", String.class)
+                            .list();
+
+            System.out.println("Loaded categories: " + categories);
+            return categories;
+        });
+    }
+
+    public List<Item> getItemsByCategory(int categoryId) {
+        try (Session session = sessionFactory.openSession()) {
+
+            List<Item> result = session.createQuery(
+                            "SELECT ic.primaryKey.item FROM ItemCategory ic " +
+                                    "WHERE ic.primaryKey.category.category_id = :catId",
+                            Item.class
+                    )
+                    .setParameter("catId", categoryId)
+                    .getResultList();
+
+            // 🔥 Load images (this was missing!)
+            for (Item item : result) {
+                String path = item.getImagePath();
+
+                if (path != null && !path.trim().isEmpty()) {
+                    byte[] data = loadImageFromResources(path);
+                    item.setImageData(data);
+                } else {
+                    byte[] data = loadImageFromResources("/images/no_image.jpg");
+                    item.setImageData(data);
+                }
+            }
+
+            return result;
+        }
+    }
+
+
+
 }

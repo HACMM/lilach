@@ -83,7 +83,7 @@ public void onLoginResponse(LoginResponseEvent event) {
         if(event.isSuccess()) {
             AppSession.setCurrentUser(event.getUser());
             try {
-                App.setRoot("CatalogView");
+                App.setRoot("MainPage");
             } catch (IOException e) {
                 e.printStackTrace();
                 EventBus.getDefault()

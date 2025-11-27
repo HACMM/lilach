@@ -2,9 +2,17 @@ package il.cshaifasweng.OCSFMediatorExample.client;
 
 import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.entities.Category;
+import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
@@ -15,19 +23,72 @@ public class BrowseCategoriesController {
     @FXML
     private VBox categoryList;
 
+    @FXML
+    public void initialize() {
+        // חייבים להירשם ל־EventBus!
+        EventBus.getDefault().register(this);
+
+        // מעלה את הקטגוריות מה־AppSession
+        List<Category> categories = AppSession.getCategories();
+        if (categories != null) {
+            loadCategories(categories);
+        }
+    }
+
     public void loadCategories(List<Category> categories) {
 
         categoryList.getChildren().clear();
 
         for (Category cat : categories) {
 
-            Button btn = new Button(cat.getName());
-            btn.setPrefWidth(300);
-            btn.setStyle("-fx-background-color: #e7b3d1; -fx-text-fill: white; -fx-font-size: 16px; " +
-                    "-fx-background-radius: 20; -fx-padding: 10 20;");
+            // כרטיס (VBox)
+            VBox card = new VBox();
+            card.setSpacing(10);
+            card.setAlignment(Pos.CENTER);
+            card.setPrefWidth(300);
+            card.setPrefHeight(80);
 
-            btn.setOnAction(e -> {
+            // עיצוב התחלתי
+            card.setStyle(
+                    "-fx-background-color: #ffffff;" +
+                            "-fx-background-radius: 18;" +
+                            "-fx-border-radius: 18;" +
+                            "-fx-border-color: #eab6ce;" +
+                            "-fx-border-width: 1.5;" +
+                            "-fx-padding: 18;"
+            );
+
+            // כותרת הקטגוריה
+            Label lbl = new Label(cat.getName());
+            lbl.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #b36384;");
+
+            // מוסיפים לכרטיס
+            card.getChildren().add(lbl);
+
+            // Hover effect
+            card.setOnMouseEntered(e -> card.setStyle(
+                    "-fx-background-color: #ffe7f2;" +
+                            "-fx-background-radius: 18;" +
+                            "-fx-border-radius: 18;" +
+                            "-fx-border-color: #d48aab;" +
+                            "-fx-border-width: 1.5;" +
+                            "-fx-padding: 18;"
+            ));
+
+            card.setOnMouseExited(e -> card.setStyle(
+                    "-fx-background-color: #ffffff;" +
+                            "-fx-background-radius: 18;" +
+                            "-fx-border-radius: 18;" +
+                            "-fx-border-color: #eab6ce;" +
+                            "-fx-border-width: 1.5;" +
+                            "-fx-padding: 18;"
+            ));
+
+            // לחיצה על הקטגוריה
+            card.setOnMouseClicked(e -> {
                 AppSession.setLastSelectedCategory(cat.getCategory_id());
+                AppSession.setCameFromCategory(true); // חובה!!
+
                 try {
                     client.sendToServer(new Message("getCatalogByCategory", cat.getCategory_id()));
                 } catch (Exception ex) {
@@ -35,7 +96,36 @@ public class BrowseCategoriesController {
                 }
             });
 
-            categoryList.getChildren().add(btn);
+            // מוסיפים ל־VBox שב־FXML
+            categoryList.getChildren().add(card);
         }
     }
+
+    @FXML
+    public void onBack(ActionEvent actionEvent) {
+        try {
+            App.setRoot("MainPage");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Subscribe
+    public void onCategoryCatalogReceived(List<?> list) {
+        if (list.isEmpty() || !(list.get(0) instanceof Item)) return;
+        EventBus.getDefault().unregister(this);
+        List<Item> items = (List<Item>) list;
+
+        System.out.println("BrowseCategoriesController: received " + items.size() + " items for category");
+
+        AppSession.setLastItemList(items);
+        AppSession.setCameFromCategory(true); // << דגל חדש!
+        try {
+            App.setRoot("CatalogView");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

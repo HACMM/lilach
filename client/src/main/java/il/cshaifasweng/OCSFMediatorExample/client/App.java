@@ -19,7 +19,7 @@ import static il.cshaifasweng.OCSFMediatorExample.client.SimpleClient.client;
 
 public class App extends Application implements Serializable {
 
-    private static Scene scene;
+    public static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {

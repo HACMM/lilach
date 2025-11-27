@@ -2,11 +2,7 @@ package il.cshaifasweng.OCSFMediatorExample.server;
 
 import Request.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.*;
-import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ItemManager;
-import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ComplaintManager;
-import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.OrderManager;
-import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.BranchManager;
-import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.UserAccountManager;
+import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.*;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
 import org.hibernate.SessionFactory;
@@ -31,6 +27,8 @@ public class SimpleServer extends AbstractServer {
     private il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ReportManager reportManager = null;
     private BranchManager branchManager = null;
     private UserAccountManager userAccountManager = null;
+    private CategoryManager categoryManager = null;
+
 
     public SimpleServer(int port) {
         super(port);
@@ -41,6 +39,10 @@ public class SimpleServer extends AbstractServer {
         this.reportManager = new il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.ReportManager(sessionFactory);
         this.branchManager = new BranchManager(sessionFactory);
         this.userAccountManager = new UserAccountManager(sessionFactory);
+        this.categoryManager = new CategoryManager(sessionFactory);
+        this.categoryManager.createDefaultCategories();
+
+
     }
 
     private PublicUser toPublicUser(UserAccount u) {
@@ -108,7 +110,7 @@ public class SimpleServer extends AbstractServer {
                 } catch (IOException ignored) {}
             }
 
-        } else if (msgString.startsWith("getCatalog")) {
+        } else if (msgString.equals("getCatalog")) {
             List<Item> items = itemManager.GetItemList(new ArrayList<>());
             System.out.println("Catalog received");
             System.out.println(items);
@@ -118,7 +120,33 @@ public class SimpleServer extends AbstractServer {
                 e.printStackTrace();
             }
 
-        } else if (msgString.startsWith("#getAllBranches") || msgString.equals("getAllBranches")) {
+        } else if (msgString.equals("getCategories")) {
+            try {
+                List<Category> categories = categoryManager.listAll();
+                client.sendToClient(categories);
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("categoriesError", "Failed to load categories"));
+                } catch (IOException ignored) {}
+            }
+
+    } else if (msg instanceof Message && ((Message) msg).getType().equals("getCatalogByCategory")) {
+
+            int categoryId = (int) ((Message) msg).getData();
+
+            System.out.println("SERVER: getCatalogByCategory for category " + categoryId);
+
+            List<Item> items = itemManager.getItemsByCategory(categoryId);
+            System.out.println("SERVER DEBUG: found " + items.size() + " items for category " + categoryId);
+
+
+            try {
+                client.sendToClient(items);
+            } catch (IOException ignored) {}
+        }
+
+        else if (msgString.startsWith("#getAllBranches") || msgString.equals("getAllBranches")) {
             System.out.println("Received #getAllBranches request");
             try {
                 List<Branch> branches = branchManager.listAll();

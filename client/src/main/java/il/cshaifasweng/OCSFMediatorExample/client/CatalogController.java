@@ -80,6 +80,18 @@ public class CatalogController implements Initializable {
 	@Override
 	public void initialize(URL loc, ResourceBundle res) {
 		EventBus.getDefault().register(this);
+		System.out.println("CatalogController initialized!");
+
+		if (AppSession.isCameFromCategory()) {
+			List<Item> items = AppSession.getLastItemList();
+			if (items != null) {
+				masterData.setAll(items);
+				filteredData.setAll(items);
+
+				// מחזירים את הדגל למצב רגיל
+				AppSession.setCameFromCategory(false);
+			}
+		}
 		Image placeholder = new Image(
 				Objects.requireNonNull(
 						getClass().getResource("/images/no_image.jpg")
@@ -241,7 +253,10 @@ public class CatalogController implements Initializable {
             } else {
                 branchLabel.setText("Branch: (unknown)");
             }
-            requestCatalogForBranch(branchId);
+//			if (!AppSession.isCameFromCategory()) {
+//				// רק אם לא באנו מסינון לפי קטגוריה – נבקש את כל הקטלוג
+//				requestCatalogForBranch(branchId);
+//			}
         }
 
         //  nice rendering of Branch in combo
@@ -382,6 +397,9 @@ public class CatalogController implements Initializable {
 
 	@Subscribe
 	public void onCatalogReceived(List<?> list) {
+		if (AppSession.isCameFromCategory()) {
+			return;
+		}
 		// EventBus uses raw types for List, so verify the payload is actually a list of Item
 		if (list == null || list.isEmpty() || !(list.get(0) instanceof Item)) {
 			return; // ignore non-catalog lists (e.g., orders list)
@@ -488,7 +506,7 @@ public class CatalogController implements Initializable {
 	@FXML
 	private void onBackClicked() {
 		try {
-			App.setRoot("MainPage");
+			App.setRoot("BrowseCategoriesView");
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

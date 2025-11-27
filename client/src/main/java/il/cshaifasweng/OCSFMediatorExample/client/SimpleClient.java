@@ -137,7 +137,15 @@ public class SimpleClient extends AbstractClient {
                             (List<il.cshaifasweng.OCSFMediatorExample.entities.Order>) list;
                         System.out.println("SimpleClient: Received " + orders.size() + " orders");
                         EventBus.getDefault().post(orders);
+                    } else if (list.get(0) instanceof il.cshaifasweng.OCSFMediatorExample.entities.Category) {
+                        @SuppressWarnings("unchecked")
+                        List<il.cshaifasweng.OCSFMediatorExample.entities.Category> categories =
+                                (List<il.cshaifasweng.OCSFMediatorExample.entities.Category>) list;
+
+                        System.out.println("Received " + categories.size() + " categories from server");
+                        EventBus.getDefault().post(categories);
                     }
+
                 }
             }
         }

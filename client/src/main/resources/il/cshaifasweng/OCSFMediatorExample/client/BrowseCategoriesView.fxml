@@ -2,35 +2,49 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
 
-<AnchorPane prefWidth="820" prefHeight="580"
-            xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="il.cshaifasweng.OCSFMediatorExample.client.BrowseCategoriesController"
+            prefWidth="900" prefHeight="650"
             style="-fx-background-image: url('/images/flower_background.png');
                    -fx-background-repeat: no-repeat;
                    -fx-background-size: cover;
                    -fx-background-position: center;">
 
-    <children>
+    <!-- White Card -->
+    <VBox alignment="TOP_CENTER" spacing="25"
+          AnchorPane.topAnchor="40"
+          AnchorPane.leftAnchor="60"
+          AnchorPane.rightAnchor="60"
+          AnchorPane.bottomAnchor="40"
+          style="-fx-background-color: rgba(255,255,255,0.85);
+                 -fx-background-radius: 16;
+                 -fx-padding: 30;">
 
-        <VBox spacing="20"
-              AnchorPane.topAnchor="40"
-              AnchorPane.leftAnchor="60"
-              AnchorPane.rightAnchor="60"
-              AnchorPane.bottomAnchor="40"
-              style="-fx-background-color: rgba(255,255,255,0.85); -fx-padding: 30; -fx-background-radius: 12;"
-              alignment="TOP_CENTER">
+        <!-- Back button -->
+        <HBox alignment="CENTER_LEFT">
+            <Button text="← Back"
+                    onAction="#onBack"
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: #2c3e50;
+                           -fx-font-weight: bold;
+                           -fx-font-size: 13;" />
+        </HBox>
 
-            <Label text="Choose Category"
-                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #a64f73;" />
+        <!-- Title -->
+        <Label text="Choose Category"
+               style="-fx-font-size: 28px; -fx-text-fill: #93345c; -fx-font-weight: bold;" />
 
-            <Separator />
-
-            <VBox fx:id="categoryList" spacing="15" alignment="CENTER" />
-
+        <!-- Category list -->
+        <VBox fx:id="categoryList"
+              spacing="20"
+              alignment="TOP_CENTER"
+              style="-fx-padding: 10;">
         </VBox>
 
-    </children>
+    </VBox>
 
 </AnchorPane>

@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class MainPageController {
 
     @FXML
     private void initialize() {
+        EventBus.getDefault().register(this);
+
         PublicUser user = AppSession.getCurrentUser();
         if (user == null || (user.getRole() != Role.MANAGER && user.getRole() != Role.NETWORK_MANAGER)) {
             manageEmployeesBtn.setVisible(false);
@@ -232,15 +235,31 @@ public class MainPageController {
     public void onCategoriesReceived(List<?> list) {
         if (list.isEmpty() || !(list.get(0) instanceof Category)) return;
 
+        @SuppressWarnings("unchecked")
         List<Category> categories = (List<Category>) list;
 
-        try {
-            App.setRoot("BrouseCategoriesView");
+        System.out.println("MainPageController: Categories received = " + categories.size());
 
-        } catch (Exception e) {
+        AppSession.setCategories(categories);
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("BrowseCategoriesView.fxml"));
+            Parent root = loader.load();
+
+            // ❗ חשוב!! לטעון את הקטגוריות למסך
+            BrowseCategoriesController controller = loader.getController();
+            controller.loadCategories(categories);
+
+            // עכשיו מציגים
+            App.scene.setRoot(root);
+
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
 
     @FXML
     private void onManageOrdersClicked(ActionEvent e) {

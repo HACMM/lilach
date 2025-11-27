@@ -1,6 +1,7 @@
 package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "items_categories")
@@ -10,7 +11,7 @@ import javax.persistence.*;
         @AssociationOverride(name = "primaryKey.category",
                 joinColumns = @JoinColumn(name = "category_id"))
 })
-public class ItemCategory {
+public class ItemCategory implements Serializable {
     @EmbeddedId
     private ItemCategoryId primaryKey = new ItemCategoryId();
 
