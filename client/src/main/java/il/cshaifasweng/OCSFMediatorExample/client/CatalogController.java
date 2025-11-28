@@ -79,6 +79,12 @@ public class CatalogController implements Initializable {
 	/** Set up table and ask server for catalog */
 	@Override
 	public void initialize(URL loc, ResourceBundle res) {
+		// Unregister first to avoid duplicate registrations
+		try {
+			EventBus.getDefault().unregister(this);
+		} catch (IllegalArgumentException e) {
+			// Not registered, that's okay
+		}
 		EventBus.getDefault().register(this);
 		System.out.println("CatalogController initialized!");
 
@@ -87,9 +93,9 @@ public class CatalogController implements Initializable {
 			if (items != null) {
 				masterData.setAll(items);
 				filteredData.setAll(items);
-
-				// מחזירים את הדגל למצב רגיל
-				AppSession.setCameFromCategory(false);
+				table.setItems(filteredData);
+				// Don't reset the flag here - keep it until we explicitly want to clear it
+				// This prevents the catalog from being overwritten when branch selection triggers a refresh
 			}
 		}
 		Image placeholder = new Image(
@@ -397,17 +403,48 @@ public class CatalogController implements Initializable {
 
 	@Subscribe
 	public void onCatalogReceived(List<?> list) {
+		// If we came from category selection, preserve the filtered items and ignore new catalog
 		if (AppSession.isCameFromCategory()) {
+			System.out.println("CatalogController: Ignoring catalog update - preserving category-filtered items");
 			return;
 		}
 		// EventBus uses raw types for List, so verify the payload is actually a list of Item
-		if (list == null || list.isEmpty() || !(list.get(0) instanceof Item)) {
+		if (list == null || list.isEmpty()) {
+			System.out.println("CatalogController: Received empty or null list, requesting catalog again");
+			Platform.runLater(() -> {
+				PublicUser currentUser = AppSession.getCurrentUser();
+				if (currentUser != null && currentUser.isNetworkUser()) {
+					// For network users, we need to wait for branch selection
+					// Just log the issue - the user should select a branch
+					System.out.println("CatalogController: Network user - catalog will load when branch is selected");
+				} else {
+					// For branch users, request catalog for their branch
+					Integer branchId = currentUser != null ? currentUser.getBranchId() : null;
+					if (branchId != null) {
+						requestCatalogForBranch(branchId);
+					} else {
+						// Fallback: try generic getCatalog
+						try {
+							if (client != null && client.isConnected()) {
+								client.sendToServer("getCatalog");
+							}
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+			return;
+		}
+		
+		if (!(list.get(0) instanceof Item)) {
 			return; // ignore non-catalog lists (e.g., orders list)
 		}
 		@SuppressWarnings("unchecked")
 		List<Item> items = (List<Item>) list;
 
 		Platform.runLater(() -> {
+			System.out.println("CatalogController: Received " + items.size() + " items, updating catalog");
 			masterData.setAll(items);
 
 			SearchCriteria last = AppSession.getLastSearchCriteria();
@@ -658,6 +695,14 @@ public class CatalogController implements Initializable {
                 //  persist selection for next time
                 AppSession.setCurrentBranch(toSelect);
                 CartService.get().switchBranch(toSelect.getId());
+                
+                // Only request catalog if we didn't come from category selection
+                // This prevents overwriting category-filtered items
+                if (!AppSession.isCameFromCategory()) {
+                    requestCatalogForBranch(toSelect.getId());
+                } else {
+                    System.out.println("CatalogController: Preserving category-filtered items - not requesting full catalog");
+                }
             }
         });
     }
@@ -673,7 +718,12 @@ public class CatalogController implements Initializable {
         System.out.println("Catalog: switched to branch " + selected.getName()
                 + " (id=" + selected.getId() + ")");
 
-        requestCatalogForBranch(selected.getId());
+        // If we came from category selection, don't request full catalog - preserve the filtered items
+        if (!AppSession.isCameFromCategory()) {
+            requestCatalogForBranch(selected.getId());
+        } else {
+            System.out.println("Catalog: Preserving category-filtered items after branch change");
+        }
     }
 
 

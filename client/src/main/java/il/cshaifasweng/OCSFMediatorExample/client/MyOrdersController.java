@@ -51,6 +51,12 @@ public class MyOrdersController {
 
     @FXML
     private void initialize() {
+        // Unregister first to avoid duplicate registrations
+        try {
+            EventBus.getDefault().unregister(this);
+        } catch (IllegalArgumentException e) {
+            // Not registered, that's okay
+        }
         EventBus.getDefault().register(this);
 
         idCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getOrderId()));
@@ -67,7 +73,10 @@ public class MyOrdersController {
         ordersTable.setOnMouseClicked(this::onRowDoubleClick);
 
         // שלח בקשה לשרת לקבל את ההזמנות של המשתמש המחובר
-        requestOrdersFromServer();
+        // Use Platform.runLater to ensure EventBus is ready
+        Platform.runLater(() -> {
+            requestOrdersFromServer();
+        });
     }
 
     /** שולח בקשה לשרת עבור ההזמנות של המשתמש המחובר */
@@ -75,9 +84,15 @@ public class MyOrdersController {
         try {
             PublicUser user = AppSession.getCurrentUser();
             if (user != null && client != null && client.isConnected()) {
+                System.out.println("MyOrdersController: Requesting orders for user ID: " + user.getUserId());
                 client.sendToServer("getOrdersForUser:" + user.getUserId());
+            } else {
+                System.err.println("MyOrdersController: Cannot request orders - user=" + (user != null ? "exists" : "null") + 
+                                   ", client=" + (client != null ? "exists" : "null") + 
+                                   ", connected=" + (client != null && client.isConnected()));
             }
         } catch (IOException e) {
+            System.err.println("MyOrdersController: Error requesting orders: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -86,19 +101,24 @@ public class MyOrdersController {
     @Subscribe
     public void onOrdersReceived(List<Order> orders) {
         Platform.runLater(() -> {
+            System.out.println("MyOrdersController: Received " + (orders != null ? orders.size() : 0) + " orders");
             masterData.clear();
-            for (Order o : orders) {
-                int itemCount = o.getOrderLines() != null ? o.getOrderLines().size() : 0;
-                double total = o.getTotalPrice();
-                String status = o.getStatus() != null ? o.getStatus() : "Pending";
-                String date = o.getCreatedAt() != null ? o.getCreatedAt().toString() : "Unknown";
-                String branchName = (o.getBranch() != null && o.getBranch().getName() != null)
-                        ? o.getBranch().getName()
-                        : "—";
+            if (orders != null && !orders.isEmpty()) {
+                for (Order o : orders) {
+                    int itemCount = o.getOrderLines() != null ? o.getOrderLines().size() : 0;
+                    double total = o.getTotalPrice();
+                    String status = o.getStatus() != null ? o.getStatus() : "Pending";
+                    String date = o.getCreatedAt() != null ? o.getCreatedAt().toString() : "Unknown";
+                    String branchName = (o.getBranch() != null && o.getBranch().getName() != null)
+                            ? o.getBranch().getName()
+                            : "—";
 
-                masterData.add(new OrderRow(
-                        String.valueOf(o.getId()), date, itemCount, total, status, branchName,o.getOrderLines()
-                ));
+                    masterData.add(new OrderRow(
+                            String.valueOf(o.getId()), date, itemCount, total, status, branchName,o.getOrderLines()
+                    ));
+                }
+            } else {
+                System.out.println("MyOrdersController: No orders received, list is empty or null");
             }
             ordersTable.refresh();
         });

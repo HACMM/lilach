@@ -46,7 +46,9 @@ public class ManageOrdersController {
 
     @FXML
     private void initialize() {
+        System.out.println("ManageOrdersController: Initializing...");
         EventBus.getDefault().register(this);
+        System.out.println("ManageOrdersController: Registered with EventBus");
 
         idCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getOrderId()));
         dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDate()));
@@ -60,34 +62,74 @@ public class ManageOrdersController {
         statusFilter.setItems(FXCollections.observableArrayList("All", "Pending", "Shipped", "Delivered", "Cancelled"));
         statusFilter.setValue("All");
 
-        requestOrders();
+        // Set the table to use masterData from the start
+        ordersTable.setItems(masterData);
+        System.out.println("ManageOrdersController: Table initialized with masterData (size: " + masterData.size() + ")");
+
+        // Request orders after a small delay to ensure everything is initialized
+        Platform.runLater(() -> {
+            try {
+                Thread.sleep(100); // Small delay to ensure EventBus is ready
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            requestOrders();
+        });
     }
 
     private void requestOrders() {
         try {
-            PublicUser user = AppSession.getCurrentUser();
-            if (user != null && client.isConnected()) {
-                client.sendToServer("getOrdersForBranch:" + user.getBranchId());
+            if (client != null && client.isConnected()) {
+                // Request all orders for managers
+                client.sendToServer("getAllOrders");
+                System.out.println("ManageOrdersController: Requested all orders");
+            } else {
+                System.err.println("ManageOrdersController: Client not connected");
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.err.println("ManageOrdersController: Error requesting orders: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
     public void onOrdersReceived(List<Order> orders) {
         Platform.runLater(() -> {
+            System.out.println("ManageOrdersController: Received " + (orders != null ? orders.size() : 0) + " orders");
             masterData.clear();
-            for (Order o : orders) {
-                masterData.add(new OrderRow(
-                        String.valueOf(o.getId()),
-                        o.getCreatedAt().toString(),
-                        o.getOrderLines().size(),
-                        o.getTotalPrice(),
-                        o.getStatus(),
-                        o.getBranch().toString(),
-                        o.getOrderLines()
-                ));
+            if (orders != null && !orders.isEmpty()) {
+                for (Order o : orders) {
+                    try {
+                        int itemCount = (o.getOrderLines() != null) ? o.getOrderLines().size() : 0;
+                        String branchName = (o.getBranch() != null && o.getBranch().getName() != null) 
+                                ? o.getBranch().getName() 
+                                : "Unknown";
+                        String date = (o.getCreatedAt() != null) ? o.getCreatedAt().toString() : "Unknown";
+                        String status = (o.getStatus() != null) ? o.getStatus() : "Pending";
+                        
+                        masterData.add(new OrderRow(
+                                String.valueOf(o.getId()),
+                                date,
+                                itemCount,
+                                o.getTotalPrice(),
+                                status,
+                                branchName,
+                                o.getOrderLines() != null ? o.getOrderLines() : new java.util.ArrayList<>()
+                        ));
+                    } catch (Exception e) {
+                        System.err.println("ManageOrdersController: Error processing order " + o.getId() + ": " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                System.out.println("ManageOrdersController: Received empty or null orders list");
             }
+            
+            // Ensure table is bound to masterData
             ordersTable.setItems(masterData);
+            ordersTable.refresh(); // Force table refresh
+            System.out.println("ManageOrdersController: Populated table with " + masterData.size() + " orders");
+            System.out.println("ManageOrdersController: Table items count: " + ordersTable.getItems().size());
         });
     }
 

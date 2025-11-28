@@ -50,6 +50,15 @@ public class SimpleClient extends AbstractClient {
             } else if (msg instanceof il.cshaifasweng.OCSFMediatorExample.entities.OrdersReportEvent) {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof il.cshaifasweng.OCSFMediatorExample.entities.RevenueReportEvent) {
+                System.out.println("SimpleClient: Received RevenueReportEvent with " + ((il.cshaifasweng.OCSFMediatorExample.entities.RevenueReportEvent) msg).getOrders().size() + " orders");
+                EventBus.getDefault().post(msg);
+                System.out.println("SimpleClient: Posted RevenueReportEvent to EventBus");
+
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("complaintsReportError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("ordersReportError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("revenueReportError")) {
                 EventBus.getDefault().post(msg);
 
             } else if (msg instanceof Message && ((Message) msg).getType().equals("item added successfully")) {
@@ -121,7 +130,13 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
-                if (!list.isEmpty()) {
+                // Handle empty lists too - they're valid responses
+                if (list.isEmpty()) {
+                    // Check what type of list this might be based on context
+                    // For now, we'll post empty lists to EventBus and let subscribers handle them
+                    System.out.println("SimpleClient: Received empty list from server");
+                    EventBus.getDefault().post(list);
+                } else {
                     if (list.get(0) instanceof Item) {
                         List<Item> items = (List<Item>) list;
                         System.out.println("Received catalog with " + items.size() + " items.");

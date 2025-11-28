@@ -115,6 +115,7 @@ public class ReportManager extends BaseManager {
                     "left join fetch o.orderLines ol " +
                     "left join fetch ol.item it " +
                     "left join fetch o.branch b " +
+                    "left join fetch o.userAccount ua " +  // Eagerly fetch user account to avoid LazyInitializationException
                     "where o.createdAt between :f and :t";
             if (scope == ReportScope.BRANCH && branchId != null) {
                 hql += " and b.id = :b";
@@ -125,7 +126,68 @@ public class ReportManager extends BaseManager {
             if (scope == ReportScope.BRANCH && branchId != null) {
                 q.setParameter("b", branchId);
             }
-            return q.getResultList();
+            List<Order> orders = q.getResultList();
+            System.out.println("ReportManager: Fetched " + orders.size() + " orders from database");
+            
+            // Initialize user account names and orderLines to avoid lazy loading issues
+            for (Order o : orders) {
+                if (o.getUserAccount() != null) {
+                    // Force initialization by accessing the name
+                    try {
+                        o.getUserAccount().getName();
+                    } catch (Exception e) {
+                        // If lazy loading fails, continue without name
+                    }
+                }
+                
+                // Check if orderLines were fetched - if not, try to load them explicitly
+                try {
+                    int lineCountBefore = o.getOrderLines() != null ? o.getOrderLines().size() : -1;
+                    System.out.println("ReportManager: Order " + o.getId() + " - orderLines size before init: " + lineCountBefore);
+                    
+                    // Force initialization of orderLines using Hibernate.initialize()
+                    org.hibernate.Hibernate.initialize(o.getOrderLines());
+                    
+                    int lineCount = o.getOrderLines() != null ? o.getOrderLines().size() : 0;
+                    System.out.println("ReportManager: Order " + o.getId() + " has " + lineCount + " orderLines after initialization");
+                    
+                    // If still 0, try to query OrderLines directly from database
+                    if (lineCount == 0) {
+                        // Query OrderLines directly to see if they exist
+                        var linesQuery = s.createQuery(
+                            "select ol from OrderLine ol where ol.order.id = :orderId",
+                            il.cshaifasweng.OCSFMediatorExample.entities.OrderLine.class
+                        ).setParameter("orderId", o.getId());
+                        var directLines = linesQuery.getResultList();
+                        System.out.println("ReportManager: Order " + o.getId() + " - Direct query found " + directLines.size() + " OrderLines in database");
+                        
+                        if (!directLines.isEmpty()) {
+                            // OrderLines exist but weren't fetched - set them manually
+                            o.setOrderLines(new java.util.ArrayList<>(directLines));
+                            System.out.println("ReportManager: Order " + o.getId() + " - Manually set " + directLines.size() + " OrderLines");
+                        }
+                    }
+                    
+                    // Create a new ArrayList with the OrderLines to ensure proper serialization
+                    if (o.getOrderLines() != null && !o.getOrderLines().isEmpty()) {
+                        java.util.List<il.cshaifasweng.OCSFMediatorExample.entities.OrderLine> lines = new java.util.ArrayList<>(o.getOrderLines());
+                        // Also ensure each orderLine's item is initialized
+                        for (var line : lines) {
+                            if (line != null && line.getItem() != null) {
+                                org.hibernate.Hibernate.initialize(line.getItem());
+                            }
+                        }
+                        // Set the new list to ensure it's serializable
+                        o.setOrderLines(lines);
+                        System.out.println("ReportManager: Order " + o.getId() + " - Final count: " + lines.size() + " lines ready for serialization");
+                    }
+                } catch (Exception e) {
+                    // If initialization fails, log but continue
+                    System.err.println("Warning: Could not initialize orderLines for order " + o.getId() + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            return orders;
         });
     }
 

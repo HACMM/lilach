@@ -71,6 +71,100 @@ public class SimpleServer extends AbstractServer {
 
     @Override
     protected void handleMessageFromClient(Object msg, ConnectionToClient client) {
+        // Debug: log all incoming messages
+        if (msg instanceof Message) {
+            System.out.println("Server: Received Message type: " + ((Message) msg).getType());
+        } else {
+            System.out.println("Server: Received message: " + msg.getClass().getName() + " = " + msg.toString());
+        }
+        
+        // Check Message types FIRST before string-based checks
+        if (msg instanceof Message) {
+            Message message = (Message) msg;
+            String msgType = message.getType();
+            
+            if (msgType.equals("getComplaintsReport")) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    List<Object> data = (List<Object>) message.getData();
+                    Integer branchId = (Integer) data.get(0);
+                    java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
+                    java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
+
+                    System.out.println("Server: Processing complaints report - BranchId: " + branchId + ", From: " + fromLd + ", To: " + toLd);
+
+                    java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                    java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+
+                    var list = reportManager.complaintsInRange(from, to,
+                            (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
+                            branchId);
+
+                    System.out.println("Server: Found " + list.size() + " complaints for report");
+                    client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.ComplaintsReportEvent(list));
+                    System.out.println("Server: Sent ComplaintsReportEvent to client");
+                } catch (Exception e) {
+                    System.err.println("Server: Error processing complaints report: " + e.getMessage());
+                    e.printStackTrace();
+                    try { client.sendToClient(new Message("complaintsReportError", e.getMessage())); } catch (IOException ignored) {}
+                }
+                return;
+            } else if (msgType.equals("getOrdersReport")) {
+                System.out.println("Server: Received getOrdersReport request");
+                try {
+                    @SuppressWarnings("unchecked")
+                    List<Object> data = (List<Object>) message.getData();
+                    Integer branchId = (Integer) data.get(0);
+                    java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
+                    java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
+
+                    System.out.println("Server: Processing orders report - BranchId: " + branchId + ", From: " + fromLd + ", To: " + toLd);
+
+                    java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                    java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+
+                    var orders = reportManager.ordersInRange(from, to,
+                            (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
+                            branchId);
+
+                    System.out.println("Server: Found " + orders.size() + " orders for report");
+                    client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.OrdersReportEvent(orders));
+                    System.out.println("Server: Sent OrdersReportEvent to client");
+                } catch (Exception e) {
+                    System.err.println("Server: Error processing orders report: " + e.getMessage());
+                    e.printStackTrace();
+                    try { client.sendToClient(new Message("ordersReportError", e.getMessage())); } catch (IOException ignored) {}
+                }
+                return;
+            } else if (msgType.equals("getRevenueReport")) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    List<Object> data = (List<Object>) message.getData();
+                    Integer branchId = (Integer) data.get(0);
+                    java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
+                    java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
+
+                    System.out.println("Server: Processing revenue report - BranchId: " + branchId + ", From: " + fromLd + ", To: " + toLd);
+
+                    java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+                    java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
+
+                    var orders = reportManager.ordersInRange(from, to,
+                            (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
+                            branchId);
+
+                    System.out.println("Server: Found " + orders.size() + " orders for revenue report");
+                    client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.RevenueReportEvent(orders));
+                    System.out.println("Server: Sent RevenueReportEvent to client");
+                } catch (Exception e) {
+                    System.err.println("Server: Error processing revenue report: " + e.getMessage());
+                    e.printStackTrace();
+                    try { client.sendToClient(new Message("revenueReportError", e.getMessage())); } catch (IOException ignored) {}
+                }
+                return;
+            }
+        }
+        
         String msgString = msg.toString();
 
         if (msgString.startsWith("#warning")) {
@@ -475,6 +569,26 @@ public class SimpleServer extends AbstractServer {
             } catch (Exception e) {
                 e.printStackTrace();
                 try { client.sendToClient(new Message("getOrdersError", "Failed to fetch orders: " + e.getMessage())); }
+                catch (IOException ignored) {}
+            }
+
+        } else if (msgString != null && msgString.equals("getAllOrders")) {
+            try {
+                System.out.println("Server: Received getAllOrders request");
+                List<Order> orders = orderManager.listAllWithDetails();
+                System.out.println("Server: Fetched " + orders.size() + " orders from database");
+
+                try {
+                    client.sendToClient(orders);
+                    System.out.println("Server: Sent " + orders.size() + " orders to client");
+                } catch (IOException e) {
+                    System.err.println("Server: Error sending orders to client: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                System.err.println("Server: Exception in getAllOrders handler: " + e.getMessage());
+                e.printStackTrace();
+                try { client.sendToClient(new Message("getOrdersError", "Failed to fetch all orders: " + e.getMessage())); }
                 catch (IOException ignored) {}
             }
 
@@ -921,67 +1035,6 @@ public class SimpleServer extends AbstractServer {
                             "Failed to cancel order: " + e.getMessage()
                     ));
                 } catch (IOException ignored) {}
-            }
-
-
-        } else if (msg instanceof Message && ((Message) msg).getType().equals("getComplaintsReport")) {
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object> data = (List<Object>) ((Message) msg).getData();
-                Integer branchId = (Integer) data.get(0);
-                java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
-                java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
-
-                java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
-                java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
-
-                var list = reportManager.complaintsInRange(from, to,
-                        (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
-                        branchId);
-
-                client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.ComplaintsReportEvent(list));
-            } catch (Exception e) {
-                try { client.sendToClient(new Message("complaintsReportError", e.getMessage())); } catch (IOException ignored) {}
-            }
-
-        } else if (msg instanceof Message && ((Message) msg).getType().equals("getOrdersReport")) {
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object> data = (List<Object>) ((Message) msg).getData();
-                Integer branchId = (Integer) data.get(0);
-                java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
-                java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
-
-                java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
-                java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
-
-                var orders = reportManager.ordersInRange(from, to,
-                        (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
-                        branchId);
-
-                client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.OrdersReportEvent(orders));
-            } catch (Exception e) {
-                try { client.sendToClient(new Message("ordersReportError", e.getMessage())); } catch (IOException ignored) {}
-            }
-
-        } else if (msg instanceof Message && ((Message) msg).getType().equals("getRevenueReport")) {
-            try {
-                @SuppressWarnings("unchecked")
-                List<Object> data = (List<Object>) ((Message) msg).getData();
-                Integer branchId = (Integer) data.get(0);
-                java.time.LocalDate fromLd = (java.time.LocalDate) data.get(1);
-                java.time.LocalDate toLd   = (java.time.LocalDate) data.get(2);
-
-                java.util.Date from = java.util.Date.from(fromLd.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
-                java.util.Date to   = java.util.Date.from(toLd.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
-
-                var orders = reportManager.ordersInRange(from, to,
-                        (branchId == null ? Request.reports.ReportScope.NETWORK : Request.reports.ReportScope.BRANCH),
-                        branchId);
-
-                client.sendToClient(new il.cshaifasweng.OCSFMediatorExample.entities.RevenueReportEvent(orders));
-            } catch (Exception e) {
-                try { client.sendToClient(new Message("revenueReportError", e.getMessage())); } catch (IOException ignored) {}
             }
 
         } else if (msg instanceof Message && ((Message) msg).getType().equals("show branches")) {

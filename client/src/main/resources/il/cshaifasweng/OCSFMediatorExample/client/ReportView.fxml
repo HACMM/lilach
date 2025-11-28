@@ -102,6 +102,30 @@
                    style="-fx-text-fill: #a0537a;
                           -fx-font-style: italic;
                           -fx-font-size: 13;"/>
+
+            <!-- 🔹 Orders Table (shown for Orders and Revenue reports) -->
+            <TableView fx:id="ordersTable" 
+                      visible="false"
+                      managed="false"
+                      prefHeight="300"
+                      minHeight="200"
+                      maxHeight="400"
+                      VBox.vgrow="NEVER"
+                      style="-fx-background-color: rgba(255,255,255,0.9);
+                             -fx-border-color: #f3b3cb;
+                             -fx-border-radius: 10;
+                             -fx-background-radius: 10;
+                             -fx-padding: 5;">
+                <columns>
+                    <TableColumn fx:id="orderIdCol" text="Order ID" prefWidth="80" minWidth="60"/>
+                    <TableColumn fx:id="orderDateCol" text="Date" prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="orderCustomerCol" text="Customer" prefWidth="150" minWidth="120"/>
+                    <TableColumn fx:id="orderItemsCol" text="Items" prefWidth="80" minWidth="60"/>
+                    <TableColumn fx:id="orderTypesCol" text="Item Types" prefWidth="150" minWidth="120"/>
+                    <TableColumn fx:id="orderTotalCol" text="Total (₪)" prefWidth="120" minWidth="100"/>
+                    <TableColumn fx:id="orderStatusCol" text="Status" prefWidth="120" minWidth="100"/>
+                </columns>
+            </TableView>
         </VBox>
         </ScrollPane>
     </children>

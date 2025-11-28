@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.event.ActionEvent;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
@@ -339,7 +340,8 @@ public class CartViewController {
         try {
             // ---- Build the DTO we send to the server ----
             NewOrderRequest req = new NewOrderRequest();
-            req.userId           = currentUser.getUserId();
+            req.userId = currentUser.getUserId();
+            System.out.println("CartViewController: Creating order with userId=" + req.userId + " for user: " + currentUser.getLogin());
 
             Branch selectedBranch = AppSession.getCurrentBranch();
 
@@ -449,11 +451,15 @@ public class CartViewController {
             clearFields();
             refreshTotals();
 
+            // Navigate to MyOrdersView - it will request orders when initialized
+            // Wait a bit longer to ensure server has processed the order
             new Thread(() -> {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1500); // Give server time to commit the order
                     Platform.runLater(() -> {
-                        try { App.setRoot("MyOrdersView"); }
+                        try { 
+                            App.setRoot("MyOrdersView"); 
+                        }
                         catch (IOException e) { e.printStackTrace(); }
                     });
                 } catch (InterruptedException ignored) {}
@@ -511,9 +517,18 @@ public class CartViewController {
         PublicUser user = AppSession.getCurrentUser();
         if (user == null) return;
 
+        System.out.println("CartViewController: Order created successfully with ID: " + orderId);
+        
         String subject = "FlowerShop 🌷 – Order confirmed #" + orderId;
         String body = "Hi " + user.getName() + ",\n\nYour order has been confirmed.\nOrder #: " + orderId + "\n\nThanks! 💐";
-        EmailSender.sendEmail(subject, body, user.getEmail());
+        try {
+            EmailSender.sendEmail(subject, body, user.getEmail());
+        } catch (Exception e) {
+            System.err.println("Failed to send order confirmation email: " + e.getMessage());
+        }
+        
+        // Trigger refresh of orders list if we're on MyOrdersView
+        EventBus.getDefault().post(new Message("refreshOrders", null));
     }
 }
 

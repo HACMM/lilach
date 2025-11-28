@@ -2,9 +2,11 @@ package il.cshaifasweng.OCSFMediatorExample.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.io.Serializable;
 
 @Embeddable
-public class Address {
+public class Address implements Serializable {
+    private static final long serialVersionUID = 1L;
     @Column(name = "city")
     private String city;
 

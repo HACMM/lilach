@@ -49,15 +49,48 @@ public class OrderManager extends BaseManager {
         return read(s -> s.createQuery("from Order", Order.class).getResultList());
     }
 
+    /** List all orders with full details (eager fetching). */
+    public List<Order> listAllWithDetails() {
+        return read(s -> {
+            // Fetch everything we need in one shot
+            List<Order> orders = s.createQuery(
+                            "select distinct o from Order o " +
+                                    "left join fetch o.orderLines ol " +
+                                    "left join fetch ol.item it " +
+                                    "left join fetch o.userAccount ua " +
+                                    "left join fetch o.branch b ",
+                            Order.class
+                    )
+                    .getResultList();
+
+            System.out.println("Found " + orders.size() + " total orders");
+
+            // Make sure nested lazy stuff is initialized (items on each line)
+            for (Order order : orders) {
+                if (order.getOrderLines() != null) {
+                    order.getOrderLines().forEach(line -> {
+                        if (line.getItem() != null) {
+                            // touch a simple property to force initialization
+                            line.getItem().getName();
+                        }
+                    });
+                }
+            }
+
+            return orders;
+        });
+    }
+
     public Order createFromRequest(NewOrderRequest req) {
         return write(s -> {
             // 1) Load user
+            System.out.println("OrderManager: Creating order for userId=" + req.userId);
             UserAccount user = s.get(UserAccount.class, req.userId);
             if (user == null) {
                 System.err.println("ERROR: User with ID " + req.userId + " not found!");
                 throw new RuntimeException("User not found");
             }
-            System.out.println("Loaded user: " + user.getLogin());
+            System.out.println("OrderManager: Loaded user: " + user.getLogin() + " (userId=" + user.getUserId() + ")");
 
             // 2) Create order and set core fields
             Order order = new Order(user);
