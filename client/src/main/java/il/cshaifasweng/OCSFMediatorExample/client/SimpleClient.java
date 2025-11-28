@@ -5,10 +5,12 @@ import Request.SignupResult;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.*;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
+import il.cshaifasweng.OCSFMediatorExample.entities.Sale;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.SalesListEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import Request.LoginResult;
 import jdk.jfr.Event;
 import org.greenrobot.eventbus.EventBus;
-import il.cshaifasweng.OCSFMediatorExample.client.ocsf.AbstractClient;
 import Request.Warning;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -132,6 +134,14 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("newsletterSendError")) {
                 EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("createSaleOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("createSaleError")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("endSaleOk")) {
+                EventBus.getDefault().post(msg);
+            }else if (msg instanceof Message && ((Message) msg).getType().equals("endSaleError")) {
+                EventBus.getDefault().post(msg);
             } else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;
                 // Handle empty lists too - they're valid responses
@@ -163,8 +173,12 @@ public class SimpleClient extends AbstractClient {
 
                         System.out.println("Received " + categories.size() + " categories from server");
                         EventBus.getDefault().post(categories);
+                    } else if (list.get(0) instanceof Sale) {
+                        @SuppressWarnings("unchecked")
+                        List<Sale> sales = (List<Sale>) list;
+                        System.out.println("Received " + sales.size() + " sales from server");
+                        EventBus.getDefault().post(new SalesListEvent(sales));
                     }
-
                 }
             }
         }

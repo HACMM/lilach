@@ -1,8 +1,10 @@
 package il.cshaifasweng.OCSFMediatorExample.server.EntityManagers;
 
 import il.cshaifasweng.OCSFMediatorExample.entities.Sale;
+import il.cshaifasweng.OCSFMediatorExample.entities.SaleStatus;
 import org.hibernate.SessionFactory;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +35,17 @@ public class SaleManager extends BaseManager {
         return listActiveAt(new Date());
     }
 
+    public List<Sale> listActiveNowVisible() {
+        List<Sale> active = listActiveNow();
+        List<Sale> result = new ArrayList<>();
+        for (Sale s : active) {
+            if (s.getStatus() != SaleStatus.Stashed) {
+                result.add(s);
+            }
+        }
+        return result;
+    }
+
     /** Any sale that overlaps [from, to] (inclusive). */
     public List<Sale> listOverlapping(Date from, Date to) {
         Objects.requireNonNull(from, "from is null");
@@ -58,4 +71,21 @@ public class SaleManager extends BaseManager {
     public void delete(int id) {
         write(s -> { Sale sale = s.get(Sale.class, id); if (sale != null) s.remove(sale); return null; });
     }
+
+    public void stashSale(int id) {
+        write(s -> {
+            Sale sale = s.get(Sale.class, id);
+            if (sale == null) {
+                System.out.println("stashSale: sale " + id + " not found");
+                return null;
+            }
+
+            System.out.println("stashSale: current status = " + sale.getStatus());
+            sale.setStatus(SaleStatus.Stashed);
+            System.out.println("stashSale: new status = " + sale.getStatus());
+
+            return null;
+        });
+    }
+
 }

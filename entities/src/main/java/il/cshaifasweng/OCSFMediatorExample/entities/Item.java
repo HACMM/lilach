@@ -9,6 +9,9 @@ import javax.persistence.*;
 @Entity
 @Table(name = "Item")
 public class Item implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id", nullable = false, unique = true)
@@ -117,4 +120,9 @@ public class Item implements Serializable {
     public void setBranchInventory(Set<BranchInventory> branchInventory) {
         this.branchInventory = branchInventory;
 }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

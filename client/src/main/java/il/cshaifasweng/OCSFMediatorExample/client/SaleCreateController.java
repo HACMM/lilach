@@ -46,6 +46,8 @@ public class SaleCreateController implements Initializable {
             return;
         }
 
+        EventBus.getDefault().register(this);
+
         // 2️⃣ מילוי סוגי הנחה
         discountTypeCombo.getItems().addAll(DiscountType.values());
 
@@ -82,33 +84,69 @@ public class SaleCreateController implements Initializable {
                 return;
             }
 
+            if (startDatePicker.getValue() == null || endDatePicker.getValue() == null) {
+                new Alert(Alert.AlertType.WARNING, "Start and end dates are required").show();
+                return;
+            }
+
+            if (discountTypeCombo.getValue() == null) {
+                new Alert(Alert.AlertType.WARNING, "Please select a discount type.").show();
+                return;
+            }
+
+            String discountText = discountValueField.getText();
+            if (discountText == null || discountText.isBlank()) {
+                new Alert(Alert.AlertType.WARNING, "Please enter a discount value.").show();
+                return;
+            }
+
+            double discount;
+            try {
+                discount = Double.parseDouble(discountText);
+            } catch (NumberFormatException ex) {
+                new Alert(Alert.AlertType.ERROR, "Discount must be a number.").show();
+                return;
+            }
+
+            if (itemsList.getSelectionModel().getSelectedItems().isEmpty()) {
+                new Alert(Alert.AlertType.WARNING, "Please select at least one item for the sale.").show();
+                return;
+            }
+
             Date start = Date.from(startDatePicker.getValue()
                     .atStartOfDay(ZoneId.systemDefault()).toInstant());
             Date end = Date.from(endDatePicker.getValue()
                     .atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-            String image = imageLinkField.getText();
-
-            // יצירת המבצע
+            // Create sale
             Sale sale = new Sale(name, desc, start, end);
-            sale.setImageLink(image);
             sale.setStatus(SaleStatus.Announced);
+            sale.setDiscountType(discountTypeCombo.getValue());
+            sale.setDiscountValue(discount);
 
-            // פריטים שנבחרו
+            // Selected items
             List<Item> selected = itemsList.getSelectionModel().getSelectedItems();
 
-            // הכנת ItemSales
+            if (selected == null || selected.isEmpty()) {
+                new Alert(Alert.AlertType.WARNING,
+                        "Please select at least one item for the sale").show();
+                return;
+            }
+
+            Item first = selected.get(0);
+            String imageLinkFromItem = first.getImagePath();
+            sale.setImageLink(imageLinkFromItem);
+
             List<ItemSale> itemSales = new ArrayList<>();
             for (Item item : selected) {
                 ItemSale is = new ItemSale();
                 is.setItem(item);
                 is.setSale(sale);
                 is.setDiscountType(discountTypeCombo.getValue());
-                is.setDiscount(Double.parseDouble(discountValueField.getText()));
+                is.setDiscount(discount);  // use the parsed value
                 itemSales.add(is);
             }
 
-            // שליחה לשרת
             Message msg = new Message("#create-sale", itemSales);
             client.sendToServer(msg);
 
@@ -120,6 +158,7 @@ public class SaleCreateController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error creating sale.").show();
         }
     }
+
 
     @FXML
     private void onBack() {

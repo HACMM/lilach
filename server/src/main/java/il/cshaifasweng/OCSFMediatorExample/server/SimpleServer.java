@@ -5,6 +5,9 @@ import il.cshaifasweng.OCSFMediatorExample.entities.*;
 import il.cshaifasweng.OCSFMediatorExample.server.EntityManagers.*;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.AbstractServer;
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.ConnectionToClient;
+import il.cshaifasweng.OCSFMediatorExample.entities.Sale;
+import il.cshaifasweng.OCSFMediatorExample.entities.ItemSale;
+import il.cshaifasweng.OCSFMediatorExample.entities.SaleStatus;
 import org.hibernate.SessionFactory;
 
 import java.io.IOException;
@@ -12,6 +15,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
+
 
 import il.cshaifasweng.OCSFMediatorExample.server.ocsf.SubscribedClient;
 
@@ -28,6 +34,7 @@ public class SimpleServer extends AbstractServer {
     private BranchManager branchManager = null;
     private UserAccountManager userAccountManager = null;
     private CategoryManager categoryManager = null;
+    private SaleManager saleManager = null;
 
 
     public SimpleServer(int port) {
@@ -40,6 +47,7 @@ public class SimpleServer extends AbstractServer {
         this.branchManager = new BranchManager(sessionFactory);
         this.userAccountManager = new UserAccountManager(sessionFactory);
         this.categoryManager = new CategoryManager(sessionFactory);
+        this.saleManager = new SaleManager(sessionFactory);
         this.categoryManager.createDefaultCategories();
 
 
@@ -225,7 +233,107 @@ public class SimpleServer extends AbstractServer {
                 } catch (IOException ignored) {}
             }
 
-    } else if (msg instanceof Message && ((Message) msg).getType().equals("getCatalogByCategory")) {
+        } else if ("#getSales".equals(msgString)) {
+            try {
+                List<Sale> sales = saleManager.listAll();
+                client.sendToClient(sales);
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("getSalesError", "Failed to load sales"));
+                } catch (IOException ignored) {
+                }
+            }
+
+
+
+        } else if (msg instanceof Message && "#create-sale".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+
+            try {
+                @SuppressWarnings("unchecked")
+                List<ItemSale> itemSalesList = (List<ItemSale>) m.getData();
+
+                if (itemSalesList == null || itemSalesList.isEmpty()) {
+                    client.sendToClient(new Message("createSaleError", "Sale has no items"));
+                    return;
+                }
+
+                // All ItemSale objects should share the same Sale reference from the client
+                Sale sale = itemSalesList.get(0).getSale();
+                if (sale == null) {
+                    client.sendToClient(new Message("createSaleError", "Sale object is missing"));
+                    return;
+                }
+
+                // Make sure each ItemSale points back to the sale
+                for (ItemSale is : itemSalesList) {
+                    is.setSale(sale);
+                }
+
+                // Convert List<ItemSale> -> Set<ItemSale>
+                Set<ItemSale> itemSalesSet = new LinkedHashSet<>(itemSalesList);
+                sale.setItemSales(itemSalesSet);
+
+                // If somehow null, default to Announced
+                if (sale.getStatus() == null) {
+                    sale.setStatus(SaleStatus.Announced);
+                }
+
+                // Persist sale + itemSales
+                saleManager.create(sale);
+
+                // ACK back to client
+                client.sendToClient(new Message("createSaleOk", sale));
+
+                // send updated sales list so UI can refresh
+                List<Sale> sales = saleManager.listAll();
+                client.sendToClient(sales);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "createSaleError",
+                            "Server error while creating sale: " + e.getMessage()
+                    ));
+                } catch (IOException ignored) {}
+            }
+
+        } else if (msgString.startsWith("#endSale")) {
+            try {
+                String[] parts = msgString.split(" ");
+                if (parts.length < 2) {
+                    client.sendToClient(new Message("endSaleError", "Missing sale id"));
+                    return;
+                }
+
+                int saleId = Integer.parseInt(parts[1]);
+                System.out.println("Received #endSale for sale id=" + saleId);
+
+                // Do the status change inside one transaction/session
+                saleManager.stashSale(saleId);
+
+                // Explicit OK so UI can react if it wants
+                client.sendToClient(new Message("endSaleOk", saleId));
+
+                // Send updated sales list
+                List<Sale> sales = saleManager.listAll();
+                System.out.println("endSale: sending updated sales list with " + sales.size() + " entries");
+                client.sendToClient(sales);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "endSaleError",
+                            "Server error while ending sale: " + e.getMessage()
+                    ));
+                } catch (IOException ignored) {}
+            }
+
+
+        } else if (msg instanceof Message && ((Message) msg).getType().equals("getCatalogByCategory")) {
 
             int categoryId = (int) ((Message) msg).getData();
 
@@ -238,9 +346,22 @@ public class SimpleServer extends AbstractServer {
             try {
                 client.sendToClient(items);
             } catch (IOException ignored) {}
-        }
 
-        else if (msgString.startsWith("#getAllBranches") || msgString.equals("getAllBranches")) {
+
+        } else if (msg instanceof Message && "#getItems".equals(((Message) msg).getType())) {
+            try {
+                List<Item> items = itemManager.GetItemList(new ArrayList<>());
+                client.sendToClient(items);
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("getItemsError", "Failed to load items"));
+                } catch (IOException ignored) {
+                }
+            }
+
+
+        } else if (msgString.startsWith("#getAllBranches") || msgString.equals("getAllBranches")) {
             System.out.println("Received #getAllBranches request");
             try {
                 List<Branch> branches = branchManager.listAll();
@@ -600,23 +721,27 @@ public class SimpleServer extends AbstractServer {
             System.out.println("Received newOrder request from user ID: " + req.userId);
 
             try {
+                // Create the order with “base” prices (no discount in the entity itself)
                 Order order = orderManager.createFromRequest(req);
+
+                // Apply active sales to the order lines and persist
+                applySalesDiscounts(order);
+
                 // Success -> send order ID back to client
                 client.sendToClient(new Message("newOrderOk", order.getId()));
 
             } catch (RuntimeException e) {
-                // domain / validation errors from OrderManager ( user not found, no items...)
                 System.err.println("ERROR in newOrder handler: " + e.getMessage());
                 e.printStackTrace();
                 try { client.sendToClient(new Message("newOrderError", e.getMessage())); }
                 catch (IOException ignored) {}
             } catch (Exception e) {
-                // any unexpected errors
                 System.err.println("FATAL ERROR in newOrder handler: " + e.getMessage());
                 e.printStackTrace();
                 try { client.sendToClient(new Message("newOrderError", "Failed creating order: " + e.getMessage())); }
                 catch (IOException ignored) {}
             }
+
 
 
         } else if (msg instanceof LoginRequest) {
@@ -1126,4 +1251,71 @@ public class SimpleServer extends AbstractServer {
             System.out.println("Removed " + clientsToRemove.size() + " disconnected clients from subscribers list");
         }
     }
+
+    /**
+     * Apply all currently active sales to the given order’s lines.
+     * This keeps Order/OrderLine “dumb”: they just store final prices.
+     */
+    private void applySalesDiscounts(Order order) {
+        if (order == null) {
+            return;
+        }
+
+        // Pull all active sales (date-wise)
+        List<Sale> activeSales = saleManager.listActiveNowVisible();
+        if (activeSales == null || activeSales.isEmpty()) {
+            return; // nothing to apply
+        }
+
+        for (OrderLine line : order.getOrderLines()) {
+            if (line == null) continue;
+
+            Item item = line.getItem();
+            if (item == null) continue;
+
+            double basePrice = line.getUnitPrice(); // what OrderManager set
+            double bestPrice = basePrice;
+
+            for (Sale sale : activeSales) {
+                // ignore hidden/stashed sales
+                if (sale.getStatus() == SaleStatus.Stashed) {
+                    continue;
+                }
+
+                // is this item part of the sale?
+                boolean inSale = false;
+                for (ItemSale is : sale.getItemSales()) {
+                    if (is.getItem() != null && is.getItem().getId() == item.getId()) {
+                        inSale = true;
+                        break;
+                    }
+                }
+                if (!inSale) continue;
+
+                DiscountType type = sale.getDiscountType();
+                double value = sale.getDiscountValue();
+
+                double discounted = basePrice;
+                if (type == DiscountType.PercentDiscount) {
+                    discounted = basePrice * (1.0 - (value / 100.0));
+                } else if (type == DiscountType.FlatDiscount) {
+                    discounted = Math.max(0.0, basePrice - value);
+                }
+
+                if (discounted < bestPrice) {
+                    bestPrice = discounted;
+                }
+            }
+
+            // If we found a better (lower) price – set it on the line
+            if (bestPrice != basePrice) {
+                line.setUnitPrice(bestPrice);
+            }
+        }
+
+        // Recalculate total and persist updated order
+        order.recomputeTotal();
+        orderManager.update(order);
+    }
+
 }

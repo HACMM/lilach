@@ -9,7 +9,10 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "Sale")
-public class Sale {
+public class Sale implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sale_id", nullable = false, unique = true)
@@ -35,6 +38,13 @@ public class Sale {
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL)
     private Set<ItemSale> itemSales = new HashSet<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "discount_type")
+    private DiscountType discountType;
+
+    @Column(name = "discount_value")
+    private Double discountValue;
 
     protected Sale() {}
 
@@ -113,4 +123,14 @@ public class Sale {
     public void setStatus(SaleStatus status) {
         this.status = status;
     }
+
+    public DiscountType getDiscountType() { return discountType; }
+
+    public void setDiscountType(DiscountType discountType) {this.discountType = discountType; }
+
+    public double getDiscountValue() { return discountValue != null ? discountValue : 0.0; }
+
+    public void setDiscountValue(double discountValue) { this.discountValue = discountValue; }
+
 }
+
