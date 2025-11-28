@@ -443,9 +443,14 @@ public class ReportsController {
             double cancelledRevenue = cancelledGrouped.values().stream().mapToDouble(Double::doubleValue).sum();
             double avgOrderValue = uncancelledOrders.isEmpty() ? 0.0 : totalRevenue / uncancelledOrders.size();
             
-            // Setup and populate orders table if available
+            // Setup and populate orders table if available (Revenue Report uses OrderRow format)
             if (ordersTable != null) {
-                setupOrdersTable();
+                setupOrdersTable(); // Revenue Report shows individual orders
+                // Make sure all columns are visible for Revenue Report
+                if (orderTypesCol != null) orderTypesCol.setVisible(true);
+                if (orderTotalCol != null) orderTotalCol.setVisible(true);
+                if (orderStatusCol != null) orderStatusCol.setVisible(true);
+                
                 ObservableList<Object> tableData = FXCollections.observableArrayList();
                 for (Order o : uncancelledOrders) {
                     String customerName = "Unknown";
@@ -558,6 +563,21 @@ public class ReportsController {
             this.itemTypes = itemTypes;
             this.total = total;
             this.status = status;
+        }
+    }
+    
+    // Row class for Orders Report table - shows product types with quantities
+    private static class ProductTypeRow {
+        public final String productType;
+        public final int quantitySold;
+        public final double revenue;
+        public final int cancelledQuantity;  // For reference
+        
+        public ProductTypeRow(String productType, int quantitySold, double revenue, int cancelledQuantity) {
+            this.productType = productType;
+            this.quantitySold = quantitySold;
+            this.revenue = revenue;
+            this.cancelledQuantity = cancelledQuantity;
         }
     }
     
@@ -775,6 +795,76 @@ public class ReportsController {
         
         System.out.println("ReportsController: Table columns setup complete for complaints");
     }
+    
+    private void setupProductTypesTable() {
+        if (ordersTable == null) {
+            System.err.println("ReportsController: setupProductTypesTable - ordersTable is null!");
+            return;
+        }
+        
+        // Configure columns for product types table
+        // Reuse existing columns but with different labels and data
+        if (orderIdCol != null) {
+            orderIdCol.setCellValueFactory(d -> {
+                Object row = d.getValue();
+                if (row instanceof ProductTypeRow) {
+                    return new SimpleStringProperty(((ProductTypeRow) row).productType);
+                }
+                return new SimpleStringProperty("");
+            });
+            orderIdCol.setText("Product Type");
+            orderIdCol.setVisible(true);
+        }
+        
+        if (orderDateCol != null) {
+            orderDateCol.setCellValueFactory(d -> {
+                Object row = d.getValue();
+                if (row instanceof ProductTypeRow) {
+                    return new SimpleStringProperty(String.valueOf(((ProductTypeRow) row).quantitySold));
+                }
+                return new SimpleStringProperty("0");
+            });
+            orderDateCol.setText("Quantity Sold");
+            orderDateCol.setVisible(true);
+        }
+        
+        if (orderCustomerCol != null) {
+            orderCustomerCol.setCellValueFactory(d -> {
+                Object row = d.getValue();
+                if (row instanceof ProductTypeRow) {
+                    return new SimpleStringProperty(String.format("%.2f₪", ((ProductTypeRow) row).revenue));
+                }
+                return new SimpleStringProperty("0.00₪");
+            });
+            orderCustomerCol.setText("Revenue (₪)");
+            orderCustomerCol.setVisible(true);
+        }
+        
+        if (orderItemsCol != null) {
+            orderItemsCol.setCellValueFactory(d -> {
+                Object row = d.getValue();
+                if (row instanceof ProductTypeRow) {
+                    return new SimpleObjectProperty<>(((ProductTypeRow) row).cancelledQuantity);
+                }
+                return new SimpleObjectProperty<>(0);
+            });
+            orderItemsCol.setText("Cancelled Qty");
+            orderItemsCol.setVisible(true);
+        }
+        
+        // Hide columns that don't apply to product types
+        if (orderTypesCol != null) {
+            orderTypesCol.setVisible(false);
+        }
+        if (orderTotalCol != null) {
+            orderTotalCol.setVisible(false);
+        }
+        if (orderStatusCol != null) {
+            orderStatusCol.setVisible(false);
+        }
+        
+        System.out.println("ReportsController: Table columns setup complete for product types");
+    }
 
     // ========================== 🛍 דו"ח הזמנות ==========================
     @Subscribe
@@ -794,8 +884,9 @@ public class ReportsController {
                     .filter(o -> o.getStatus() != null && o.getStatus().equalsIgnoreCase("Cancelled"))
                     .collect(Collectors.toList());
 
-            // Group items by product type for uncancelled orders
+            // Group items by product type for uncancelled orders (quantities and revenue)
             Map<String, Integer> typeQuantities = new HashMap<>();
+            Map<String, Double> typeRevenue = new HashMap<>();
             for (Order o : uncancelledOrders) {
                 try {
                     if (o.getOrderLines() != null && !o.getOrderLines().isEmpty()) {
@@ -806,13 +897,16 @@ public class ReportsController {
                                     itemType = "Unknown";
                                 }
                                 int quantity = line.getQuantity();
+                                double lineRevenue = line.getSubtotal(); // quantity * unitPrice
                                 typeQuantities.put(itemType, typeQuantities.getOrDefault(itemType, 0) + quantity);
+                                typeRevenue.put(itemType, typeRevenue.getOrDefault(itemType, 0.0) + lineRevenue);
                             }
                         }
                     } else if (o.getTotalPrice() > 0) {
                         // Fallback for orders without OrderLines - estimate as "Mixed" type
                         int estimatedQty = (int) Math.max(1, Math.round(o.getTotalPrice() / 30.0));
                         typeQuantities.put("Mixed (Estimated)", typeQuantities.getOrDefault("Mixed (Estimated)", 0) + estimatedQty);
+                        typeRevenue.put("Mixed (Estimated)", typeRevenue.getOrDefault("Mixed (Estimated)", 0.0) + o.getTotalPrice());
                     }
                 } catch (Exception e) {
                     System.err.println("ReportsController: Error processing order " + o.getId() + " for type grouping: " + e.getMessage());
@@ -905,77 +999,33 @@ public class ReportsController {
             int totalActiveItems = typeQuantities.values().stream().mapToInt(Integer::intValue).sum();
             int totalCancelledItems = cancelledTypeQuantities.values().stream().mapToInt(Integer::intValue).sum();
             
-            // Setup and populate orders table if available
+            // Setup and populate orders table with product type summary
             if (ordersTable != null) {
-                System.out.println("ReportsController: Setting up orders table with " + event.getOrders().size() + " orders");
-                setupOrdersTable();
+                System.out.println("ReportsController: Setting up product types table for Orders Report");
+                setupProductTypesTable();
                 ObservableList<Object> tableData = FXCollections.observableArrayList();
                 
-                // Add all orders (both active and cancelled) to the table
-                for (Order o : event.getOrders()) {
-                    String customerName = "Unknown";
-                    try {
-                        if (o.getUserAccount() != null) {
-                            customerName = o.getUserAccount().getName();
-                            if (customerName == null) {
-                                customerName = "Unknown";
-                            }
-                        }
-                    } catch (Exception e) {
-                        // Handle LazyInitializationException gracefully
-                        System.err.println("ReportsController: Could not load user account name for order " + o.getId() + ": " + e.getMessage());
-                        customerName = "Unknown";
-                    }
-                    int itemCount = 0;
-                    try {
-                        if (o.getOrderLines() != null && !o.getOrderLines().isEmpty()) {
-                            itemCount = o.getOrderLines().size();
-                            System.out.println("ReportsController: Order " + o.getId() + " has " + itemCount + " order lines");
-                        } else {
-                            // If no OrderLines but order has a total, estimate from total price
-                            // This handles old orders that may not have OrderLines saved
-                            if (o.getTotalPrice() > 0) {
-                                // Rough estimate: assume average item price of 30₪
-                                itemCount = (int) Math.max(1, Math.round(o.getTotalPrice() / 30.0));
-                                System.out.println("ReportsController: Order " + o.getId() + " has no OrderLines, estimated " + itemCount + " items from total " + o.getTotalPrice());
-                            } else {
-                                System.out.println("ReportsController: Order " + o.getId() + " has null/empty orderLines and no total");
-                            }
-                        }
-                    } catch (Exception e) {
-                        System.err.println("ReportsController: Error getting orderLines for order " + o.getId() + ": " + e.getMessage());
-                        // Fallback: estimate from total if available
-                        if (o.getTotalPrice() > 0) {
-                            itemCount = (int) Math.max(1, Math.round(o.getTotalPrice() / 30.0));
-                        }
-                    }
-                    String date = o.getCreatedAt() != null ? o.getCreatedAt().toLocalDate().toString() : "Unknown";
-                    String status = o.getStatus() != null ? o.getStatus() : "Pending";
-                    // Collect item types from OrderLines
-                    Set<String> itemTypesSet = new HashSet<>();
-                    try {
-                        if (o.getOrderLines() != null && !o.getOrderLines().isEmpty()) {
-                            for (var line : o.getOrderLines()) {
-                                if (line != null && line.getItem() != null && line.getItem().getType() != null) {
-                                    itemTypesSet.add(line.getItem().getType());
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        System.err.println("ReportsController: Error getting item types for order " + o.getId() + ": " + e.getMessage());
-                    }
-                    String itemTypes = itemTypesSet.isEmpty() ? "Unknown" : String.join(", ", itemTypesSet);
+                // Get all types (active + cancelled) and sort
+                Set<String> allTypes = new HashSet<>(typeQuantities.keySet());
+                allTypes.addAll(cancelledTypeQuantities.keySet());
+                List<String> allSortedTypes = new ArrayList<>(allTypes);
+                allSortedTypes.sort(String::compareTo);
+                
+                // Create rows for each product type
+                for (String type : allSortedTypes) {
+                    int quantity = typeQuantities.getOrDefault(type, 0);
+                    double revenue = typeRevenue.getOrDefault(type, 0.0);
+                    int cancelledQty = cancelledTypeQuantities.getOrDefault(type, 0);
                     
-                    tableData.add(new OrderRow(String.valueOf(o.getId()), date, customerName, itemCount, itemTypes, o.getTotalPrice(), status));
+                    tableData.add(new ProductTypeRow(type, quantity, revenue, cancelledQty));
                 }
                 
-                System.out.println("ReportsController: Populated table with " + tableData.size() + " rows");
+                System.out.println("ReportsController: Populated product types table with " + tableData.size() + " rows");
                 ordersTable.setItems(tableData);
                 ordersTable.setManaged(true);
                 ordersTable.setVisible(true);
-                // Force table to refresh
                 ordersTable.refresh();
-                System.out.println("ReportsController: Table visible: " + ordersTable.isVisible() + ", managed: " + ordersTable.isManaged() + ", items count: " + ordersTable.getItems().size() + ", columns: " + ordersTable.getColumns().size());
+                System.out.println("ReportsController: Product types table visible: " + ordersTable.isVisible() + ", managed: " + ordersTable.isManaged() + ", items count: " + ordersTable.getItems().size());
             } else {
                 System.err.println("ReportsController: ERROR - ordersTable is null!");
             }

@@ -49,32 +49,28 @@ public class OrderManager extends BaseManager {
         return read(s -> s.createQuery("from Order", Order.class).getResultList());
     }
 
-    /** List all orders with full details (eager fetching). */
+    /** List all orders with minimal details for table view (fast). */
     public List<Order> listAllWithDetails() {
         return read(s -> {
-            // Fetch everything we need in one shot
+            // Fetch Order, UserAccount, Branch, and OrderLines (but NOT Items)
+            // This is much faster than fetching all Items
             List<Order> orders = s.createQuery(
                             "select distinct o from Order o " +
-                                    "left join fetch o.orderLines ol " +
-                                    "left join fetch ol.item it " +
                                     "left join fetch o.userAccount ua " +
-                                    "left join fetch o.branch b ",
+                                    "left join fetch o.branch b " +
+                                    "left join fetch o.orderLines ol ",
                             Order.class
                     )
                     .getResultList();
 
             System.out.println("Found " + orders.size() + " total orders");
 
-            // Make sure nested lazy stuff is initialized (items on each line)
+            // Initialize orderLines collections (already fetched, just ensure they're accessible)
             for (Order order : orders) {
-                if (order.getOrderLines() != null) {
-                    order.getOrderLines().forEach(line -> {
-                        if (line.getItem() != null) {
-                            // touch a simple property to force initialization
-                            line.getItem().getName();
-                        }
-                    });
+                if (order.getOrderLines() == null) {
+                    order.setOrderLines(new java.util.ArrayList<>());
                 }
+                // Don't initialize Items - we don't need them for the table view
             }
 
             return orders;

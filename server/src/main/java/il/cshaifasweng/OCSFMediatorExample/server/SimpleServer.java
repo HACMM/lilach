@@ -940,6 +940,46 @@ public class SimpleServer extends AbstractServer {
                 } catch (IOException ignored) {}
             }
 
+        } else if (msg instanceof UpdateOrderStatusRequest) {
+            UpdateOrderStatusRequest req = (UpdateOrderStatusRequest) msg;
+            System.out.println("Server: Received UpdateOrderStatusRequest for order ID: " +
+                    req.getOrderId() + ", new status: " + req.getNewStatus() + ", requesting user ID: " + req.getRequestingUserId());
+
+            try {
+                // Get the order
+                Order order = orderManager.getById(req.getOrderId());
+                if (order == null) {
+                    System.err.println("Server: Order with ID " + req.getOrderId() + " not found");
+                    try {
+                        client.sendToClient(new Message("updateOrderStatusError", "Order not found"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
+
+                // Update the status
+                order.setStatus(req.getNewStatus());
+                orderManager.update(order);
+                System.out.println("Server: Updated order " + req.getOrderId() + " status to: " + req.getNewStatus());
+
+                // Send success message
+                try {
+                    client.sendToClient(new Message("updateOrderStatusOk", "Order status updated successfully"));
+                } catch (IOException e) {
+                    System.err.println("Server: Error sending updateOrderStatusOk: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                System.err.println("Server: Error updating order status: " + e.getMessage());
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message("updateOrderStatusError", "Failed to update order status: " + e.getMessage()));
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+
         } else if (msg instanceof CancelOrderRequest) {
             CancelOrderRequest req = (CancelOrderRequest) msg;
             System.out.println("Received CancelOrderRequest for order ID: " +

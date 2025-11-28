@@ -110,6 +110,10 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("cancelOrderError")) {
                 EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("updateOrderStatusOk")) {
+                EventBus.getDefault().post(msg);
+            } else if (msg instanceof Message && ((Message) msg).getType().equals("updateOrderStatusError")) {
+                EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("customersList")) {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("employeesList")) {

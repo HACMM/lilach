@@ -66,15 +66,8 @@ public class ManageOrdersController {
         ordersTable.setItems(masterData);
         System.out.println("ManageOrdersController: Table initialized with masterData (size: " + masterData.size() + ")");
 
-        // Request orders after a small delay to ensure everything is initialized
-        Platform.runLater(() -> {
-            try {
-                Thread.sleep(100); // Small delay to ensure EventBus is ready
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            requestOrders();
-        });
+        // Request orders immediately - no delay needed
+        requestOrders();
     }
 
     private void requestOrders() {
@@ -174,7 +167,21 @@ public class ManageOrdersController {
     @Subscribe
     public void onStatusUpdated(Message msg) {
         if (msg.getType().equals("updateOrderStatusOk")) {
-            Platform.runLater(() -> requestOrders());
+            System.out.println("ManageOrdersController: Order status updated successfully, refreshing table...");
+            Platform.runLater(() -> {
+                requestOrders();
+                // Also refresh the table immediately
+                ordersTable.refresh();
+            });
+        } else if (msg.getType().equals("updateOrderStatusError")) {
+            System.err.println("ManageOrdersController: Failed to update order status: " + msg.getData());
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Update Status Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Failed to update order status: " + (msg.getData() != null ? msg.getData().toString() : "Unknown error"));
+                alert.showAndWait();
+            });
         }
     }
 
