@@ -31,10 +31,14 @@
         <!-- Scrollable sale grid -->
         <ScrollPane AnchorPane.topAnchor="90" AnchorPane.bottomAnchor="20"
                     AnchorPane.leftAnchor="20" AnchorPane.rightAnchor="20"
-                    fitToWidth="true" hbarPolicy="NEVER">
+                    fitToWidth="true" hbarPolicy="NEVER"
+                    style="-fx-background-color: transparent; -fx-border-color: transparent;">
 
-            <VBox fx:id="saleContainer" spacing="20"
-                  style="-fx-padding: 10 10 10 10;" />
+            <content>
+                <VBox fx:id="saleContainer" spacing="20"
+                      style="-fx-background-color: transparent;
+                             -fx-padding: 10 10 10 10;" />
+            </content>
 
         </ScrollPane>
 

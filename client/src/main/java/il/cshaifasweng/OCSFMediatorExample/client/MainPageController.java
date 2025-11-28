@@ -39,6 +39,14 @@ public class MainPageController {
     private void initialize() {
         EventBus.getDefault().register(this);
 
+        // Always refresh promotions whenever this page is shown
+        try {
+            client.sendToServer("#getSales");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         PublicUser user = AppSession.getCurrentUser();
         if (user == null || (user.getRole() != Role.MANAGER && user.getRole() != Role.NETWORK_MANAGER)) {
             manageEmployeesBtn.setVisible(false);
@@ -47,7 +55,6 @@ public class MainPageController {
             reportsBtn.setVisible(false);
             addSaleBtn.setVisible(false);
             addSaleBtn.setManaged(false);
-            //ordersBtn.setVisible(false);
             complaintsBtn.setVisible(false);
             manageOrdersBtn.setVisible(false);
 
