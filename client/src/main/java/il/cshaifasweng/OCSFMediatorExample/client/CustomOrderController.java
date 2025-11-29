@@ -97,6 +97,9 @@ public class CustomOrderController {
 
     public void onBackClicked(ActionEvent actionEvent) {
         try {
+            // Clear category filter when navigating to catalog from custom order
+            AppSession.setCameFromCategory(false);
+            AppSession.setLastItemList(null);
             App.setRoot("CatalogView");
         } catch (IOException e) {
             e.printStackTrace();

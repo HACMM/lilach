@@ -104,6 +104,10 @@ public class BrowseCategoriesController {
     @FXML
     public void onBack(ActionEvent actionEvent) {
         try {
+            // Unregister from EventBus before navigating away
+            if (EventBus.getDefault().isRegistered(this)) {
+                EventBus.getDefault().unregister(this);
+            }
             App.setRoot("MainPage");
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,6 +117,20 @@ public class BrowseCategoriesController {
     @Subscribe
     public void onCategoryCatalogReceived(List<?> list) {
         if (list.isEmpty() || !(list.get(0) instanceof Item)) return;
+        
+        // CRITICAL: Only process if we're actually on BrowseCategoriesView
+        if (App.scene == null || App.scene.getRoot() == null) {
+            System.out.println("BrowseCategoriesController: Scene or root is null, ignoring item list");
+            return;
+        }
+        
+        // Check if we're on BrowseCategoriesView by looking for the categoryList VBox
+        javafx.scene.Node found = App.scene.getRoot().lookup("#categoryList");
+        if (found == null || found != categoryList) {
+            System.out.println("BrowseCategoriesController: Not on BrowseCategoriesView (categoryList not found or doesn't match), ignoring item list");
+            return;
+        }
+        
         EventBus.getDefault().unregister(this);
         List<Item> items = (List<Item>) list;
 

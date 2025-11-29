@@ -11,6 +11,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,6 +27,7 @@ public class ItemController {
     @FXML
     private TextArea descriptionTextArea;
     @FXML private Label nameLabel, typeLabel, priceLabel;
+    @FXML private HBox priceContainer; // Container for price display (if exists in FXML, otherwise we'll create dynamically)
     @FXML private ImageView itemImage;
 
     private Item item;
@@ -73,6 +77,58 @@ public class ItemController {
     public void updatePriceLabel(double newPrice) {
         priceLabel.setText("Price: " + item.getPrice() + "$");
     }
+    
+    /**
+     * Refresh the item display after editing
+     */
+    public void refreshItem(Item updatedItem) {
+        if (updatedItem == null) return;
+        
+        // Update the item reference
+        this.item = updatedItem;
+        
+        // Update all displayed fields
+        nameLabel.setText(updatedItem.getName());
+        typeLabel.setText(updatedItem.getType());
+        descriptionTextArea.setText(updatedItem.getDescription());
+        
+        // Update price display with sale price logic
+        SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(updatedItem);
+        
+        if (priceResult.hasActiveSale() && priceResult.getSalePrice() < priceResult.getOriginalPrice()) {
+            Text originalPriceText = new Text(String.format("%.2f₪", priceResult.getOriginalPrice()));
+            originalPriceText.setStyle("-fx-strikethrough: true; -fx-fill: #cc0000; -fx-font-size: 14px;");
+            
+            Text salePriceText = new Text("  " + String.format("%.2f₪", priceResult.getSalePrice()));
+            salePriceText.setStyle("-fx-fill: #228B22; -fx-font-weight: bold; -fx-font-size: 16px;");
+            
+            TextFlow priceFlow = new TextFlow(originalPriceText, salePriceText);
+            
+            if (priceLabel.getParent() != null && priceLabel.getParent() instanceof javafx.scene.layout.Pane) {
+                javafx.scene.layout.Pane parent = (javafx.scene.layout.Pane) priceLabel.getParent();
+                int index = parent.getChildren().indexOf(priceLabel);
+                if (index >= 0) {
+                    if (parent instanceof javafx.scene.layout.AnchorPane) {
+                        javafx.scene.layout.AnchorPane anchorPane = (javafx.scene.layout.AnchorPane) parent;
+                        javafx.scene.layout.AnchorPane.setTopAnchor(priceFlow, javafx.scene.layout.AnchorPane.getTopAnchor(priceLabel));
+                        javafx.scene.layout.AnchorPane.setLeftAnchor(priceFlow, javafx.scene.layout.AnchorPane.getLeftAnchor(priceLabel));
+                    }
+                    parent.getChildren().set(index, priceFlow);
+                    priceLabel.setVisible(false);
+                    priceLabel.setManaged(false);
+                }
+            }
+        } else {
+            priceLabel.setText(String.format("%.2f₪", priceResult.getOriginalPrice()));
+            priceLabel.setStyle("-fx-text-fill: #2c3e50;");
+        }
+        
+        // Update image if available
+        if (updatedItem.getImageData() != null && updatedItem.getImageData().length > 0) {
+            Image img = new Image(new ByteArrayInputStream(updatedItem.getImageData()));
+            itemImage.setImage(img);
+        }
+    }
 
     public void init(Item item) {
         PublicUser currentUser = AppSession.getCurrentUser();
@@ -97,22 +153,48 @@ public class ItemController {
         typeLabel.setText(item.getType());
 
 
-        double finalPrice = item.getPrice();
-        for (ItemSale sale : item.getSales()) {
-            double discount = sale.getDiscount();
-            double discountedPrice = finalPrice;
-
-            if (sale.getDiscountType() == DiscountType.PercentDiscount) {
-                discountedPrice = finalPrice * (1 - discount / 100);
-            } else if (sale.getDiscountType() == DiscountType.FlatDiscount) {
-                discountedPrice = finalPrice - discount;
+        // Calculate sale price using helper
+        SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(item);
+        
+        if (priceResult.hasActiveSale() && priceResult.getSalePrice() < priceResult.getOriginalPrice()) {
+            // Show original price with strikethrough (red) and sale price (green)
+            // Use TextFlow for better formatting
+            Text originalPriceText = new Text(String.format("%.2f₪", priceResult.getOriginalPrice()));
+            originalPriceText.setStyle("-fx-strikethrough: true; -fx-fill: #cc0000; -fx-font-size: 14px;");
+            
+            Text salePriceText = new Text("  " + String.format("%.2f₪", priceResult.getSalePrice()));
+            salePriceText.setStyle("-fx-fill: #228B22; -fx-font-weight: bold; -fx-font-size: 16px;");
+            
+            TextFlow priceFlow = new TextFlow(originalPriceText, salePriceText);
+            
+            // Replace priceLabel with TextFlow in its parent
+            if (priceLabel.getParent() != null && priceLabel.getParent() instanceof javafx.scene.layout.Pane) {
+                javafx.scene.layout.Pane parent = (javafx.scene.layout.Pane) priceLabel.getParent();
+                int index = parent.getChildren().indexOf(priceLabel);
+                if (index >= 0) {
+                    // Copy layout constraints from priceLabel
+                    if (parent instanceof javafx.scene.layout.AnchorPane) {
+                        javafx.scene.layout.AnchorPane anchorPane = (javafx.scene.layout.AnchorPane) parent;
+                        javafx.scene.layout.AnchorPane.setTopAnchor(priceFlow, javafx.scene.layout.AnchorPane.getTopAnchor(priceLabel));
+                        javafx.scene.layout.AnchorPane.setLeftAnchor(priceFlow, javafx.scene.layout.AnchorPane.getLeftAnchor(priceLabel));
+                    }
+                    parent.getChildren().set(index, priceFlow);
+                    priceLabel.setVisible(false);
+                    priceLabel.setManaged(false);
+                } else {
+                    // Fallback: set text
+                    priceLabel.setText(String.format("~~%.2f₪~~  %.2f₪", priceResult.getOriginalPrice(), priceResult.getSalePrice()));
+                    priceLabel.setStyle("-fx-text-fill: #228B22; -fx-font-weight: bold;");
+                }
+            } else {
+                // Fallback: set text if we can't replace
+                priceLabel.setText(String.format("~~%.2f₪~~  %.2f₪", priceResult.getOriginalPrice(), priceResult.getSalePrice()));
+                priceLabel.setStyle("-fx-text-fill: #228B22; -fx-font-weight: bold;");
             }
-
-            if (discountedPrice < finalPrice) {
-                finalPrice = discountedPrice;
-            }
+        } else {
+            priceLabel.setText(String.format("%.2f₪", priceResult.getOriginalPrice()));
+            priceLabel.setStyle("-fx-text-fill: #2c3e50;");
         }
-        priceLabel.setText(finalPrice + "$");
 
 //        double discount = item.getSales();
 //        priceLabel.setText(String.valueOf(item.getPrice())+"$");
@@ -175,6 +257,9 @@ public class ItemController {
                 
                 // Close the item view window and go back to catalog
                 try {
+                    // Clear category filter when navigating to catalog after item removal
+                    AppSession.setCameFromCategory(false);
+                    AppSession.setLastItemList(null);
                     App.setRoot("CatalogView");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -190,6 +275,9 @@ public class ItemController {
 
     public void onBackClicked(ActionEvent actionEvent) {
         try {
+            // Clear category filter when navigating to catalog from item view
+            AppSession.setCameFromCategory(false);
+            AppSession.setLastItemList(null);
             App.setRoot("CatalogView");
         } catch (IOException e) {
             e.printStackTrace();

@@ -43,7 +43,7 @@
 
                 <!-- שורה 2: Edit + Remove -->
                 <HBox alignment="CENTER" spacing="12">
-                    <Button fx:id="EditPriceBTN" onAction="#onEditPrice" prefWidth="110" style="-fx-background-color: #cccccc;                        -fx-text-fill: #333;                        -fx-font-weight: bold;                        -fx-font-size: 13;                        -fx-background-radius: 20;                        -fx-padding: 8 20;                        -fx-cursor: hand;" text="Edit Price" />
+                    <Button fx:id="EditPriceBTN" onAction="#onEditPrice" prefWidth="110" style="-fx-background-color: #cccccc;                        -fx-text-fill: #333;                        -fx-font-weight: bold;                        -fx-font-size: 13;                        -fx-background-radius: 20;                        -fx-padding: 8 20;                        -fx-cursor: hand;" text="Edit" />
 
                     <Button fx:id="RemoveBTN" onAction="#onRemoveItem" prefHeight="35.0" prefWidth="144.0" style="-fx-background-color: #f3a5a5;                        -fx-text-fill: white;                        -fx-font-weight: bold;                        -fx-font-size: 13;                        -fx-background-radius: 20;                        -fx-padding: 8 20;                        -fx-cursor: hand;" text="Remove Item" />
                 </HBox>

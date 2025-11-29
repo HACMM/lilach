@@ -2,11 +2,12 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="il.cshaifasweng.OCSFMediatorExample.client.ItemEditController"
-            prefWidth="360" prefHeight="180"
+            prefWidth="450" prefHeight="550"
             style="-fx-background-image: url('/images/flower_background.png');
                    -fx-background-repeat: no-repeat;
                    -fx-background-size: cover;
@@ -14,7 +15,7 @@
                    -fx-padding: 15;">
 
     <children>
-        <VBox spacing="14"
+        <VBox spacing="12"
               alignment="CENTER"
               AnchorPane.leftAnchor="20"
               AnchorPane.rightAnchor="20"
@@ -25,36 +26,110 @@
                      -fx-padding: 20;">
 
             <!-- 🔹 כותרת -->
-            <Label text="Edit Item Price"
-                   style="-fx-font-size: 18;
+            <Label text="Edit Item"
+                   style="-fx-font-size: 22;
                           -fx-font-weight: bold;
                           -fx-text-fill: #2c3e50;" />
 
-            <!-- 🔹 שדה מחיר -->
-            <TextField fx:id="priceField"
-                       promptText="Enter new price"
-                       prefWidth="180"
-                       style="-fx-background-radius: 8;
-                              -fx-border-radius: 8;
-                              -fx-border-color: #ddd;
-                              -fx-background-color: #fff;
-                              -fx-font-size: 13;" />
+            <!-- 🔹 אזור העלאת תמונה -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <VBox spacing="5">
+                    <Button onAction="#handleUploadImage" 
+                            style="-fx-background-color: #e7b3d1; 
+                                   -fx-text-fill: white; 
+                                   -fx-font-weight: bold;
+                                   -fx-background-radius: 8;
+                                   -fx-padding: 6 12 6 12;
+                                   -fx-cursor: hand;" 
+                            text="Upload Image" />
+                    <Label fx:id="imageNameLabel" 
+                           style="-fx-text-fill: #555; 
+                                  -fx-font-size: 12px;" 
+                           text="No image selected" />
+                </VBox>
+
+                <ImageView fx:id="previewImage" 
+                          fitHeight="120" 
+                          fitWidth="120" 
+                          preserveRatio="true" 
+                          style="-fx-border-color: #ccc; 
+                                 -fx-border-radius: 8; 
+                                 -fx-padding: 3;" />
+            </HBox>
+
+            <Separator />
+
+            <!-- 🔹 שדות הקלט -->
+            <TextField fx:id="nameField" 
+                      promptText="Name" 
+                      prefWidth="300"
+                      style="-fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-border-color: #ddd;
+                             -fx-background-color: #fff;
+                             -fx-font-size: 13;" />
+            
+            <TextField fx:id="typeField" 
+                      promptText="Type (e.g., Flower, Bouquet, Plant)" 
+                      prefWidth="300"
+                      style="-fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-border-color: #ddd;
+                             -fx-background-color: #fff;
+                             -fx-font-size: 13;" />
+            
+            <TextField fx:id="priceField" 
+                      promptText="Price (e.g., 12.5)" 
+                      prefWidth="300"
+                      style="-fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-border-color: #ddd;
+                             -fx-background-color: #fff;
+                             -fx-font-size: 13;" />
+            
+            <TextField fx:id="colorField" 
+                      promptText="Color" 
+                      prefWidth="300"
+                      style="-fx-background-radius: 8;
+                             -fx-border-radius: 8;
+                             -fx-border-color: #ddd;
+                             -fx-background-color: #fff;
+                             -fx-font-size: 13;" />
+            
+            <TextArea fx:id="descriptionArea" 
+                     promptText="Description" 
+                     prefWidth="300"
+                     prefHeight="100"
+                     wrapText="true"
+                     style="-fx-background-radius: 8;
+                            -fx-border-radius: 8;
+                            -fx-border-color: #ddd;
+                            -fx-background-color: #fff;
+                            -fx-font-size: 13;" />
+
+            <!-- 🔹 תווית לשגיאות -->
+            <Label fx:id="errorLabel" 
+                   style="-fx-text-fill: #b00020; 
+                          -fx-font-weight: bold;
+                          -fx-font-size: 12;" />
 
             <!-- 🔹 כפתורים -->
             <HBox spacing="10" alignment="CENTER">
-                <Button onAction="#onSave" text="Save"
+                <Button onAction="#onSave" 
+                        text="Save"
                         style="-fx-background-color: #e7b3d1;
                                -fx-text-fill: white;
                                -fx-font-weight: bold;
                                -fx-background-radius: 20;
-                               -fx-padding: 6 16 6 16;
+                               -fx-padding: 8 20 8 20;
                                -fx-cursor: hand;" />
-                <Button onAction="#onCancel" text="Cancel"
+                <Button onAction="#onCancel" 
+                        text="Cancel"
                         style="-fx-background-color: #cccccc;
                                -fx-text-fill: #333;
                                -fx-font-weight: bold;
                                -fx-background-radius: 20;
-                               -fx-padding: 6 16 6 16;
+                               -fx-padding: 8 20 8 20;
                                -fx-cursor: hand;" />
             </HBox>
         </VBox>

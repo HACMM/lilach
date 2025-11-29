@@ -19,7 +19,33 @@ public class CartItem {
     public IntegerProperty qtyProperty() { return qty; }
 
     public double getSubtotal() {
-        return item.getPrice() * getQty();
-}
+        // Use sale price if available, otherwise use original price
+        SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(item);
+        double priceToUse = priceResult.hasActiveSale() ? priceResult.getSalePrice() : priceResult.getOriginalPrice();
+        return priceToUse * getQty();
+    }
+    
+    /**
+     * Gets the effective price (sale price if active, otherwise original price).
+     */
+    public double getEffectivePrice() {
+        SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(item);
+        return priceResult.hasActiveSale() ? priceResult.getSalePrice() : priceResult.getOriginalPrice();
+    }
+    
+    /**
+     * Gets the original price (before any sales).
+     */
+    public double getOriginalPrice() {
+        return item.getPrice();
+    }
+    
+    /**
+     * Checks if this item has an active sale.
+     */
+    public boolean hasActiveSale() {
+        SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(item);
+        return priceResult.hasActiveSale();
+    }
 
 }

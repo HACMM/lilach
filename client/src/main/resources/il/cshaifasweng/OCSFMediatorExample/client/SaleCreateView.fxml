@@ -103,11 +103,43 @@
                       -fx-font-weight: bold;
                       -fx-text-fill: #a64f73;" />
 
+        <!-- Selection Mode Radio Buttons -->
+        <VBox spacing="10">
+            <Label text="Selection Mode:"
+                   style="-fx-font-size: 14px;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #555;" />
+            <HBox spacing="20">
+                <RadioButton fx:id="individualItemsRadio" text="Individual Items" selected="true"/>
+                <RadioButton fx:id="byTypeRadio" text="By Type (Category)"/>
+                <RadioButton fx:id="allItemsRadio" text="All Items"/>
+            </HBox>
+            
+            <!-- Item Type ComboBox (shown when By Type is selected) -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label fx:id="itemTypeLabel" text="Item Type:" 
+                       visible="false" managed="false"
+                       style="-fx-text-fill: #555;"/>
+                <ComboBox fx:id="itemTypeCombo" 
+                         visible="false" managed="false"
+                         prefWidth="200"
+                         style="-fx-background-radius: 8;
+                                -fx-border-color: #ddd;
+                                -fx-border-radius: 8;" />
+            </HBox>
+        </VBox>
+
         <ListView fx:id="itemsList"
                   prefHeight="150"
                   style="-fx-background-radius: 8;
                          -fx-border-color: #ddd;
                          -fx-border-radius: 8;" />
+
+        <!-- Items Count Label -->
+        <Label fx:id="itemsCountLabel"
+               style="-fx-font-size: 12px;
+                      -fx-text-fill: #a64f73;
+                      -fx-font-style: italic;" />
 
         <Separator/>
 

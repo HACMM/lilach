@@ -383,7 +383,25 @@ public class ItemManager extends BaseManager {
 
     public List<Item> GetItemList(List<Filter> filterList) {
         return read(session -> {
-            List<Item> result = session.createQuery("FROM Item", Item.class).list();
+            // Eagerly fetch sales
+            List<Item> result = session.createQuery(
+                "SELECT DISTINCT i FROM Item i " +
+                "LEFT JOIN FETCH i.sales", 
+                Item.class
+            ).list();
+            
+            // Force initialization of Sale entities for each ItemSale
+            for (Item item : result) {
+                if (item.getSales() != null) {
+                    for (il.cshaifasweng.OCSFMediatorExample.entities.ItemSale itemSale : item.getSales()) {
+                        if (itemSale != null && itemSale.getPrimaryKey() != null) {
+                            // Force initialization of the Sale entity
+                            org.hibernate.Hibernate.initialize(itemSale.getPrimaryKey().getSale());
+                        }
+                    }
+                }
+            }
+            
             for (Item item : result) {
                 String imagePath = item.getImagePath();
                 System.out.println("Item path = " + imagePath);
@@ -418,17 +436,45 @@ public class ItemManager extends BaseManager {
             List<Item> result;
 
             if (branchId == null) {
-                result = session.createQuery("FROM Item", Item.class).list();
+                // Eagerly fetch sales
+                result = session.createQuery(
+                    "SELECT DISTINCT i FROM Item i " +
+                    "LEFT JOIN FETCH i.sales", 
+                    Item.class
+                ).list();
+                
+                // Force initialization of Sale entities for each ItemSale
+                for (Item item : result) {
+                    if (item.getSales() != null) {
+                        for (il.cshaifasweng.OCSFMediatorExample.entities.ItemSale itemSale : item.getSales()) {
+                            if (itemSale != null && itemSale.getPrimaryKey() != null) {
+                                org.hibernate.Hibernate.initialize(itemSale.getPrimaryKey().getSale());
+                            }
+                        }
+                    }
+                }
             } else {
                 // Only items available in the given branch
                 result = session.createQuery(
                                 "select distinct bi.primaryKey.item " +
                                         "from BranchInventory bi " +
+                                        "LEFT JOIN FETCH bi.primaryKey.item.sales " +
                                         "where bi.primaryKey.branch.id = :bid",
                                 Item.class
                         )
                         .setParameter("bid", branchId)
                         .list();
+                
+                // Force initialization of Sale entities for each ItemSale
+                for (Item item : result) {
+                    if (item.getSales() != null) {
+                        for (il.cshaifasweng.OCSFMediatorExample.entities.ItemSale itemSale : item.getSales()) {
+                            if (itemSale != null && itemSale.getPrimaryKey() != null) {
+                                org.hibernate.Hibernate.initialize(itemSale.getPrimaryKey().getSale());
+                            }
+                        }
+                    }
+                }
             }
 
             for (Item item : result) {

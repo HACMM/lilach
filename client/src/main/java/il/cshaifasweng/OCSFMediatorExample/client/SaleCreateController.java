@@ -29,6 +29,14 @@ public class SaleCreateController implements Initializable {
     @FXML private ComboBox<DiscountType> discountTypeCombo;
     @FXML private TextField discountValueField;
     @FXML private ListView<Item> itemsList;
+    @FXML private RadioButton individualItemsRadio;
+    @FXML private RadioButton byTypeRadio;
+    @FXML private RadioButton allItemsRadio;
+    @FXML private ComboBox<String> itemTypeCombo;
+    @FXML private Label itemTypeLabel;
+    @FXML private Label itemsCountLabel;
+    
+    private List<Item> allItems = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -51,12 +59,85 @@ public class SaleCreateController implements Initializable {
         // 2️⃣ מילוי סוגי הנחה
         discountTypeCombo.getItems().addAll(DiscountType.values());
 
-        // 3️⃣ בקשה להביא פריטים מהשרת
+        // 3️⃣ Setup selection mode radio buttons
+        ToggleGroup selectionGroup = new ToggleGroup();
+        individualItemsRadio.setToggleGroup(selectionGroup);
+        byTypeRadio.setToggleGroup(selectionGroup);
+        allItemsRadio.setToggleGroup(selectionGroup);
+        individualItemsRadio.setSelected(true); // Default to individual items
+        
+        // Initially hide type combo
+        itemTypeCombo.setVisible(false);
+        itemTypeLabel.setVisible(false);
+        
+        // Add listeners for radio button changes
+        individualItemsRadio.setOnAction(e -> {
+            itemsList.getSelectionModel().clearSelection();
+            itemTypeCombo.setVisible(false);
+            itemTypeLabel.setVisible(false);
+            itemsList.setDisable(false);
+            updateItemsCountLabel();
+        });
+        
+        byTypeRadio.setOnAction(e -> {
+            itemsList.getSelectionModel().clearSelection();
+            itemTypeCombo.setVisible(true);
+            itemTypeLabel.setVisible(true);
+            itemsList.setDisable(true);
+            updateItemsByType();
+            updateItemsCountLabel();
+        });
+        
+        allItemsRadio.setOnAction(e -> {
+            itemsList.getSelectionModel().clearSelection();
+            itemTypeCombo.setVisible(false);
+            itemTypeLabel.setVisible(false);
+            itemsList.setDisable(true);
+            updateItemsCountLabel();
+        });
+
+        // 4️⃣ בקשה להביא פריטים מהשרת
         try {
             client.sendToServer(new Message("#getItems", null));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void updateItemsByType() {
+        if (itemTypeCombo.getValue() != null && !allItems.isEmpty()) {
+            String selectedType = itemTypeCombo.getValue();
+            List<Item> filtered = allItems.stream()
+                    .filter(item -> item.getType() != null && item.getType().equalsIgnoreCase(selectedType))
+                    .collect(Collectors.toList());
+            itemsList.getItems().setAll(filtered);
+            updateItemsCountLabel();
+        }
+    }
+    
+    private void updateItemsCountLabel() {
+        if (itemsCountLabel == null) return;
+        
+        int count = 0;
+        if (individualItemsRadio.isSelected()) {
+            count = itemsList.getSelectionModel().getSelectedItems().size();
+            itemsCountLabel.setText(count > 0 ? count + " item(s) selected" : "No items selected");
+        } else if (byTypeRadio.isSelected()) {
+            if (itemTypeCombo.getValue() != null) {
+                String selectedType = itemTypeCombo.getValue();
+                count = (int) allItems.stream()
+                        .filter(item -> item.getType() != null && item.getType().equalsIgnoreCase(selectedType))
+                        .count();
+                itemsCountLabel.setText(count + " item(s) of type '" + selectedType + "' will be included");
+            } else {
+                itemsCountLabel.setText("Please select an item type");
+            }
+        } else if (allItemsRadio.isSelected()) {
+            count = allItems.size();
+            itemsCountLabel.setText("All " + count + " item(s) in the store will be included");
+        }
+        
+        itemsCountLabel.setVisible(true);
     }
 
     // אירוע: קיבלנו מהשרת את רשימת הפריטים
@@ -69,7 +150,39 @@ public class SaleCreateController implements Initializable {
         List<Item> items = (List<Item>) list;
 
         Platform.runLater(() -> {
+            allItems = new ArrayList<>(items);
             itemsList.getItems().setAll(items);
+            
+            // Populate item types combo with unique types from items
+            Set<String> types = items.stream()
+                    .map(Item::getType)
+                    .filter(type -> type != null && !type.isEmpty())
+                    .collect(Collectors.toSet());
+            List<String> sortedTypes = new ArrayList<>(types);
+            sortedTypes.sort(String::compareTo);
+            itemTypeCombo.getItems().setAll(sortedTypes);
+            
+            // Add listener to type combo
+            itemTypeCombo.setOnAction(e -> {
+                updateItemsByType();
+                updateItemsCountLabel();
+            });
+            
+            // Add listener to items list selection for individual mode
+            itemsList.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                if (individualItemsRadio.isSelected()) {
+                    updateItemsCountLabel();
+                }
+            });
+            
+            // Also listen to multiple selection changes
+            itemsList.getSelectionModel().getSelectedItems().addListener((javafx.collections.ListChangeListener.Change<? extends Item> c) -> {
+                if (individualItemsRadio.isSelected()) {
+                    updateItemsCountLabel();
+                }
+            });
+            
+            updateItemsCountLabel();
         });
     }
 
@@ -108,11 +221,6 @@ public class SaleCreateController implements Initializable {
                 return;
             }
 
-            if (itemsList.getSelectionModel().getSelectedItems().isEmpty()) {
-                new Alert(Alert.AlertType.WARNING, "Please select at least one item for the sale.").show();
-                return;
-            }
-
             Date start = Date.from(startDatePicker.getValue()
                     .atStartOfDay(ZoneId.systemDefault()).toInstant());
             Date end = Date.from(endDatePicker.getValue()
@@ -124,8 +232,35 @@ public class SaleCreateController implements Initializable {
             sale.setDiscountType(discountTypeCombo.getValue());
             sale.setDiscountValue(discount);
 
-            // Selected items
-            List<Item> selected = itemsList.getSelectionModel().getSelectedItems();
+            // Determine selected items based on selection mode
+            List<Item> selected = new ArrayList<>();
+            
+            if (individualItemsRadio.isSelected()) {
+                selected = new ArrayList<>(itemsList.getSelectionModel().getSelectedItems());
+                if (selected.isEmpty()) {
+                    new Alert(Alert.AlertType.WARNING, "Please select at least one item for the sale.").show();
+                    return;
+                }
+            } else if (byTypeRadio.isSelected()) {
+                if (itemTypeCombo.getValue() == null || itemTypeCombo.getValue().isEmpty()) {
+                    new Alert(Alert.AlertType.WARNING, "Please select an item type.").show();
+                    return;
+                }
+                String selectedType = itemTypeCombo.getValue();
+                selected = allItems.stream()
+                        .filter(item -> item.getType() != null && item.getType().equalsIgnoreCase(selectedType))
+                        .collect(Collectors.toList());
+                if (selected.isEmpty()) {
+                    new Alert(Alert.AlertType.WARNING, "No items found for the selected type.").show();
+                    return;
+                }
+            } else if (allItemsRadio.isSelected()) {
+                selected = new ArrayList<>(allItems);
+                if (selected.isEmpty()) {
+                    new Alert(Alert.AlertType.WARNING, "No items available in the store.").show();
+                    return;
+                }
+            }
 
             if (selected == null || selected.isEmpty()) {
                 new Alert(Alert.AlertType.WARNING,
@@ -150,19 +285,42 @@ public class SaleCreateController implements Initializable {
             Message msg = new Message("#create-sale", itemSales);
             client.sendToServer(msg);
 
-            new Alert(Alert.AlertType.INFORMATION, "Sale created successfully!").show();
-            App.setRoot("MainPage");
+            // Don't navigate immediately - wait for server response
+            // The navigation will happen in the @Subscribe method below
 
         } catch (Exception e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Error creating sale.").show();
+            new Alert(Alert.AlertType.ERROR, "Error creating sale: " + e.getMessage()).show();
         }
     }
-
+    
+    @Subscribe
+    public void onSaleCreated(Message msg) {
+        Platform.runLater(() -> {
+            if ("createSaleOk".equals(msg.getType())) {
+                // Unregister from EventBus before navigating away
+                if (EventBus.getDefault().isRegistered(this)) {
+                    EventBus.getDefault().unregister(this);
+                }
+                new Alert(Alert.AlertType.INFORMATION, "Sale created successfully!").showAndWait();
+                try {
+                    App.setRoot("MainPage");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if ("createSaleError".equals(msg.getType())) {
+                new Alert(Alert.AlertType.ERROR, "Failed to create sale: " + msg.getData()).showAndWait();
+            }
+        });
+    }
 
     @FXML
     private void onBack() {
         try {
+            // Unregister from EventBus before navigating away
+            if (EventBus.getDefault().isRegistered(this)) {
+                EventBus.getDefault().unregister(this);
+            }
             App.setRoot("MainPage");
         } catch (IOException e) {
             e.printStackTrace();

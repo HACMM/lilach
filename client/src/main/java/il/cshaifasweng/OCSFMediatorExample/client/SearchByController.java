@@ -70,6 +70,9 @@ public class SearchByController {
 
     public void onBackClicked(ActionEvent actionEvent) {
         try {
+            // Clear category filter when navigating to catalog from search
+            AppSession.setCameFromCategory(false);
+            AppSession.setLastItemList(null);
             App.setRoot("CatalogView");
         } catch (IOException e) {
             e.printStackTrace();

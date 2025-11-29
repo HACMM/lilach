@@ -68,6 +68,12 @@
                         </FXCollections>
                     </items>
                 </ComboBox>
+                <ComboBox fx:id="quarterCombo" promptText="Select Quarter (Revenue Only)" prefWidth="180" visible="false"
+                          style="-fx-background-radius: 8; -fx-border-color: #e1a6c2;"
+                          onAction="#onQuarterSelected"/>
+                <ComboBox fx:id="yearCombo" promptText="Year" prefWidth="100" visible="false"
+                          style="-fx-background-radius: 8; -fx-border-color: #e1a6c2;"
+                          onAction="#onYearSelected"/>
                 <Button fx:id="generateBtn"
                         text="Generate"
                         onAction="#onGenerateReport"

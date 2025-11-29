@@ -13,7 +13,7 @@ public class AppSession {
     private static Sale selectedSale;
     private static Integer lastSelectedCategory;
 
-    public static void setLastSelectedCategory(int id) {
+    public static void setLastSelectedCategory(Integer id) {
         lastSelectedCategory = id;
     }
 
@@ -31,9 +31,19 @@ public class AppSession {
     public static void setCurrentBranch(Branch branch) { currentBranch = branch;}
     private static List<Item> lastItemList;
     private static boolean cameFromCategory = false;
+    private static long lastItemListTimestamp = 0; // Track when the category list was cached
 
     public static void setLastItemList(List<Item> items) {
         lastItemList = items;
+        if (items != null) {
+            lastItemListTimestamp = System.currentTimeMillis(); // Update timestamp when list is set
+        } else {
+            lastItemListTimestamp = 0; // Reset timestamp when clearing the list
+        }
+    }
+    
+    public static long getLastItemListTimestamp() {
+        return lastItemListTimestamp;
     }
 
     public static List<Item> getLastItemList() {
@@ -65,6 +75,9 @@ public class AppSession {
         categories = null;
         selectedSale = null;
         lastSelectedCategory = null;
+        lastItemList = null;
+        cameFromCategory = false;
+        lastItemListTimestamp = 0;
     }
 
     public static void setSelectedSale(Sale selected) {

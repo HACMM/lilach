@@ -16,6 +16,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -85,7 +87,36 @@ public class CartViewController {
         });
         nameCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getItem().getName()));
         priceCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getItem().getPrice()));
-        priceCol.setCellFactory(col -> moneyCell());
+        // Custom cell factory for price column to show strikethrough for sale prices
+        priceCol.setCellFactory(col -> new TableCell<CartItem, Double>() {
+            @Override
+            protected void updateItem(Double originalPrice, boolean empty) {
+                super.updateItem(originalPrice, empty);
+                if (empty || originalPrice == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    CartItem cartItem = getTableView().getItems().get(getIndex());
+                    SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(cartItem.getItem());
+                    
+                    if (priceResult.hasActiveSale() && priceResult.getSalePrice() < priceResult.getOriginalPrice()) {
+                        // Show original price with strikethrough (red) and sale price (green)
+                        Text originalPriceText = new Text(String.format("%.2f₪", priceResult.getOriginalPrice()));
+                        originalPriceText.setStyle("-fx-strikethrough: true; -fx-fill: #cc0000; -fx-font-size: 12px;");
+                        
+                        Text salePriceText = new Text("  " + String.format("%.2f₪", priceResult.getSalePrice()));
+                        salePriceText.setStyle("-fx-fill: #228B22; -fx-font-weight: bold; -fx-font-size: 13px;");
+                        
+                        TextFlow priceFlow = new TextFlow(originalPriceText, salePriceText);
+                        setGraphic(priceFlow);
+                        setText(null);
+                    } else {
+                        setText(currency.format(priceResult.getOriginalPrice()));
+                        setGraphic(null);
+                    }
+                }
+            }
+        });
         subtotalCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getSubtotal()));
         subtotalCol.setCellFactory(col -> moneyCell());
         qtyCol.setCellValueFactory(d -> new SimpleObjectProperty<>(d.getValue().getQty()));
@@ -284,6 +315,9 @@ public class CartViewController {
 
     @FXML
     private void onBack(ActionEvent e) throws IOException {
+        // Clear category filter when navigating to catalog from cart
+        AppSession.setCameFromCategory(false);
+        AppSession.setLastItemList(null);
         App.setRoot("CatalogView");
     }
 
@@ -384,8 +418,13 @@ public class CartViewController {
             for (CartItem ci : CartService.get().items()) {
                 Item item = ci.getItem();
                 int qty   = Math.max(1, ci.getQty());
-                System.out.println("DEBUG: Adding cart item: " + item.getName() + " (ID: " + item.getId() + ") x" + qty + " @ " + item.getPrice());
-                req.lines.add(new NewOrderRequest.Line(item.getId(), qty, item.getPrice()));
+                // Use sale price if available, otherwise use original price
+                SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(item);
+                double priceToUse = priceResult.hasActiveSale() ? priceResult.getSalePrice() : priceResult.getOriginalPrice();
+                
+                System.out.println("DEBUG: Adding cart item: " + item.getName() + " (ID: " + item.getId() + ") x" + qty + " @ " + priceToUse + 
+                                 (priceResult.hasActiveSale() ? " (SALE PRICE, original: " + priceResult.getOriginalPrice() + ")" : ""));
+                req.lines.add(new NewOrderRequest.Line(item.getId(), qty, priceToUse));
             }
             System.out.println("DEBUG: Order request has " + req.lines.size() + " lines, userId=" + req.userId);
 
@@ -394,10 +433,14 @@ public class CartViewController {
             System.out.println("DEBUG: Sent newOrder request to server");
 
             // ---- Immediate confirmation email (client-side) ----
-            // We don’t have the server order-id yet; this is a “request received” email.
+            // We don't have the server order-id yet; this is a "request received" email.
             NumberFormat currency = NumberFormat.getCurrencyInstance(new Locale("he", "IL"));
             double itemsTotal = CartService.get().items().stream()
-                    .mapToDouble(ci -> ci.getItem().getPrice() * Math.max(1, ci.getQty()))
+                    .mapToDouble(ci -> {
+                        SalePriceHelper.SalePriceResult priceResult = SalePriceHelper.calculateSalePrice(ci.getItem());
+                        double priceToUse = priceResult.hasActiveSale() ? priceResult.getSalePrice() : priceResult.getOriginalPrice();
+                        return priceToUse * Math.max(1, ci.getQty());
+                    })
                     .sum();
 
             // Subscriber discount preview (same logic as your UI)

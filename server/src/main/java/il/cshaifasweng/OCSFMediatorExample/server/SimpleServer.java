@@ -387,10 +387,12 @@ public class SimpleServer extends AbstractServer {
 
         } else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;
-            System.out.println("Received updated item: " + updatedItem.getName() + " | New price: " + updatedItem.getPrice());
+            System.out.println("Received updated item: " + updatedItem.getName() + " | ID: " + updatedItem.getId() + 
+                " | New price: " + updatedItem.getPrice() + " | New name: " + updatedItem.getName());
             boolean success = itemManager.EditItem(updatedItem);
             if (success) {
                 System.out.println("Item edited successfully");
+                // Reload the catalog with images
                 List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
                 try {
                     // Send updated catalog to the client that made the change
@@ -1016,6 +1018,15 @@ public class SimpleServer extends AbstractServer {
                     return;
                 }
 
+                // After AddItem, Hibernate should have set the ID on the item object
+                // Associate item with category based on its type
+                // The associateItemWithCategory method will reload the item in its own session
+                if (item.getId() > 0) {
+                    associateItemWithCategory(item);
+                } else {
+                    System.out.println("Warning: Item ID not set after AddItem, cannot associate with category");
+                }
+
                 client.sendToClient(new Message("item added successfully", item));
 
                 List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
@@ -1316,6 +1327,128 @@ public class SimpleServer extends AbstractServer {
         // Recalculate total and persist updated order
         order.recomputeTotal();
         orderManager.update(order);
+    }
+
+    /**
+     * Associates an item with a category based on its type.
+     * This ensures newly added items appear in category views.
+     */
+    private void associateItemWithCategory(Item item) {
+        try (var session = sessionFactory.openSession()) {
+            var tx = session.beginTransaction();
+            
+            try {
+                // Reload the item from the database to ensure it's managed in this session
+                Item managedItem = session.get(Item.class, item.getId());
+                if (managedItem == null) {
+                    System.out.println("Could not reload item from database: " + item.getId());
+                    tx.commit();
+                    return;
+                }
+                
+                // Get all categories
+                List<Category> categories = session.createQuery("FROM Category", Category.class).list();
+                if (categories.isEmpty()) {
+                    System.out.println("No categories found, cannot associate item with category");
+                    tx.commit();
+                    return;
+                }
+                
+                // Detect the appropriate category based on item type
+                Category detected = detectCategoryForItem(managedItem, categories);
+                if (detected == null) {
+                    System.out.println("Could not detect category for item: " + managedItem.getName());
+                    tx.commit();
+                    return;
+                }
+                
+                // Reload category to ensure it's managed in this session
+                Category managedCategory = session.get(Category.class, detected.getCategory_id());
+                if (managedCategory == null) {
+                    System.out.println("Could not reload category from database: " + detected.getCategory_id());
+                    tx.commit();
+                    return;
+                }
+                
+                // Check if relationship already exists
+                Long existingCount = session.createQuery(
+                    "SELECT COUNT(ic) FROM ItemCategory ic " +
+                    "WHERE ic.primaryKey.item.id = :itemId AND ic.primaryKey.category.category_id = :catId",
+                    Long.class
+                )
+                .setParameter("itemId", managedItem.getId())
+                .setParameter("catId", managedCategory.getCategory_id())
+                .uniqueResult();
+                
+                if (existingCount > 0) {
+                    System.out.println("ItemCategory relationship already exists for item: " + managedItem.getName());
+                    tx.commit();
+                    return;
+                }
+                
+                // Create the ItemCategory relationship
+                ItemCategory ic = new ItemCategory();
+                ic.setItem(managedItem);
+                ic.setCategory(managedCategory);
+                
+                session.save(ic);
+                tx.commit();
+                
+                System.out.println("✔ Associated item '" + managedItem.getName() + 
+                    "' (type: " + managedItem.getType() + ") → category '" + managedCategory.getName() + "'");
+            } catch (Exception e) {
+                tx.rollback();
+                System.err.println("Error associating item with category: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    /**
+     * Detects the appropriate category for an item based on its type and name.
+     * Similar logic to DemoDataSeeder.detectCategoryForItem
+     */
+    private Category detectCategoryForItem(Item item, List<Category> categories) {
+        String type = item.getType() != null ? item.getType().toLowerCase() : "";
+        String name = item.getName() != null ? item.getName().toLowerCase() : "";
+        
+        // Find categories by name (handle both "Bridal" and "Bridal Bouquets")
+        Category flowers = categories.stream()
+            .filter(c -> c.getName().equals("Flowers") || c.getName().equals("Flower"))
+            .findFirst().orElse(null);
+        Category bouquets = categories.stream()
+            .filter(c -> c.getName().equals("Bouquets") || c.getName().equals("Bouquet"))
+            .findFirst().orElse(null);
+        Category bridal = categories.stream()
+            .filter(c -> c.getName().equals("Bridal Bouquets") || c.getName().equals("Bridal"))
+            .findFirst().orElse(null);
+        Category plants = categories.stream()
+            .filter(c -> c.getName().equals("Plants") || c.getName().equals("Plant"))
+            .findFirst().orElse(null);
+        
+        // --- Bridal FIRST: must be equals only ---
+        if (type.equals("bridal bouquet") || type.equals("bridal") ||
+                name.contains("bridal bouquet") || name.contains("bridal")) {
+            return bridal != null ? bridal : flowers;
+        }
+        
+        // --- Bouquet ---
+        if (type.equals("bouquet")) {
+            return bouquets != null ? bouquets : flowers;
+        }
+        
+        // --- Plants ---
+        if (type.equals("plant")) {
+            return plants != null ? plants : flowers;
+        }
+        
+        // --- Flowers (default) ---
+        if (type.equals("flower")) {
+            return flowers;
+        }
+        
+        // --- Safety fallback ---
+        return flowers != null ? flowers : (categories.isEmpty() ? null : categories.get(0));
     }
 
 }

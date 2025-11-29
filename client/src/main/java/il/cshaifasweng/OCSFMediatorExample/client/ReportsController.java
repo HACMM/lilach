@@ -32,6 +32,8 @@ public class ReportsController {
     @FXML private DatePicker toDate;
     @FXML private ComboBox<Branch> branchCombo;
     @FXML private ComboBox<String> reportTypeCombo;
+    @FXML private ComboBox<String> quarterCombo;
+    @FXML private ComboBox<Integer> yearCombo;
     @FXML private StackPane chartContainer;
     @FXML private Label infoLabel;
     @FXML private Button generateBtn;
@@ -100,6 +102,31 @@ public class ReportsController {
         );
         reportTypeCombo.setPromptText("Select report type");
         reportTypeCombo.setValue(null); // Reset selection
+        
+        // Set up report type change listener to show/hide quarter selector
+        reportTypeCombo.setOnAction(e -> {
+            String selectedType = reportTypeCombo.getValue();
+            if ("Revenue Report".equals(selectedType)) {
+                if (quarterCombo != null) {
+                    quarterCombo.setVisible(true);
+                    quarterCombo.setManaged(true);
+                }
+                if (yearCombo != null) {
+                    yearCombo.setVisible(true);
+                    yearCombo.setManaged(true);
+                }
+            } else {
+                if (quarterCombo != null) {
+                    quarterCombo.setVisible(false);
+                    quarterCombo.setManaged(false);
+                    quarterCombo.setValue(null);
+                }
+                if (yearCombo != null) {
+                    yearCombo.setVisible(false);
+                    yearCombo.setManaged(false);
+                }
+            }
+        });
 
         // Clear branch combobox and request branches
         if (branchCombo != null) {
@@ -122,6 +149,9 @@ public class ReportsController {
         });
 
         infoLabel.setVisible(false);
+        
+        // Initialize quarter and year comboboxes
+        initializeQuarterSelector();
         
         // Initialize orders table - set up columns and hide it by default
         if (ordersTable != null) {
@@ -1230,5 +1260,83 @@ public class ReportsController {
         Alert alert = new Alert(type, msg);
         alert.setHeaderText(null);
         alert.showAndWait();
+    }
+    
+    /**
+     * Initialize quarter selector - populate with quarters and set up visibility
+     */
+    private void initializeQuarterSelector() {
+        if (quarterCombo != null) {
+            quarterCombo.getItems().clear();
+            quarterCombo.getItems().addAll(
+                "Q1 (January - March)",
+                "Q2 (April - June)",
+                "Q3 (July - September)",
+                "Q4 (October - December)"
+            );
+            quarterCombo.setVisible(false);
+            quarterCombo.setManaged(false);
+        }
+        
+        if (yearCombo != null) {
+            yearCombo.getItems().clear();
+            int currentYear = LocalDate.now().getYear();
+            for (int year = currentYear - 2; year <= currentYear + 2; year++) {
+                yearCombo.getItems().add(year);
+            }
+            yearCombo.setValue(currentYear); // Default to current year
+            yearCombo.setVisible(false);
+            yearCombo.setManaged(false);
+        }
+    }
+    
+    /**
+     * Handler for when a quarter is selected - automatically sets the date range
+     */
+    @FXML
+    private void onQuarterSelected(ActionEvent event) {
+        String selectedQuarter = quarterCombo.getValue();
+        Integer selectedYear = yearCombo.getValue();
+        
+        if (selectedQuarter == null || selectedYear == null) {
+            return;
+        }
+        
+        LocalDate startDate, endDate;
+        
+        // Determine quarter dates based on selection
+        if (selectedQuarter.startsWith("Q1")) {
+            startDate = LocalDate.of(selectedYear, 1, 1);
+            endDate = LocalDate.of(selectedYear, 3, 31);
+        } else if (selectedQuarter.startsWith("Q2")) {
+            startDate = LocalDate.of(selectedYear, 4, 1);
+            endDate = LocalDate.of(selectedYear, 6, 30);
+        } else if (selectedQuarter.startsWith("Q3")) {
+            startDate = LocalDate.of(selectedYear, 7, 1);
+            endDate = LocalDate.of(selectedYear, 9, 30);
+        } else if (selectedQuarter.startsWith("Q4")) {
+            startDate = LocalDate.of(selectedYear, 10, 1);
+            endDate = LocalDate.of(selectedYear, 12, 31);
+        } else {
+            return; // Invalid selection
+        }
+        
+        // Update date pickers
+        fromDate.setValue(startDate);
+        toDate.setValue(endDate);
+        
+        System.out.println("Quarter selected: " + selectedQuarter + " for year " + selectedYear + 
+            " - Date range set to " + startDate + " to " + endDate);
+    }
+    
+    /**
+     * Handler for when year is changed - if quarter is selected, update dates
+     */
+    @FXML
+    private void onYearSelected(ActionEvent event) {
+        // If a quarter is already selected, update the dates for the new year
+        if (quarterCombo.getValue() != null) {
+            onQuarterSelected(null); // Recalculate dates with new year
+        }
     }
 }
