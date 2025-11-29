@@ -64,18 +64,29 @@ public class PersonalDetailsController {
 
     @FXML
     private void onSaveChanges() {
-        if (currentUser == null) {
+
+        int userId;
+
+        if (editingUser != null) {
+            // מנהלת – עורכת משתמש אחר
+            userId = editingUser.getUserId();
+        } else if (currentUser != null) {
+            // משתמש רגיל – עורך את עצמו
+            userId = currentUser.getUserId();
+        } else {
             statusLabel.setText("You must log in before saving changes.");
             return;
         }
+
         try {
             client.sendToServer(new UpdateUserDetailsRequest(
-                    currentUser.getUserId(),
+                    userId,
                     nameField.getText().trim(),
                     emailField.getText().trim(),
                     idField.getText().trim()
             ));
-            statusLabel.setText("Details update requested…");
+            statusLabel.setText("Update request sent…");
+
         } catch (Exception e) {
             statusLabel.setText("Failed to update details.");
         }

@@ -385,7 +385,60 @@ public class SimpleServer extends AbstractServer {
                 catch (Exception ignore) {}
             }
 
-        } else if (msg instanceof Item) {
+        } else if (msg instanceof Message && "newsletterSend".equals(((Message) msg).getType())) {
+            Message m = (Message) msg;
+            String[] data = (String[]) m.getData();
+            String subject = data[0];
+            String body = data[1];
+
+            System.out.println("Received newsletterSend request. Subject=" + subject);
+
+            try {
+                List<UserAccount> recipients = userAccountManager.listNewsletterSubscribers();
+                System.out.println("Sending newsletter to " + recipients.size() + " subscribers");
+
+                int successCount = 0;
+                int failCount = 0;
+
+                for (UserAccount ua : recipients) {
+                    String to = ua.getEmail();
+                    if (to == null || to.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    try {
+                        EmailSender.sendEmail(subject, body, to);
+                        System.out.println("✅ Newsletter sent to: " + to);
+                        successCount++;
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Failed to send newsletter to " + to + ": " + e.getMessage());
+                        failCount++;
+                    }
+                }
+
+                String summary = String.format(
+                        "Newsletter sent. Success: %d, Failed: %d, Total recipients: %d",
+                        successCount, failCount, recipients.size()
+                );
+
+                try {
+                    client.sendToClient(new Message("newsletterSendOk", summary));
+                } catch (IOException e) {
+                    System.err.println("Failed to send newsletterSendOk to client: " + e.getMessage());
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.sendToClient(new Message(
+                            "newsletterSendError",
+                            "Failed to send newsletter: " + e.getMessage()
+                    ));
+                } catch (IOException ignored) {}
+            }
+        }
+
+        else if (msg instanceof Item) {
             Item updatedItem = (Item) msg;
             System.out.println("Received updated item: " + updatedItem.getName() + " | ID: " + updatedItem.getId() + 
                 " | New price: " + updatedItem.getPrice() + " | New name: " + updatedItem.getName());
@@ -567,58 +620,6 @@ public class SimpleServer extends AbstractServer {
                 }
             }
 
-        } else if (msg instanceof Message && "newsletterSend".equals(((Message) msg).getType())) {
-            Message m = (Message) msg;
-            String[] data = (String[]) m.getData();
-            String subject = data[0];
-            String body = data[1];
-
-            System.out.println("Received newsletterSend request. Subject=" + subject);
-
-            try {
-                List<UserAccount> recipients = userAccountManager.listNewsletterSubscribers();
-                System.out.println("Sending newsletter to " + recipients.size() + " subscribers");
-
-                int successCount = 0;
-                int failCount = 0;
-
-                for (UserAccount ua : recipients) {
-                    String to = ua.getEmail();
-                    if (to == null || to.trim().isEmpty()) {
-                        continue;
-                    }
-
-                    try {
-                        EmailSender.sendEmail(subject, body, to);
-                        System.out.println("✅ Newsletter sent to: " + to);
-                        successCount++;
-                    } catch (Exception e) {
-                        System.err.println("⚠️ Failed to send newsletter to " + to + ": " + e.getMessage());
-                        failCount++;
-                    }
-                }
-
-                String summary = String.format(
-                        "Newsletter sent. Success: %d, Failed: %d, Total recipients: %d",
-                        successCount, failCount, recipients.size()
-                );
-
-                try {
-                    client.sendToClient(new Message("newsletterSendOk", summary));
-                } catch (IOException e) {
-                    System.err.println("Failed to send newsletterSendOk to client: " + e.getMessage());
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                try {
-                    client.sendToClient(new Message(
-                            "newsletterSendError",
-                            "Failed to send newsletter: " + e.getMessage()
-                    ));
-                } catch (IOException ignored) {}
-            }
-
 
         } else if (msg instanceof Message && "removeCustomer".equals(((Message) msg).getType())) {
             Message m = (Message) msg;
@@ -793,6 +794,7 @@ public class SimpleServer extends AbstractServer {
                         req.getIdNumber()
                 );
                 client.sendToClient(new Message("updateUserDetailsOk", "Details updated successfully"));
+                client.sendToClient(new Message("refreshCustomers", null));
             } catch (RuntimeException e) {
                 // e.g., "User not found"
                 System.err.println("ERROR updating user details: " + e.getMessage());
@@ -1030,7 +1032,21 @@ public class SimpleServer extends AbstractServer {
                 client.sendToClient(new Message("item added successfully", item));
 
                 List<Item> updatedCatalog = itemManager.GetItemList(new ArrayList<>());
-                sendToAllClients(updatedCatalog);
+                //sendToAllClients(updatedCatalog);
+                int categoryId = item.getCategories()
+                        .iterator()
+                        .next()
+                        .getPrimaryKey()
+                        .getCategory()
+                        .getCategory_id();
+
+                List<Item> updatedItems = itemManager.getItemsByCategory(categoryId);
+
+                Message refreshMsg = new Message("refreshCategory", updatedItems);
+
+                sendToAllClients(refreshMsg);
+
+
             } catch (Exception e) {
                 e.printStackTrace();
                 try { client.sendToClient(new Message("item add error", e.getMessage())); }

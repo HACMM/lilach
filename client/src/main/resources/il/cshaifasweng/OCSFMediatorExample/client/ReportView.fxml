@@ -32,20 +32,6 @@
                      -fx-background-radius: 16;
                      -fx-padding: 20;">
 
-            <!-- 🔹 כותרת עליונה -->
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Button text="← Back" onAction="#onBack"
-                        style="-fx-background-color: transparent;
-                               -fx-text-fill: #a0537a;
-                               -fx-font-weight: bold;
-                               -fx-font-size: 13;
-                               -fx-cursor: hand;"/>
-                <Label text="Management Reports"
-                       style="-fx-font-size: 22;
-                              -fx-font-weight: bold;
-                              -fx-text-fill: #93345c;"/>
-            </HBox>
-
             <!-- 🔹 סינונים -->
             <HBox spacing="12" alignment="CENTER" style="-fx-padding: 10 0 10 0;">
                 <Label text="From:" style="-fx-text-fill: #5c3a4b; -fx-font-weight: bold;"/>

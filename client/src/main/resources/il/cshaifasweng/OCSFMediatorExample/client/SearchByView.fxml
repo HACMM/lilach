@@ -25,7 +25,6 @@
             <Label style="-fx-font-size: 20;                           -fx-font-weight: bold;                           -fx-text-fill: #93345c;" text="🌸 Search Flowers 🌸" />
 
             <!-- 🔹 תיבות בחירה -->
-            <ComboBox fx:id="typeCombo" prefWidth="240" promptText="Flower Type" style="-fx-background-color: #fff;                              -fx-border-color: #e1a6c2;                              -fx-border-radius: 8;                              -fx-background-radius: 8;" />
             <ComboBox fx:id="colorCombo" prefWidth="240" promptText="Color" style="-fx-background-color: #fff;                              -fx-border-color: #e1a6c2;                              -fx-border-radius: 8;                              -fx-background-radius: 8;" />
 
             <!-- 🔹 טווח מחירים -->

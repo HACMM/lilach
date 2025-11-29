@@ -308,6 +308,8 @@ public class MainPageController {
 
     @Subscribe
     public void onCategoriesReceived(List<?> list) {
+        if (AppSession.getCategories() != null) return;
+
         if (list.isEmpty() || !(list.get(0) instanceof Category)) return;
 
         System.out.println("MainPageController: onCategoriesReceived called - activeInstance=" + activeInstance + ", this=" + this + ", categoriesRequested=" + categoriesRequested);

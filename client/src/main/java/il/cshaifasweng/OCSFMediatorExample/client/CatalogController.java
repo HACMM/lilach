@@ -4,6 +4,7 @@ import Request.Filter;
 import Request.PublicUser;
 import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
+import il.cshaifasweng.OCSFMediatorExample.client.Events.CategoryRefreshEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import il.cshaifasweng.OCSFMediatorExample.entities.Role;
 import il.cshaifasweng.OCSFMediatorExample.entities.UserAccount;
@@ -70,6 +71,7 @@ public class CatalogController implements Initializable {
     //@FXML private Button searchBtn;
     private final ObservableList<Item> masterData = FXCollections.observableArrayList(); // כל הקטלוג
     private final ObservableList<Item> filteredData = FXCollections.observableArrayList(); // הנתונים שמוצגים בטבלה
+	private int currentCategoryId = -1;
 
 	// ← Back button
 	@FXML private Button backBtn;
@@ -442,8 +444,8 @@ public class CatalogController implements Initializable {
 	private void applySearchCriteria(SearchCriteria criteria) {
 		List<Item> filtered = masterData.stream()
 				.filter(item -> {
-					boolean matchType = (criteria.getType() == null || criteria.getType().isEmpty()
-							|| item.getType().equalsIgnoreCase(criteria.getType()));
+//					boolean matchType = (criteria.getType() == null || criteria.getType().isEmpty()
+//							|| item.getType().equalsIgnoreCase(criteria.getType()));
 
 					boolean matchColor = (criteria.getColor() == null || criteria.getColor().isEmpty()
 							|| item.getColor().equalsIgnoreCase(criteria.getColor()));
@@ -456,7 +458,7 @@ public class CatalogController implements Initializable {
 						matchPrice = false;
 					}
 
-					return matchType && matchColor && matchPrice;
+					return matchColor && matchPrice;
 				})
 				.collect(Collectors.toList());
 
@@ -904,6 +906,20 @@ public class CatalogController implements Initializable {
             System.out.println("Catalog: Preserving category-filtered items after branch change");
         }
     }
+
+	@Subscribe
+	public void onRefreshCategory(CategoryRefreshEvent ev) {
+		List<Item> updatedItems = ev.getItems();
+
+		Platform.runLater(() -> {
+			System.out.println("CatalogController: Refreshing category with "
+					+ updatedItems.size() + " items");
+
+			masterData.setAll(updatedItems);
+			filteredData.setAll(updatedItems);
+			table.refresh();
+		});
+	}
 
 
 }

@@ -33,7 +33,7 @@
 
             <!-- 🔹 שדות הקלט -->
             <TextField fx:id="nameField" promptText="Name" />
-            <TextField fx:id="typeField" promptText="Type (e.g., Flower, Bouquet)" />
+            <TextField fx:id="typeField" promptText="category" />
             <TextField fx:id="priceField" promptText="Price (e.g., 12.5)" />
             <TextField fx:id="colorField" promptText="Color" />
             <TextArea fx:id="DescriptionArea" prefHeight="100" promptText="Description" wrapText="true" />

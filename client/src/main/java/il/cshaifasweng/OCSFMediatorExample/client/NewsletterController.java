@@ -25,6 +25,7 @@ public class NewsletterController {
         }
 
         try {
+            System.out.println("CLIENT: Sending newsletterSend");
             client.sendToServer(new Message("newsletterSend", new String[]{subject, body}));
             statusLabel.setText("✅ Newsletter sent to all subscribers!");
             statusLabel.setVisible(true);

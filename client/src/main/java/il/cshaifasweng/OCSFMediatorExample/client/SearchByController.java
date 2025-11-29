@@ -28,7 +28,7 @@ public class SearchByController {
     @FXML
     public void initialize() {
         // סוגי פרחים וצבעים
-        typeCombo.getItems().addAll("Bouquet", "Single Flower", "Arrangement", "Box", "Bridal Bouquet");
+        //typeCombo.getItems().addAll("Bouquet", "Single Flower", "Arrangement", "Box", "Bridal Bouquet");
         colorCombo.getItems().addAll("Red", "Pink", "White", "Yellow", "Purple");
 
         // האזנה לשינוי ערכים בלייב
@@ -52,7 +52,7 @@ public class SearchByController {
         }
 
         SearchCriteria criteria = new SearchCriteria(
-                typeCombo.getValue(),
+                //typeCombo.getValue(),
                 colorCombo.getValue(),
                 min,
                 max

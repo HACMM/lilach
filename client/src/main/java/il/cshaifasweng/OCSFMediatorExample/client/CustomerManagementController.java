@@ -149,4 +149,14 @@ public class CustomerManagementController {
             e.printStackTrace();
         }
     }
+
+    @Subscribe
+    public void onRefreshCustomers(Message msg) {
+        if ("refreshCustomers".equals(msg.getType())) {
+            Platform.runLater(() -> {
+                requestCustomers();   // קורא שוב לשרת
+            });
+        }
+    }
+
 }

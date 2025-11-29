@@ -9,8 +9,8 @@ public class EmailSender {
     public static void sendEmail(String subject,String body,String to) {
         final String smtpHost = "in-v3.mailjet.com";
         final String smtpPort = "587"; // Use 465 for SSL
-        final String username = "075167ee885a4795492cdc031c433b93"; // Your API Key
-        final String password = "1a4a42b223eb174b7b7729fe6f901cf8"; // Your Secret Key
+        final String username = "ef0b842a44004f0c17f9811fc6e64445"; // Your API Key
+        final String password = "2b750ec5fb797093d93da3c06d7f76aa"; // Your Secret Key
 
         Properties properties = new Properties();
         properties.put("mail.smtp.auth", "true");
@@ -27,7 +27,7 @@ public class EmailSender {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("kanarmohana@gmail.com"));
+            message.setFrom(new InternetAddress("malakfadel19@gmail.com"));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to)); // Recipient
             message.setSubject(subject);
             message.setText(body);

@@ -140,7 +140,18 @@ public class SimpleClient extends AbstractClient {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof Message && ((Message) msg).getType().equals("endSaleOk")) {
                 EventBus.getDefault().post(msg);
-            }else if (msg instanceof Message && ((Message) msg).getType().equals("endSaleError")) {
+            }else if (msg instanceof Message && ((Message) msg).getType().equals("refreshCustomers")) {
+                EventBus.getDefault().post(msg);
+            }else if (msg instanceof Message && ((Message) msg).getType().equals("refreshCatalog")) {
+                EventBus.getDefault().post("refreshCatalog");
+            }else if (msg instanceof Message && ((Message) msg).getType().equals("refreshCategory")) {
+                List<Item> category = (List<Item>) ((Message) msg).getData();
+                //EventBus.getDefault().post(new CategoryRefreshEvent(items));
+                EventBus.getDefault().post(category);
+
+            }
+
+            else if (msg instanceof Message && ((Message) msg).getType().equals("endSaleError")) {
                 EventBus.getDefault().post(msg);
             } else if (msg instanceof List<?>) {
                 List<?> list = (List<?>) msg;

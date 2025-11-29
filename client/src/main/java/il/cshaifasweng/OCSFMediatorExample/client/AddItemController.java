@@ -4,6 +4,7 @@ import Request.Message;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.AddItemEvent;
 import il.cshaifasweng.OCSFMediatorExample.client.Events.BranchListEvent;
 import il.cshaifasweng.OCSFMediatorExample.entities.Branch;
+import il.cshaifasweng.OCSFMediatorExample.entities.Category;
 import il.cshaifasweng.OCSFMediatorExample.entities.Item;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -51,6 +52,7 @@ public class AddItemController {
     public void initialize() {
         EventBus.getDefault().register(this);
         try {
+            client.sendToServer(new Message("getCategories", null));
             client.sendToServer(new Message("show branches",null));
         } catch (Exception e) {
             errorLabel.setText("Failed to load branches.");
@@ -91,10 +93,12 @@ public class AddItemController {
             String description = DescriptionArea.getText().trim();
             Branch branch = branchComboBox.getSelectionModel().getSelectedItem();
 
+
             if (name.isEmpty() || type.isEmpty() || priceStr.isEmpty() || description.isEmpty() || branch == null) {
                 errorLabel.setText("Please fill name, type, price, color and description.");
                 return;
             }
+
             double price = Double.parseDouble(priceStr);
             if (price <= 0) {
                 errorLabel.setText("Price must be positive.");
@@ -115,7 +119,7 @@ public class AddItemController {
             }
             Item newItem = new Item(name, type, description, price, imagePath, color);
 
-            // TODO: Make AddItemMessage
+            //client.sendToServer(new Message("AddItem", data));
             client.sendToServer(new Message("AddItem",newItem));
 
             if (onSaved != null) onSaved.accept(newItem);
@@ -141,6 +145,7 @@ public class AddItemController {
                 branchComboBox.getItems().setAll(event.getBranches());
             });
     }
+
 
     @Subscribe
     public void onAddItemReceived(AddItemEvent event) {
