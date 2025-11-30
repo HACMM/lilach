@@ -110,7 +110,7 @@ public class SaleCarouselController {
 
     /** Load sale image safely, with fallback to the flower background. */
     private Image loadSaleImage(String link) {
-        String defaultPath = "/images/flower_background.png";
+        String defaultPath = ".localhost/images/sale_image.jpg";
 
         try {
             // 1) No link -> just default flower

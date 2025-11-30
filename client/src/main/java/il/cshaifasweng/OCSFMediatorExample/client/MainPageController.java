@@ -149,15 +149,34 @@ public class MainPageController {
 
     @FXML
     private void onBrowseClicked(ActionEvent event) {
-        // Don't use the event-based approach - handle it directly
-        // This prevents unwanted navigation when categories arrive from other sources
+        // If categories are already loaded, navigate immediately
+        List<Category> existingCategories = AppSession.getCategories();
+        if (existingCategories != null && !existingCategories.isEmpty()) {
+            Platform.runLater(() -> navigateToBrowseCategories(existingCategories));
+            return;
+        }
+
+        // Otherwise, request categories from server
         try {
-            // Request categories and handle response directly via a one-time listener
             categoriesRequested = true;
             client.sendToServer("getCategories");
 
             // The response will be handled by onCategoriesReceived, but only if categoriesRequested is true
             // and we're still the active instance
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void navigateToBrowseCategories(List<Category> categories) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("BrowseCategoriesView.fxml"));
+            Parent root = loader.load();
+
+            BrowseCategoriesController controller = loader.getController();
+            controller.loadCategories(categories);
+
+            App.scene.setRoot(root);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -308,7 +327,11 @@ public class MainPageController {
 
     @Subscribe
     public void onCategoriesReceived(List<?> list) {
-        if (AppSession.getCategories() != null) return;
+        // Only skip if categories are already loaded AND we didn't explicitly request them
+        // If user clicked Browse Catalog, we should navigate even if categories exist
+        if (AppSession.getCategories() != null && !categoriesRequested) {
+            return;
+        }
 
         if (list.isEmpty() || !(list.get(0) instanceof Category)) return;
 
@@ -400,17 +423,7 @@ public class MainPageController {
 
                 AppSession.setCategories(categories);
 
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("BrowseCategoriesView.fxml"));
-                    Parent root = loader.load();
-
-                    BrowseCategoriesController controller = loader.getController();
-                    controller.loadCategories(categories);
-
-                    App.scene.setRoot(root);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                navigateToBrowseCategories(categories);
             } catch (Exception e) {
                 System.out.println("MainPageController: Exception in onCategoriesReceived: " + e.getMessage());
                 e.printStackTrace();

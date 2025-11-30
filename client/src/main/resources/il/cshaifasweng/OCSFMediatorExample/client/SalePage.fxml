@@ -7,7 +7,7 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="il.cshaifasweng.OCSFMediatorExample.client.SalePageController"
             prefWidth="800" prefHeight="600"
-            style="-fx-background-image: url('/images/flower_background.png');
+            style="-fx-background-image: url('/images/sale_image.jpg');
                    -fx-background-repeat: no-repeat;
                    -fx-background-size: cover;
                    -fx-background-position: center;">

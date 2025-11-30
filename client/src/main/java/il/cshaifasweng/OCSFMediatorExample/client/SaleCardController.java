@@ -76,7 +76,7 @@ public class SaleCardController {
     }
 
     private Image loadSaleImage(String link) {
-        String defaultPath = "/images/flower_background.png";
+        String defaultPath = "/images/sale_image.jpg";
 
         try {
             if (link == null || link.isBlank()) {
