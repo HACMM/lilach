@@ -142,6 +142,12 @@ public class AccountCreationController {
             return;
         }
 
+        if (idNumber.length() != 9 || !idNumber.matches("[0-9]{9}") ) {
+            EventBus.getDefault().post(
+                    new WarningEvent(new Warning("Invalid ID!"))
+            );
+        }
+
         if (selectedPaymentMethod == null) {
             warningLabel.setText("Please add a payment method before signing up.");
             return;
